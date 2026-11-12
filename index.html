@@ -112,15 +112,10 @@
 <div id="studentModal" class="modal-backdrop hide" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
  <form class="modal" onsubmit="saveStudent(event)">
   <div class="roleline"><h2 id="studentModalTitle">Yeni öğrenci kaydı</h2><button type="button" class="secondary" onclick="closeStudentForm()">Kapat</button></div>
-  <p class="muted">Öğrenci ve veli bilgilerini girin. E-posta adresleri daha sonra hesap bağlantısı için kullanılacaktır.</p>
+  <p class="muted">Yalnızca öğrencinin adı soyadı ve sınıf bilgisi kaydedilir.</p>
   <div class="grid">
    <div><label for="sfName">Öğrenci adı soyadı *</label><input id="sfName" required maxlength="120" placeholder="Ad Soyad"></div>
    <div><label for="sfGrade">Sınıf *</label><select id="sfGrade" required><option value="8. sınıf">8. sınıf</option><option value="7. sınıf">7. sınıf</option><option value="6. sınıf">6. sınıf</option><option value="5. sınıf">5. sınıf</option></select></div>
-   <div><label for="sfEmail">Öğrenci e-posta adresi</label><input id="sfEmail" type="email" autocomplete="off" placeholder="ogrenci@ornek.com"></div>
-   <div><label for="sfParentName">Veli adı soyadı</label><input id="sfParentName" maxlength="120" placeholder="Veli adı soyadı"></div>
-   <div><label for="sfParentEmail">Veli e-posta adresi</label><input id="sfParentEmail" type="email" autocomplete="off" placeholder="veli@ornek.com"></div>
-   <div><label for="sfTarget">LGS puan hedefi</label><input id="sfTarget" type="number" min="0" max="500" step="1" placeholder="Örn. 450"></div><div><label for="sfTargetNet">LGS net hedefi</label><input id="sfTargetNet" type="number" min="0" max="90" step=".1" placeholder="Örn. 80"></div>
-   <div style="grid-column:1/-1"><label for="sfSchool">Hedef lise</label><input id="sfSchool" maxlength="180" placeholder="Hedef lise adı"></div>
   </div>
   <p id="studentFormMsg" class="muted" aria-live="polite">Yıldızlı alanlar zorunludur.</p>
   <div class="modal-actions"><button type="button" class="secondary" onclick="closeStudentForm()">Vazgeç</button><button id="studentSaveBtn" type="submit">Öğrenciyi kaydet</button></div>
@@ -337,9 +332,6 @@ function editStudent(id){
  const s=cache.students.find(x=>x.id===id);if(!s)return;
  editingStudentId=id;$('studentModalTitle').textContent='Öğrenci bilgilerini düzenle';
  $('sfName').value=s.full_name||'';$('sfGrade').value=s.grade||'8. sınıf';
- $('sfEmail').value=s.email||'';$('sfParentName').value=s.parent_name||'';
- $('sfParentEmail').value=s.parent_email||'';$('sfTarget').value=s.target_lgs_score??'';$('sfTargetNet').value=s.target_net??'';
- $('sfSchool').value=s.target_high_school||'';
  $('studentSaveBtn').textContent='Değişiklikleri kaydet';$('studentFormMsg').textContent='Mevcut öğrenci kaydı güncellenecek; yeni kayıt oluşturulmayacak.';
  $('studentModal').classList.remove('hide');$('sfName').focus();
 }
@@ -353,11 +345,7 @@ async function saveStudent(event){
  if(cache.students.some(s=>s.id!==editingStudentId&&String(s.full_name||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('tr-TR')===normalized)){
   msg.textContent='Bu isimde bir öğrenci zaten kayıtlı. Mevcut kaydı düzenleyin.';return;
  }
- const email=$('sfEmail').value.trim()||null,parent_name=$('sfParentName').value.trim()||null,parent_email=$('sfParentEmail').value.trim()||null;
- const target=$('sfTarget').value.trim();const targetNet=$('sfTargetNet').value.trim();
- if(target&&(Number(target)<0||Number(target)>500)){msg.textContent='LGS puan hedefi 0–500 arasında olmalıdır.';return}
- if(targetNet&&(Number(targetNet)<0||Number(targetNet)>90)){msg.textContent='LGS net hedefi 0–90 arasında olmalıdır.';return}
- const payload={full_name,grade,email,parent_name,parent_email,target_lgs_score:target?Number(target):null,target_net:targetNet?Number(targetNet):null,target_high_school:$('sfSchool').value.trim()||null};
+ const payload={full_name,grade};
  btn.disabled=true;btn.textContent='Kaydediliyor...';msg.textContent='Öğrenci kaydı veritabanına gönderiliyor...';
  try{
   const query=editingStudentId
