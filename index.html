@@ -415,11 +415,11 @@ function updateWorkPreview(){const c=+$('correct').value||0,w=+$('wrong').value|
 ['correct','wrong','total','targetq'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',updateWorkPreview)});
 
 const etutProgram={
- 1:[['Paragraf','Paragraf','20 dk'],['İnkılap','İnkılap','40 dk'],['Türkçe','Türkçe','40 dk'],['Matematik','Matematik','40 dk'],['Fen Bilimleri','Fen Bilimleri','60 dk']],
- 2:[['Paragraf','Paragraf','20 dk'],['Türkçe','Türkçe','40 dk'],['Matematik','Matematik','60 dk']],
- 3:[['Paragraf','Paragraf','20 dk'],['Fen Bilimleri','Fen Bilimleri','40 dk'],['Din Kültürü','Din Kültürü','40 dk'],['İngilizce','İngilizce','40 dk'],['Matematik','Matematik','60 dk']],
- 4:[['Paragraf','Paragraf','20 dk'],['İnkılap','İnkılap','40 dk'],['Fen Bilimleri','Fen Bilimleri','40 dk'],['Matematik','Matematik','40 dk'],['Türkçe','Türkçe','60 dk']],
- 5:[['Paragraf','Paragraf','20 dk'],['İngilizce','İngilizce','40 dk']],
+ 1:[['Fen Bilimleri • Branş denemesi','Fen Bilimleri','40 dk']],
+ 2:[['Matematik • Branş denemesi','Matematik','40 dk']],
+ 3:[['Türkçe • Branş denemesi','Türkçe','40 dk']],
+ 4:[['İnkılap Tarihi • Branş denemesi','İnkılap','40 dk']],
+ 5:[['İngilizce • Branş denemesi','İngilizce','40 dk']],
  0:[],6:[]
 };
 function localDateValue(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day}
