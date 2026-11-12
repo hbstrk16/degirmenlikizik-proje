@@ -382,7 +382,7 @@ async function studentIdByName(name){const s=cache.students.find(x=>x.full_name.
 async function saveRow(table,payload){const {error}=await supabaseClient.from(table).insert(payload);if(error)throw error;await render();alert('Kayıt veritabanına kaydedildi.')}
 async function bulkAddLgsGroup(){
  const names=['İlyas Ömer Narin','Eren Semiz','Selim Topaloğlu','Furkan Malgir','Ali Recep','Utku Bektaş','Hamza Hız','Eymen Ali Toraman','Ahmet Eren Yakupoğlu','Utku Satı'];
- const key=s=>s.trim().replace(/\\s+/g,' ').toLocaleLowerCase('tr-TR');
+ const key=s=>s.trim().replace(/\s+/g,' ').toLocaleLowerCase('tr-TR');
  const existing=new Set(cache.students.map(x=>key(x.full_name)));
  const missing=names.filter(n=>!existing.has(key(n)));
  if(!missing.length){alert('Listedeki 10 öğrencinin tamamı zaten kayıtlı.');return}
@@ -408,10 +408,10 @@ function closeStudentForm(){ $('studentModal').classList.add('hide'); editingStu
 async function saveStudent(event){
  event.preventDefault();
  const btn=$('studentSaveBtn'),msg=$('studentFormMsg');
- const full_name=$('sfName').value.trim().replace(/\\s+/g,' '),grade=$('sfGrade').value;
+ const full_name=$('sfName').value.trim().replace(/\s+/g,' '),grade=$('sfGrade').value;
  if(!full_name){msg.textContent='Öğrenci adı soyadı zorunludur.';return}
  const normalized=full_name.toLocaleLowerCase('tr-TR');
- if(cache.students.some(s=>s.id!==editingStudentId&&String(s.full_name||'').trim().replace(/\\s+/g,' ').toLocaleLowerCase('tr-TR')===normalized)){
+ if(cache.students.some(s=>s.id!==editingStudentId&&String(s.full_name||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('tr-TR')===normalized)){
   msg.textContent='Bu isimde bir öğrenci zaten kayıtlı. Mevcut kaydı düzenleyin.';return;
  }
  const email=$('sfEmail').value.trim()||null,parent_name=$('sfParentName').value.trim()||null,parent_email=$('sfParentEmail').value.trim()||null;
