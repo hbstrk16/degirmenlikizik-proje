@@ -28,7 +28,7 @@
  <div class="card"><label>Öğrenci seç</label><select id="examAnalysisStudent" onchange="renderExamAnalysis()"><option value="all">Tüm öğrenciler</option></select><p class="muted">Analiz, kaydedilmiş toplam deneme netleri ve kayıt tarihlerine göre hazırlanır.</p></div>
  <div id="examAnalysisSummary" class="stats"></div>
  <div class="card"><h3>Öğrenci başarı sıralaması</h3><div id="examRanking"></div></div>
- <div class="card"><h3>Deneme bazında değişim</h3><div id="examTrend"></div></div><div class="card"><h3>Ders bazında net analizi</h3><div id="examSubjectAnalysis"></div></div>
+ <div class="card"><h3>Deneme bazında net gelişim grafiği</h3><div id="examTrendChart"></div><div id="examTrend"></div></div><div class="card"><h3>Ders bazında net analizi</h3><div id="examSubjectAnalysis"></div></div>
  <div class="card"><h3>Hedef bilgileri ve takip uyarıları</h3><div id="examGoals"></div></div>
 </div>
 <div id="reports" class="page"><h2>Haftalık öğrenci raporu</h2><div class="card"><label>Öğrenci</label><input id="rs" placeholder="Ad Soyad"><button class="full" onclick="makeReport()">Raporu oluştur</button></div><div class="card" id="reportout"><p class="muted">Öğrenci adını girerek özet oluşturun.</p></div></div></section><p class="muted" style="text-align:center;padding:20px">Değirmenlikızık Proje • İlk prototip</p></main>
@@ -42,7 +42,7 @@
    <div><label for="sfEmail">Öğrenci e-posta adresi</label><input id="sfEmail" type="email" autocomplete="off" placeholder="ogrenci@ornek.com"></div>
    <div><label for="sfParentName">Veli adı soyadı</label><input id="sfParentName" maxlength="120" placeholder="Veli adı soyadı"></div>
    <div><label for="sfParentEmail">Veli e-posta adresi</label><input id="sfParentEmail" type="email" autocomplete="off" placeholder="veli@ornek.com"></div>
-   <div><label for="sfTarget">LGS puan hedefi</label><input id="sfTarget" type="number" min="0" max="500" step="1" placeholder="Örn. 450"></div>
+   <div><label for="sfTarget">LGS puan hedefi</label><input id="sfTarget" type="number" min="0" max="500" step="1" placeholder="Örn. 450"></div><div><label for="sfTargetNet">LGS net hedefi</label><input id="sfTargetNet" type="number" min="0" max="90" step=".1" placeholder="Örn. 80"></div>
    <div style="grid-column:1/-1"><label for="sfSchool">Hedef lise</label><input id="sfSchool" maxlength="180" placeholder="Hedef lise adı"></div>
   </div>
   <p id="studentFormMsg" class="muted" aria-live="polite">Yıldızlı alanlar zorunludur.</p>
@@ -78,10 +78,24 @@ function renderExamAnalysis(){
  $('examAnalysisSummary').innerHTML='<div class="stat"><span class="muted">Kayıtlı deneme</span><strong>'+exams.length+'</strong><small>Seçili kapsam</small></div><div class="stat"><span class="muted">Ortalama net</span><strong>'+avg.toFixed(2).replace('.',',')+'</strong><small>Deneme kayıt ortalaması</small></div><div class="stat"><span class="muted">En yüksek net</span><strong>'+best.toFixed(2).replace('.',',')+'</strong><small>Kaydedilen sonuçlar</small></div>';
  $('examRanking').innerHTML=latestByStudent.map((x,i)=>row((i+1)+'. '+x.s.full_name,x.latest?x.latest.name+' • '+x.list.length+' deneme':'Henüz deneme kaydı yok',x.latest?Number(x.latest.net).toFixed(2).replace('.',',')+' net':'Kayıt bekleniyor')).join('')||'<p class="muted">Öğrenci bulunamadı.</p>';
  $('examTrend').innerHTML=sorted.length?sorted.slice().reverse().map(e=>row(e.student+' • '+e.name,e.created_at?new Date(e.created_at).toLocaleDateString('tr-TR'):'Tarih yok',Number(e.net).toFixed(2).replace('.',',')+' net')).join(''):'<p class="muted">Henüz deneme sonucu girilmedi.</p>';
+ const chartItems=chosen==='all'?sorted.slice(-10):sorted.filter(e=>e.student_id===chosen).slice(-10);
+ if(chartItems.length<2){$('examTrendChart').innerHTML='<p class="muted">Grafiği oluşturmak için aynı öğrenciye ait en az 2 deneme kaydı gerekli.</p>';}
+ else{
+  const vals=chartItems.map(e=>Number(e.net)||0),max=Math.max(90,...vals),min=0,w=640,h=210,left=42,right=16,top=18,bottom=38;
+  const pts=vals.map((v,i)=>({x:left+i*(w-left-right)/(vals.length-1),y:top+(max-v)/(max-min)*(h-top-bottom)}));
+  const poly=pts.map(p=>p.x+','+p.y).join(' ');
+  const labels=chartItems.map((e,i)=>'<text x="'+pts[i].x+'" y="'+(h-12)+'" text-anchor="middle" font-size="10" fill="#718096">'+(i+1)+'.</text>').join('');
+  const dots=pts.map((p,i)=>'<circle cx="'+p.x+'" cy="'+p.y+'" r="4" fill="#7b2942"/><text x="'+p.x+'" y="'+(p.y-10)+'" text-anchor="middle" font-size="10" fill="#142d4e">'+vals[i].toFixed(1)+'</text>').join('');
+  $('examTrendChart').innerHTML='<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Deneme net gelişim grafiği" style="width:100%;height:auto"><line x1="'+left+'" y1="'+top+'" x2="'+left+'" y2="'+(h-bottom)+'" stroke="#cbd5e0"/><line x1="'+left+'" y1="'+(h-bottom)+'" x2="'+(w-right)+'" y2="'+(h-bottom)+'" stroke="#cbd5e0"/><polyline points="'+poly+'" fill="none" stroke="#7b2942" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+dots+labels+'</svg><p class="muted">Noktalar soldan sağa eski denemeden yeni denemeye sıralanır. Etiketler deneme sırasını gösterir.</p>';
+ }
  const subjects=[['Türkçe','turkish_net'],['Matematik','math_net'],['Fen Bilimleri','science_net'],['İnkılap','revolution_net'],['Din Kültürü','religion_net'],['İngilizce','english_net']];
  $('examSubjectAnalysis').innerHTML=subjects.map(([label,key])=>{const vals=exams.filter(e=>e[key]!==null&&e[key]!==undefined).map(e=>Number(e[key]));const mean=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;const latest=sorted.slice().reverse().find(e=>e[key]!==null&&e[key]!==undefined);return row(label,latest?'Son kayıt: '+Number(latest[key]).toFixed(2).replace('.',',')+' net':'Ders verisi henüz yok',mean===null?'Ortalama bekleniyor':'Ortalama: '+mean.toFixed(2).replace('.',',')+' net')}).join('');
  const goals=latestByStudent.map(x=>row(x.s.full_name,'LGS hedefi: '+(x.s.target_lgs_score??'Belirtilmemiş')+' puan',x.delta===null?'Karşılaştırma için en az 2 deneme gerekli':(x.delta>0?'+':'')+x.delta.toFixed(2).replace('.',',')+' net değişim'));
- $('examGoals').innerHTML=goals.join('')||'<p class="muted">Öğrenci bulunamadı.</p>';
+ $('examGoals').innerHTML=latestByStudent.map(x=>{
+  const target=Number(x.s.target_net)||0,latestNet=x.latest?Number(x.latest.net):null;
+  const comparison=target>0&&latestNet!==null?'Son net: '+latestNet.toFixed(2).replace('.',',')+' / Hedef: '+target.toFixed(2).replace('.',',')+' • '+(latestNet>=target?'Hedefe ulaştı':'Kalan: '+(target-latestNet).toFixed(2).replace('.',',')+' net'):'Net hedefi girilmemiş';
+  return row(x.s.full_name,comparison,'LGS puan hedefi: '+(x.s.target_lgs_score??'Belirtilmemiş'));
+ }).join('')||'<p class="muted">Öğrenci bulunamadı.</p>';
 }
 function renderProgress(){
  const select=$('progressStudent');if(!select)return;
@@ -136,7 +150,7 @@ function editStudent(id){
  editingStudentId=id;$('studentModalTitle').textContent='Öğrenci bilgilerini düzenle';
  $('sfName').value=s.full_name||'';$('sfGrade').value=s.grade||'8. sınıf';
  $('sfEmail').value=s.email||'';$('sfParentName').value=s.parent_name||'';
- $('sfParentEmail').value=s.parent_email||'';$('sfTarget').value=s.target_lgs_score??'';
+ $('sfParentEmail').value=s.parent_email||'';$('sfTarget').value=s.target_lgs_score??'';$('sfTargetNet').value=s.target_net??'';
  $('sfSchool').value=s.target_high_school||'';
  $('studentSaveBtn').textContent='Değişiklikleri kaydet';$('studentFormMsg').textContent='Mevcut öğrenci kaydı güncellenecek; yeni kayıt oluşturulmayacak.';
  $('studentModal').classList.remove('hide');$('sfName').focus();
@@ -148,8 +162,8 @@ async function saveStudent(event){
  const full_name=$('sfName').value.trim(),grade=$('sfGrade').value;
  if(!full_name){msg.textContent='Öğrenci adı soyadı zorunludur.';return}
  const email=$('sfEmail').value.trim()||null,parent_name=$('sfParentName').value.trim()||null,parent_email=$('sfParentEmail').value.trim()||null;
- const target=$('sfTarget').value.trim();
- const payload={full_name,grade,email,parent_name,parent_email,target_lgs_score:target?Number(target):null,target_high_school:$('sfSchool').value.trim()||null};
+ const target=$('sfTarget').value.trim();const targetNet=$('sfTargetNet').value.trim();
+ const payload={full_name,grade,email,parent_name,parent_email,target_lgs_score:target?Number(target):null,target_net:targetNet?Number(targetNet):null,target_high_school:$('sfSchool').value.trim()||null};
  btn.disabled=true;btn.textContent='Kaydediliyor...';msg.textContent='Öğrenci kaydı veritabanına gönderiliyor...';
  try{
   const query=editingStudentId
