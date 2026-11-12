@@ -14,6 +14,29 @@
  .page{display:none!important}
  #growthCard.page{display:block!important}
 }
+
+/* Gelişim karnesi: kurumsal bordo-lacivert A4 düzeni */
+#growthCardOutput{border-top:5px solid #7b2942;box-shadow:0 8px 24px #142d4e12;padding:24px}
+#growthCardOutput h3{color:#142d4e;font-size:16px;margin:22px 0 9px;padding-bottom:7px;border-bottom:1px solid #e5eaf0}
+#growthCardOutput h4{color:#7b2942;margin:14px 0 7px}
+#growthCardOutput .entry{padding:9px 10px;border-bottom:1px solid #edf0f4}
+#growthCardOutput .stats{margin:12px 0}
+#growthCardOutput .stat{background:#f7f8fa;border-top:2px solid #7b2942}
+#growthCardOutput .stat strong{color:#142d4e}
+@page{size:A4 portrait;margin:14mm}
+@media print{
+ body{background:#fff!important;color:#172536!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .top,.tabs,#login,.roleline button,#growthCard>.card:first-of-type,body>main>p{display:none!important}
+ main{max-width:none!important;margin:0!important;padding:0!important}
+ #app{display:block!important}
+ #growthCard{display:block!important}
+ #growthCardOutput{border:0!important;border-top:5px solid #7b2942!important;box-shadow:none!important;padding:4mm 2mm!important;margin:0!important;width:100%!important}
+ #growthCardOutput h3{break-after:avoid}
+ #growthCardOutput .entry,#growthCardOutput .stat{break-inside:avoid}
+ .card{break-inside:avoid;border:1px solid #d8dee8!important}
+ .page{display:none!important}
+ #growthCard.page{display:block!important}
+}
 </style></head><body>
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Sisteme giriş</h2><label>E-posta adresi</label><input id="person" type="email" autocomplete="email" placeholder="E-posta adresiniz"><button class="full" onclick="login()">Giriş bağlantısı gönder</button><p id="authmsg" class="muted">E-posta adresinize güvenli giriş bağlantısı gönderilecektir. Bağlantıyı aynı cihazda açın.</p></div></section>
