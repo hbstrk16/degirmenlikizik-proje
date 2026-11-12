@@ -84,40 +84,12 @@
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Sisteme giriş</h2><label>E-posta adresi</label><input id="person" type="email" autocomplete="email" placeholder="E-posta adresiniz"><button class="full" onclick="login()">Giriş bağlantısı gönder</button><p id="authmsg" class="muted">E-posta adresinize güvenli giriş bağlantısı gönderilecektir. Bağlantıyı aynı cihazda açın.</p></div></section>
 <section id="app" class="hide"><div class="roleline"><div><div class="eyebrow" id="rolelabel">ÖĞRETMEN PANELİ</div><h1 id="hello">Hoş geldiniz</h1></div><button class="secondary" onclick="logout()">Çıkış</button></div>
-<nav class="tabs"><button class="tab on" onclick="show('home',this)">Genel Bakış</button><button class="tab" onclick="show('students',this)">Öğrenciler</button><button class="tab" onclick="show('work',this)">Çalışma Takibi</button><button class="tab" onclick="show('exams',this)">Denemeler</button><button class="tab" onclick="show('attendance',this)">Devamsızlık</button><button class="tab" onclick="show('books',this)">Kitap & Ezber</button><button class="tab" onclick="show('values',this)">Tekâmül</button><button class="tab" onclick="show('reports',this)">Haftalık Rapor</button><button class="tab" onclick="show('progress',this);renderProgress()">Gelişim Analizi</button><button class="tab" onclick="show('examAnalysis',this);renderExamAnalysis()">Deneme Analizi</button><button class="tab" onclick="show('growthCard',this);renderGrowthCard()">Gelişim Karnesi</button></nav>
-<div id="home" class="page on"><div class="stats"><div class="stat"><span class="muted">Öğrenci</span><strong id="count">11</strong><small>Takip grubunda</small></div><div class="stat"><span class="muted">Haftalık hedef</span><strong>%78</strong><small>Örnek gösterge</small></div><div class="stat"><span class="muted">Grup neti</span><strong>62,4</strong><small>Örnek ortalama</small></div></div><div class="card"><div class="roleline"><h2>Öğretmen kontrol ekranı</h2><button type="button" class="secondary" onclick="renderTeacherChecks()">Kontrol et</button></div><p class="muted">Son 7 gün içinde çalışma kaydı bulunmayan öğrenciler ve eksik kayıtlar burada listelenir.</p><div id="teacherChecks"><p class="muted">Kontrol için veriler yükleniyor...</p></div></div><div class="card"><div class="roleline"><h2>Haftalık hedef gerçekleşme raporu</h2><button type="button" class="secondary" onclick="renderWeeklyCompletion()">Yenile</button></div><p class="muted">Son 7 gündeki programlı ders ve kitap çalışmalarının kayıtlarına göre hesaplanır.</p><div id="weeklyCompletion"><p class="muted">Haftalık rapor hazırlanıyor...</p></div></div><div class="card"><div class="roleline"><h2>Öğrenci bazında günlük tamamlanma</h2><button type="button" class="secondary" onclick="renderDailyCompletion()">Yenile</button></div><p class="muted">Programdaki ders etütleri ve kitap okuma kayıtlarına göre hesaplanır.</p><div id="dailyCompletion"><p class="muted">Veriler yükleniyor...</p></div></div><div class="card"><div class="eyebrow">BUGÜNÜN PLANI</div><h2 id="todayPlanTitle">Haftalık etüt programı</h2><div id="todayPlan"><p class="muted">Günlük program yükleniyor...</p></div><p class="muted">Paragraf çalışması her gün uygulanır.</p></div></div>
+<nav class="tabs"><button class="tab on" onclick="show('home',this)">Genel Bakış</button><button class="tab" onclick="show('students',this)">Öğrenciler</button><button class="tab" onclick="show('work',this)">Çalışma Takibi</button><button class="tab" onclick="show('exams',this)">Denemeler</button><button class="tab" onclick="show('attendance',this)">Devamsızlık</button><button class="tab" onclick="show('reports',this)">Haftalık Rapor</button><button class="tab" onclick="show('progress',this);renderProgress()">Gelişim Analizi</button><button class="tab" onclick="show('examAnalysis',this);renderExamAnalysis()">Deneme Analizi</button><button class="tab" onclick="show('growthCard',this);renderGrowthCard()">Gelişim Karnesi</button></nav>
+<div id="home" class="page on"><div class="stats"><div class="stat"><span class="muted">Öğrenci</span><strong id="count">11</strong><small>Takip grubunda</small></div><div class="stat"><span class="muted">Haftalık hedef</span><strong>%78</strong><small>Örnek gösterge</small></div><div class="stat"><span class="muted">Grup neti</span><strong>62,4</strong><small>Örnek ortalama</small></div></div><div class="card"><div class="roleline"><h2>Öğretmen kontrol ekranı</h2><button type="button" class="secondary" onclick="renderTeacherChecks()">Kontrol et</button></div><p class="muted">Son 7 gün içinde çalışma kaydı bulunmayan öğrenciler ve eksik kayıtlar burada listelenir.</p><div id="teacherChecks"><p class="muted">Kontrol için veriler yükleniyor...</p></div></div><div class="card"><div class="roleline"><h2>Haftalık hedef gerçekleşme raporu</h2><button type="button" class="secondary" onclick="renderWeeklyCompletion()">Yenile</button></div><p class="muted">Son 7 gündeki programlı ders çalışmalarının kayıtlarına göre hesaplanır.</p><div id="weeklyCompletion"><p class="muted">Haftalık rapor hazırlanıyor...</p></div></div><div class="card"><div class="roleline"><h2>Öğrenci bazında günlük tamamlanma</h2><button type="button" class="secondary" onclick="renderDailyCompletion()">Yenile</button></div><p class="muted">Programdaki ders etütlerine göre hesaplanır.</p><div id="dailyCompletion"><p class="muted">Veriler yükleniyor...</p></div></div><div class="card"><div class="eyebrow">BUGÜNÜN PLANI</div><h2 id="todayPlanTitle">Haftalık etüt programı</h2><div id="todayPlan"><p class="muted">Günlük program yükleniyor...</p></div><p class="muted">Paragraf çalışması her gün uygulanır.</p></div></div>
 <div id="students" class="page"><div class="roleline"><h2>Öğrenci listesi</h2><div><button onclick="openStudentForm()">+ Öğrenci ekle</button></div></div><div class="card" id="studentlist"><p class="muted">Henüz öğrenci eklenmedi.</p></div></div>
 <div id="work" class="page"><h2>Çalışma kaydı</h2><div class="card grid"><div><label>Öğrenci</label><select id="ws"><option value="">Öğrenci seçin</option></select></div><div><label>Tarih</label><input id="workdate" type="date"></div><div><label>Ders</label><select id="subject"><option>Matematik</option><option>Türkçe</option><option>Fen Bilimleri</option><option>İnkılap</option><option>Din Kültürü</option><option>İngilizce</option><option>Paragraf</option></select></div><div><label>Günlük soru hedefi</label><input id="targetq" type="number" min="0" placeholder="Örn. 30"></div><div><label>Toplam soru</label><input id="total" type="number" min="0"></div><div><label>Doğru</label><input id="correct" type="number" min="0"></div><div><label>Yanlış</label><input id="wrong" type="number" min="0"></div><div><label>Boş</label><input id="blank" type="number" min="0"></div><div><label>Öğretmen değerlendirmesi</label><input id="worknote" maxlength="500" placeholder="Kısa değerlendirme"></div><div><label>Etüt durumu</label><select id="status"><option>Tamamlandı</option><option>Eksik</option><option>Yapılmadı</option></select></div><div class="stat"><span class="muted">Hesaplanan net</span><strong id="netpreview">0,00</strong><small id="targetpreview">Hedef: —</small></div><button class="full" onclick="addWork()">Kaydı ekle</button></div><div class="card" id="worklist"><p class="muted">Henüz kayıt yok.</p></div></div>
 <div id="exams" class="page"><h2>Deneme sonuçları</h2><div class="card"><label>Öğrenci</label><select id="es"><option value="">Öğrenci seçin</option></select><label>Deneme adı</label><input id="en"><div class="grid"><div><label>Türkçe net</label><input id="eTurkce" type="number" min="0" max="20" step=".01" value="0"></div><div><label>Matematik net</label><input id="eMat" type="number" min="0" max="20" step=".01" value="0"></div><div><label>Fen Bilimleri net</label><input id="eFen" type="number" min="0" max="20" step=".01" value="0"></div><div><label>İnkılap net</label><input id="eInk" type="number" min="0" max="10" step=".01" value="0"></div><div><label>Din Kültürü net</label><input id="eDin" type="number" min="0" max="10" step=".01" value="0"></div><div><label>İngilizce net</label><input id="eIng" type="number" min="0" max="10" step=".01" value="0"></div></div><p class="muted">Toplam net otomatik hesaplanır (90 soru).</p><button class="full" onclick="addExam()">Sonucu ekle</button></div><div class="card" id="examlist"><p class="muted">Henüz sonuç yok.</p></div></div>
 <div id="attendance" class="page"><h2>Devamsızlık takibi</h2><div class="card"><label>Öğrenci</label><select id="as"><option value="">Öğrenci seçin</option></select><label>Tarih</label><input id="ad" type="date"><label>Durum</label><select id="ast"><option>Geldi</option><option>Gelmedi</option><option>Geç geldi</option><option>İzinli</option></select><button class="full" onclick="addAttendance()">Kaydet</button></div><div class="card" id="attlist"><p class="muted">Henüz kayıt yok.</p></div></div>
-<div id="books" class="page"><h2>Kitap okuma & ezber</h2><div class="card"><label>Öğrenci</label><select id="bs"><option value="">Öğrenci seçin</option></select><label>Kitap / Metin</label><input id="bt"><label>Sayfa / Bölüm</label><input id="bp"><label>Değerlendirme</label><select id="bst"><option>Tamamlandı</option><option>Devam ediyor</option><option>Tekrar gerekli</option></select><button class="full" onclick="addBook()">Kaydet</button></div><div class="card" id="booklist"><p class="muted">Henüz kayıt yok.</p></div></div><div id="values" class="page"><h2>Tekâmül / Değerler eğitimi</h2><div class="card"><label>Öğrenci</label><select id="vs"><option value="">Öğrenci seçin</option></select><label>Değer / kazanım</label><input id="vt" placeholder="Örn. Sorumluluk, yardımlaşma"><label>Öğretmen değerlendirmesi</label><input id="vn" placeholder="Kısa değerlendirme"><label>Durum</label><select id="vst"><option>Olumlu gelişim</option><option>Takip edilmeli</option><option>Tekrar çalışılmalı</option></select><button class="full" onclick="addValue()">Değerlendirmeyi kaydet</button></div><div class="card" id="valuelist"><p class="muted">Henüz değerlendirme yok.</p></div></div>
-
-<div id="progress" class="page">
- <div class="roleline"><h2>Öğrenci gelişim analizi</h2><button type="button" class="secondary" onclick="renderProgress()">Yenile</button></div>
- <div class="card grid"><div><label>Öğrenci seç</label><select id="progressStudent" onchange="renderProgress()"><option value="all">Tüm öğrenciler</option></select></div><div><label>Analiz dönemi</label><select id="progressPeriod" onchange="renderProgress()"><option value="7">Son 7 gün</option><option value="30">Son 30 gün</option></select></div><p class="muted" style="grid-column:1/-1">Bu bölüm yalnızca günlük test ve etüt çalışmalarını analiz eder. Deneme sınavı netleri ayrı olarak Deneme Analizi bölümünde değerlendirilir.</p></div>
- <div class="card"><h3>Günlük çözülen soru gelişimi</h3><div id="progressTrendChart"><p class="muted">Grafik için öğrenci seçin.</p></div></div>
- <div id="progressSummary" class="stats"></div>
- <div class="card"><h3>Günlük soru hedefi gerçekleşme</h3><div id="netGoalProgress"></div></div>
- <div class="card"><h3>Haftalık çalışma yoğunluğu</h3><div id="weeklyNetChange"></div></div>
- <div class="card"><h3>Derslere göre net gelişimi</h3><div id="subjectProgress"></div><div id="subjectNetChart"></div></div>
- <div class="card"><h3>Haftalık öğrenci karşılaştırması</h3><div id="studentProgress"></div></div>
- <div class="card"><h3>Öğretmen değerlendirmeleri</h3><div id="teacherEvaluations"></div></div>
- <div class="card"><h3>Çalışma uyarıları</h3><div id="workAlerts"></div></div>
-</div>
-
-<div id="examAnalysis" class="page">
- <div class="roleline"><h2>Deneme sınavı analiz paneli</h2><button type="button" class="secondary" onclick="renderExamAnalysis()">Yenile</button></div>
- <div class="card"><label>Öğrenci seç</label><select id="examAnalysisStudent" onchange="renderExamAnalysis()"><option value="all">Tüm öğrenciler</option></select><p class="muted">Analiz, kaydedilmiş toplam deneme netleri ve kayıt tarihlerine göre hazırlanır.</p></div>
- <div id="examAnalysisSummary" class="stats"></div>
- <div class="card"><h3>Öğrenci başarı sıralaması</h3><div id="examRanking"></div></div>
- <div class="card"><h3>Deneme bazında net gelişim grafiği</h3><div id="examTrendChart"></div><div id="examTrend"></div></div><div class="card"><h3>Ders bazında net analizi</h3><div id="examSubjectAnalysis"></div></div><div class="card"><h3>Öğrenci bazında ders neti artış-azalışı</h3><p class="muted">Her öğrencinin son iki denemesi karşılaştırılır. Pozitif değer artışı, negatif değer düşüşü gösterir.</p><div id="examSubjectChanges"></div></div>
- <div class="card"><h3>Hedef bilgileri ve takip uyarıları</h3><div id="examGoals"></div></div>
-</div>
-<div id="growthCard" class="page">
- <div class="roleline"><h2>Öğrenci gelişim karnesi</h2><button type="button" class="secondary" onclick="window.print()">Yazdır / PDF</button></div>
- <div class="card grid"><div><label>Öğrenci seç</label><select id="growthStudent" onchange="renderGrowthCard()"><option value="">Öğrenci seçin</option></select></div><div><label>Rapor dönemi</label><select id="growthPeriod" onchange="renderGrowthCard()"><option value="30">Son 30 gün</option><option value="all">Tüm kayıtlar</option></select></div></div>
- <div id="growthCardOutput" class="card"><p class="muted">Karnesini oluşturmak istediğiniz öğrenciyi seçin.</p></div>
-</div>
 <div id="reports" class="page"><h2>Haftalık öğrenci raporu</h2><div class="card"><label>Öğrenci</label><select id="rs"><option value="">Öğrenci seçin</option></select><button class="full" onclick="makeReport()">Raporu oluştur</button></div><div class="card" id="reportout"><p class="muted">Öğrenci adını girerek özet oluşturun.</p></div></div></section><p class="muted" style="text-align:center;padding:20px">Değirmenlikızık Proje • İlk prototip</p></main>
 <div id="studentModal" class="modal-backdrop hide" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
  <form class="modal" onsubmit="saveStudent(event)">
@@ -217,17 +189,17 @@ function renderTodayPlan(){
  $('todayPlanTitle').textContent=names[day]+' • Haftalık etüt programı';
  const todayKey=today();
  const subjectFor=label=>{const t=label.toLocaleLowerCase('tr-TR');if(t.includes('fen'))return 'Fen Bilimleri';if(t.includes('matematik'))return 'Matematik';if(t.includes('türkçe')||t.includes('paragraf'))return t.includes('paragraf')?'Paragraf':'Türkçe';if(t.includes('inkılap'))return 'İnkılap';if(t.includes('din kültürü'))return 'Din Kültürü';if(t.includes('ingilizce'))return 'İngilizce';return null};
- const lessons=items.length?items.map(x=>{const subject=subjectFor(x[1]);const done=subject&&cache.work.some(w=>w.recorded_on===todayKey&&w.subject===subject);const bookDone=x[1].toLocaleLowerCase('tr-TR').includes('kitap')&&cache.books.some(r=>String(r.created_at||'').slice(0,10)===todayKey);const status=done||bookDone?'Kayıt var':'Kayıt bekleniyor';return '<div class="entry" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><b>'+x[1]+'</b><small>'+x[0]+' • '+status+'</small></div><strong style="white-space:nowrap;color:'+(done||bookDone?'#23845b':'var(--burgundy)')+'">'+x[2]+'</strong></div>'}).join(''):'<div class="entry"><b>Hafta sonu</b><small>Programda planlı etüt yok.</small></div>';
+ const lessons=items.length?items.map(x=>{const subject=subjectFor(x[1]);const done=subject&&cache.work.some(w=>w.recorded_on===todayKey&&w.subject===subject);const status=done?'Kayıt var':'Kayıt bekleniyor';return '<div class="entry" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><b>'+x[1]+'</b><small>'+x[0]+' • '+status+'</small></div><strong style="white-space:nowrap;color:'+(done||bookDone?'#23845b':'var(--burgundy)')+'">'+x[2]+'</strong></div>'}).join(''):'<div class="entry"><b>Hafta sonu</b><small>Programda planlı etüt yok.</small></div>';
  $('todayPlan').innerHTML=lessons;
 }
 function renderWeeklyCompletion(){
  const box=$('weeklyCompletion');if(!box)return;
  const plan={
-  1:['Paragraf','Fen Bilimleri','İnkılap','Türkçe','Kitap','Matematik','Fen Bilimleri'],
-  2:['Paragraf','Matematik','Türkçe','Kitap','Türkçe','Türkçe','Matematik'],
-  3:['Paragraf','Türkçe','Fen Bilimleri','Din Kültürü','Kitap','İngilizce','Matematik'],
-  4:['Paragraf','İnkılap','Fen Bilimleri','Kitap','Matematik','Türkçe'],
-  5:['Paragraf','İngilizce','Kitap'],
+  1:['Paragraf','Fen Bilimleri','İnkılap','Türkçe','Matematik','Fen Bilimleri'],
+  2:['Paragraf','Matematik','Türkçe','Türkçe','Türkçe','Matematik'],
+  3:['Paragraf','Türkçe','Fen Bilimleri','Din Kültürü','İngilizce','Matematik'],
+  4:['Paragraf','İnkılap','Fen Bilimleri','Matematik','Türkçe'],
+  5:['Paragraf','İngilizce'],
   0:[],6:[]
  };
  const dateKey=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day};
@@ -237,10 +209,10 @@ function renderWeeklyCompletion(){
   dates.forEach(d=>{
    const slots=plan[d.day]||[];planned+=slots.length;
    const records=cache.work.filter(w=>w.student_id===s.id&&w.recorded_on===d.date);
-   const books=cache.books.filter(b=>b.student_id===s.id&&String(b.created_at||'').slice(0,10)===d.date);
+   
    const used=new Set();
    slots.forEach(slot=>{
-    if(slot==='Kitap'){if(books.length){done++;books.pop()}return}
+    
     const match=records.find(w=>w.subject===slot&&!used.has(w.id));
     if(match){used.add(match.id);done++}
    });
@@ -256,21 +228,21 @@ function renderDailyCompletion(){
  const box=$('dailyCompletion');if(!box)return;
  const day=new Date().getDay(),todayKey=today();
  const slots={
-  1:['Paragraf','Fen Bilimleri','İnkılap','Türkçe','Kitap','Matematik','Fen Bilimleri'],
-  2:['Paragraf','Matematik','Türkçe','Kitap','Türkçe','Türkçe','Matematik'],
-  3:['Paragraf','Türkçe','Fen Bilimleri','Din Kültürü','Kitap','İngilizce','Matematik'],
-  4:['Paragraf','İnkılap','Serbest','Fen Bilimleri','Kitap','Matematik','Türkçe'],
-  5:['Paragraf','İngilizce','Serbest','Kitap','TÜZDER','Sosyal'],
+  1:['Paragraf','Fen Bilimleri','İnkılap','Türkçe','Matematik','Fen Bilimleri'],
+  2:['Paragraf','Matematik','Türkçe','Türkçe','Türkçe','Matematik'],
+  3:['Paragraf','Türkçe','Fen Bilimleri','Din Kültürü','İngilizce','Matematik'],
+  4:['Paragraf','İnkılap','Serbest','Fen Bilimleri','Matematik','Türkçe'],
+  5:['Paragraf','İngilizce','Serbest','TÜZDER','Sosyal'],
   0:[],6:[]
  };
  const planned=slots[day]||[];
  if(!planned.length){box.innerHTML='<p class="muted">Bugün için hafta içi etüt programı bulunmuyor.</p>';return}
  const students=cache.students.map(s=>{
   const records=cache.work.filter(w=>w.student_id===s.id&&w.recorded_on===todayKey);
-  const books=cache.books.filter(b=>b.student_id===s.id&&String(b.created_at||'').slice(0,10)===todayKey);
+  
   const used={};let completed=0;
   planned.forEach(slot=>{
-   if(slot==='Kitap'){if(books.length>0){completed++;books.shift()}return}
+   
    if(['Serbest','TÜZDER','Sosyal'].includes(slot))return;
    const found=records.find(w=>w.subject===slot&&(used[w.id]||0)<1);
    if(found){used[found.id]=1;completed++}
