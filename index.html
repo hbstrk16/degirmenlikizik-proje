@@ -181,9 +181,9 @@ function renderGrowthCard(){
  if(!id){box.innerHTML='<p class="muted">Karnesini oluşturmak istediğiniz öğrenciyi seçin.</p>';return}
  const student=cache.students.find(s=>s.id===id),period=$('growthPeriod').value;
  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-29);const from=cutoff.toISOString().slice(0,10);
- const within=x=>period==='all'||String(x.recorded_on||x.exam_date||x.attendance_date||'')>=from;
+ const within=x=>period==='all'||String(x.recorded_on||x.exam_date||x.attendance_date||x.created_at||'').slice(0,10)>=from;
  const work=cache.work.filter(x=>x.student_id===id&&within(x));
- const exams=cache.exams.filter(x=>x.student_id===id);
+ const exams=cache.exams.filter(x=>x.student_id===id&&within(x));
  const attendance=cache.attendance.filter(x=>x.student_id===id&&within(x));
  const books=cache.books.filter(x=>x.student_id===id&&within(x));
  const values=cache.values.filter(x=>x.student_id===id&&within(x));
