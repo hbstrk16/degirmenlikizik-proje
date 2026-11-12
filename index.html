@@ -19,8 +19,11 @@
  <div class="card grid"><div><label>Öğrenci seç</label><select id="progressStudent" onchange="renderProgress()"><option value="all">Tüm öğrenciler</option></select></div><div><label>Analiz dönemi</label><select id="progressPeriod" onchange="renderProgress()"><option value="7">Son 7 gün</option><option value="30">Son 30 gün</option></select></div><p class="muted" style="grid-column:1/-1">Çalışma kayıtları seçilen döneme göre hesaplanır. Öğrenci seçildiğinde net hedef çizgisi gösterilir.</p></div>
  <div class="card"><h3>Net gelişim grafiği ve hedef çizgisi</h3><div id="progressTrendChart"><p class="muted">Grafik için öğrenci seçin.</p></div></div>
  <div id="progressSummary" class="stats"></div>
- <div class="card"><h3>Derslere göre net gelişimi</h3><div id="subjectProgress"></div></div>
+ <div class="card"><h3>90 net hedefine ilerleme</h3><div id="netGoalProgress"></div></div>
+ <div class="card"><h3>Haftalık net değişimi</h3><div id="weeklyNetChange"></div></div>
+ <div class="card"><h3>Derslere göre net gelişimi</h3><div id="subjectProgress"></div><div id="subjectNetChart"></div></div>
  <div class="card"><h3>Haftalık öğrenci karşılaştırması</h3><div id="studentProgress"></div></div>
+ <div class="card"><h3>Öğretmen değerlendirmeleri</h3><div id="teacherEvaluations"></div></div>
  <div class="card"><h3>Çalışma uyarıları</h3><div id="workAlerts"></div></div>
 </div>
 
@@ -112,9 +115,16 @@ function renderProgress(){
  const rows=recent.filter(w=>chosen==='all'||w.student_id===chosen);
  const total=rows.reduce((a,w)=>a+(+w.total_questions||0),0),target=rows.reduce((a,w)=>a+(+w.target_questions||0),0),net=rows.reduce((a,w)=>a+(+w.net||0),0);
  const pct=target?Math.min(100,Math.round(total/target*100)):0;
- $('progressSummary').innerHTML='<div class="stat"><span class="muted">Çözülen soru</span><strong>'+total+'</strong><small>Son '+days+' gün</small></div><div class="stat"><span class="muted">Toplam net</span><strong>'+net.toFixed(2).replace('.',',')+'</strong><small>Son '+days+' gün</small></div><div class="stat"><span class="muted">Hedef gerçekleşme</span><strong>%'+pct+'</strong><small>'+total+' / '+target+' soru</small></div>';
+ $('progressSummary').innerHTML='<div class="stat"><span class="muted">Çözülen soru</span><strong>'+total+'</strong><small>Son '+days+' gün</small></div><div class="stat"><span class="muted">Toplam net</span><strong>'+net.toFixed(2).replace('.',',')+'</strong><small>Son '+days+' gün</small></div><div class="stat"><span class="muted">Soru hedefi</span><strong>%'+pct+'</strong><small>'+total+' / '+target+' soru</small></div>';
  const subjects={};rows.forEach(w=>{const k=w.subject||'Diğer';if(!subjects[k])subjects[k]={net:0,q:0,count:0};subjects[k].net+=(+w.net||0);subjects[k].q+=(+w.total_questions||0);subjects[k].count++});
- $('subjectProgress').innerHTML=Object.keys(subjects).length?Object.entries(subjects).map(([k,v])=>row(k,v.q+' soru • '+v.count+' kayıt',v.net.toFixed(2).replace('.',',')+' net')).join(''):'<p class="muted">Son 7 günde ders kaydı yok.</p>';
+ $('subjectProgress').innerHTML=Object.keys(subjects).length?Object.entries(subjects).map(([k,v])=>row(k,v.q+' soru • '+v.count+' kayıt',v.net.toFixed(2).replace('.',',')+' net')).join(''):'<p class="muted">Seçilen dönemde ders kaydı yok.</p>';
+ const subjectChart=$('subjectNetChart');
+ const subjectEntries=Object.entries(subjects).sort((a,b)=>b[1].net-a[1].net);
+ if(!subjectEntries.length)subjectChart.innerHTML='';
+ else{
+  const maxSubject=Math.max(1,...subjectEntries.map(x=>x[1].net));
+  subjectChart.innerHTML='<div style="margin-top:16px">'+subjectEntries.map(([name,v])=>'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px"><b>'+safe(name)+'</b><span>'+v.net.toFixed(2).replace('.',',')+' net</span></div><div style="height:10px;background:#edf1f5;border-radius:8px;overflow:hidden;margin-top:5px"><div style="height:100%;width:'+Math.max(0,v.net/maxSubject*100)+'%;background:#7b2942;border-radius:8px"></div></div></div>').join('')+'</div>';
+ }
  const perStudent=students.map(s=>{const r=recent.filter(w=>w.student_id===s.id);return {s,r,q:r.reduce((a,w)=>a+(+w.total_questions||0),0),net:r.reduce((a,w)=>a+(+w.net||0),0),target:r.reduce((a,w)=>a+(+w.target_questions||0),0)}});
  perStudent.sort((a,b)=>b.net-a.net);
  $('studentProgress').innerHTML=perStudent.map((x,i)=>row((i+1)+'. '+x.s.full_name,x.q+' soru • '+x.r.length+' kayıt',x.net.toFixed(2).replace('.',',')+' net')).join('')||'<p class="muted">Öğrenci bulunamadı.</p>';
@@ -135,6 +145,22 @@ function renderProgress(){
    const labels=items.map((x,i)=>'<text x="'+pts[i].x+'" y="'+(h-13)+'" text-anchor="middle" font-size="10" fill="#718096">'+(i+1)+'. kayıt</text>').join('');
    chart.innerHTML='<p class="muted">'+safe(student.full_name)+' • '+items.length+' çalışma kaydı • Hedef net: '+(targetNet?targetNet.toFixed(1).replace('.',','):'belirtilmemiş')+'</p><svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Çalışma netleri ve hedef çizgisi" style="width:100%;height:auto"><line x1="'+left+'" y1="'+top+'" x2="'+left+'" y2="'+(h-bottom)+'" stroke="#cbd5e0"/><line x1="'+left+'" y1="'+(h-bottom)+'" x2="'+(w-right)+'" y2="'+(h-bottom)+'" stroke="#cbd5e0"/>'+targetLine+'<polyline points="'+poly+'" fill="none" stroke="#7b2942" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+dots+labels+'</svg><p class="muted">Bordo çizgi çalışma kayıtlarındaki neti, kesikli yeşil çizgi öğrencinin net hedefini gösterir.</p>';
   }
+ }
+ const selectedStudent=chosen==='all'?null:students[0];
+ const goalBox=$('netGoalProgress'),weekBox=$('weeklyNetChange'),evalBox=$('teacherEvaluations');
+ if(!selectedStudent){
+  goalBox.innerHTML='<p class="muted">Net hedef yüzdesi için bir öğrenci seçin.</p>';
+  weekBox.innerHTML='<p class="muted">Haftalık değişimi görmek için bir öğrenci seçin.</p>';
+  evalBox.innerHTML='<p class="muted">Öğretmen değerlendirmeleri için bir öğrenci seçin.</p>';
+ }else{
+  const targetNet=Number(selectedStudent.target_net)||90,currentNet=rows.reduce((a,x)=>a+(Number(x.net)||0),0);
+  const goalPct=targetNet>0?Math.min(100,Math.max(0,currentNet/targetNet*100)):0;
+  goalBox.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px"><b>'+currentNet.toFixed(2).replace('.',',')+' / '+targetNet.toFixed(2).replace('.',',')+' net</b><b>%'+goalPct.toFixed(1).replace('.',',')+'</b></div><div style="height:14px;background:#edf1f5;border-radius:10px;overflow:hidden;margin-top:10px"><div style="height:100%;width:'+goalPct+'%;background:#23845b;border-radius:10px"></div></div><p class="muted">Seçilen dönemdeki net toplamı hedefle karşılaştırılır. Hedefe kalan: '+Math.max(0,targetNet-currentNet).toFixed(2).replace('.',',')+' net.</p>';
+  const now=new Date(),weekStart=new Date(now);weekStart.setDate(now.getDate()-6);const prevStart=new Date(now);prevStart.setDate(now.getDate()-13);const prevEnd=new Date(now);prevEnd.setDate(now.getDate()-7);
+  const iso=d=>d.toISOString().slice(0,10),currentWeek=cache.work.filter(x=>x.student_id===selectedStudent.id&&(x.recorded_on||'')>=iso(weekStart)&&(x.recorded_on||'')<=iso(now)).reduce((a,x)=>a+(Number(x.net)||0),0),previousWeek=cache.work.filter(x=>x.student_id===selectedStudent.id&&(x.recorded_on||'')>=iso(prevStart)&&(x.recorded_on||'')<=iso(prevEnd)).reduce((a,x)=>a+(Number(x.net)||0),0),delta=currentWeek-previousWeek;
+  weekBox.innerHTML='<div class="stats"><div class="stat"><small>Bu hafta</small><strong>'+currentWeek.toFixed(2).replace('.',',')+'</strong></div><div class="stat"><small>Önceki hafta</small><strong>'+previousWeek.toFixed(2).replace('.',',')+'</strong></div><div class="stat"><small>Değişim</small><strong>'+(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+'</strong></div></div><p class="muted">'+(delta>0?'Önceki haftaya göre net artışı var.':delta<0?'Önceki haftaya göre net düşüşü var.':'Haftalık net aynı veya karşılaştırılacak kayıt yok.')+'</p>';
+  const notes=rows.filter(x=>x.teacher_note&&String(x.teacher_note).trim()).sort((a,b)=>String(b.recorded_on).localeCompare(String(a.recorded_on)));
+  evalBox.innerHTML=notes.length?notes.map(x=>row((x.subject||'Ders')+' • '+x.recorded_on,safe(x.teacher_note),Number(x.net||0).toFixed(2).replace('.',',')+' net')).join(''):'<p class="muted">Seçilen dönemde öğretmen değerlendirmesi girilmemiş.</p>';
  }
 }
 function populateStudentSelect(){const el=$('ws');if(!el)return;const val=el.value;el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');if(cache.students.some(s=>s.id===val))el.value=val;}
