@@ -215,9 +215,9 @@ function renderTodayPlan(){
  const names=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
  const day=new Date().getDay(),items=schedules[day]||[];
  $('todayPlanTitle').textContent=names[day]+' • Haftalık etüt programı';
- const today=today();
+ const todayKey=today();
  const subjectFor=label=>{const t=label.toLocaleLowerCase('tr-TR');if(t.includes('fen'))return 'Fen Bilimleri';if(t.includes('matematik'))return 'Matematik';if(t.includes('türkçe')||t.includes('paragraf'))return t.includes('paragraf')?'Paragraf':'Türkçe';if(t.includes('inkılap'))return 'İnkılap';if(t.includes('din kültürü'))return 'Din Kültürü';if(t.includes('ingilizce'))return 'İngilizce';return null};
- const lessons=items.length?items.map(x=>{const subject=subjectFor(x[1]);const done=subject&&cache.work.some(w=>w.recorded_on===today&&w.subject===subject);const bookDone=x[1].toLocaleLowerCase('tr-TR').includes('kitap')&&cache.books.some(r=>String(r.created_at||'').slice(0,10)===today);const status=done||bookDone?'Kayıt var':'Kayıt bekleniyor';return '<div class="entry" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><b>'+x[1]+'</b><small>'+x[0]+' • '+status+'</small></div><strong style="white-space:nowrap;color:'+(done||bookDone?'#23845b':'var(--burgundy)')+'">'+x[2]+'</strong></div>'}).join(''):'<div class="entry"><b>Hafta sonu</b><small>Programda planlı etüt yok.</small></div>';
+ const lessons=items.length?items.map(x=>{const subject=subjectFor(x[1]);const done=subject&&cache.work.some(w=>w.recorded_on===todayKey&&w.subject===subject);const bookDone=x[1].toLocaleLowerCase('tr-TR').includes('kitap')&&cache.books.some(r=>String(r.created_at||'').slice(0,10)===todayKey);const status=done||bookDone?'Kayıt var':'Kayıt bekleniyor';return '<div class="entry" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><b>'+x[1]+'</b><small>'+x[0]+' • '+status+'</small></div><strong style="white-space:nowrap;color:'+(done||bookDone?'#23845b':'var(--burgundy)')+'">'+x[2]+'</strong></div>'}).join(''):'<div class="entry"><b>Hafta sonu</b><small>Programda planlı etüt yok.</small></div>';
  $('todayPlan').innerHTML=lessons;
 }
 function renderDailyCompletion(){
