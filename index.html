@@ -363,7 +363,7 @@ function populateAllStudentSelects(){
  ids.forEach(id=>{
   const el=$(id);if(!el)return;
   const value=el.value;
-  el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.full_name)+'">'+safe(s.full_name)+'</option>').join('');
+  el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');
   if(cache.students.some(s=>s.full_name===value))el.value=value;
  });
 }
@@ -426,15 +426,15 @@ async function saveStudent(event){
 function updateWorkPreview(){const c=+$('correct').value||0,w=+$('wrong').value||0,t=+$('targetq').value||0;const net=c-w/3;$('netpreview').textContent=net.toFixed(2).replace('.',',');$('targetpreview').textContent=t?'Hedef tamamlama: '+Math.min(100,Math.round((+$('total').value||0)/t*100))+'%':'Hedef: girilmedi'}
 ['correct','wrong','total','targetq'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',updateWorkPreview)});
 async function addWork(){try{const id=$('ws').value,t=+$('total').value||0,c=+$('correct').value||0,w=+$('wrong').value||0,b=+$('blank').value||0,target=+$('targetq').value||0;if(!id){alert('Lütfen listeden öğrenci seçin.');return}if(c+w+b>t||c+w+b!==t){alert('Toplam soru sayısı, doğru + yanlış + boş toplamına eşit olmalıdır.');return}await saveRow('study_records',{student_id:id,subject:$('subject').value,total_questions:t,correct:c,wrong:w,blank:b,target_questions:target,teacher_note:$('worknote').value.trim()||null,recorded_on:$('workdate').value||today(),status:$('status').value})}catch(e){alert(e.message)}}
-async function addExam(){try{if(!$('es').value||!$('en').value){alert('Öğrenci ve deneme adı girin.');return}const vals={turkish_net:+$('eTurkce').value,math_net:+$('eMat').value,science_net:+$('eFen').value,revolution_net:+$('eInk').value,religion_net:+$('eDin').value,english_net:+$('eIng').value};const limits=[20,20,20,10,10,10];if(Object.values(vals).some((v,i)=>!Number.isFinite(v)||v<0||v>limits[i])){alert('Ders netleri geçerli aralıkta olmalıdır.');return}const total=Object.values(vals).reduce((a,b)=>a+b,0);await saveRow('exam_results',{student_id:await studentIdByName($('es').value),exam_name:$('en').value,total_net:total,...vals})}catch(e){alert(e.message)}}
-async function addAttendance(){try{if(!$('as').value){alert('Öğrenci adı girin.');return}await saveRow('attendance',{student_id:await studentIdByName($('as').value),attendance_date:$('ad').value||today(),status:$('ast').value})}catch(e){alert(e.message)}}
-async function addBook(){try{if(!$('bs').value||!$('bt').value){alert('Öğrenci ve kitap/metin adı girin.');return}await saveRow('reading_records',{student_id:await studentIdByName($('bs').value),title:$('bt').value,progress:$('bp').value,status:$('bst').value})}catch(e){alert(e.message)}}
-async function addValue(){try{if(!$('vs').value.trim()||!$('vt').value.trim()){alert('Öğrenci ve değer/kazanım girin.');return}await saveRow('values_records',{student_id:await studentIdByName($('vs').value),value_title:$('vt').value,teacher_note:$('vn').value,status:$('vst').value})}catch(e){alert(e.message)}}
+async function addExam(){try{if(!$('es').value||!$('en').value){alert('Öğrenci ve deneme adı girin.');return}const vals={turkish_net:+$('eTurkce').value,math_net:+$('eMat').value,science_net:+$('eFen').value,revolution_net:+$('eInk').value,religion_net:+$('eDin').value,english_net:+$('eIng').value};const limits=[20,20,20,10,10,10];if(Object.values(vals).some((v,i)=>!Number.isFinite(v)||v<0||v>limits[i])){alert('Ders netleri geçerli aralıkta olmalıdır.');return}const total=Object.values(vals).reduce((a,b)=>a+b,0);await saveRow('exam_results',{student_id:$('es').value,exam_name:$('en').value,total_net:total,...vals})}catch(e){alert(e.message)}}
+async function addAttendance(){try{if(!$('as').value){alert('Öğrenci adı girin.');return}await saveRow('attendance',{student_id:$('as').value,attendance_date:$('ad').value||today(),status:$('ast').value})}catch(e){alert(e.message)}}
+async function addBook(){try{if(!$('bs').value||!$('bt').value){alert('Öğrenci ve kitap/metin adı girin.');return}await saveRow('reading_records',{student_id:$('bs').value,title:$('bt').value,progress:$('bp').value,status:$('bst').value})}catch(e){alert(e.message)}}
+async function addValue(){try{if(!$('vs').value.trim()||!$('vt').value.trim()){alert('Öğrenci ve değer/kazanım girin.');return}await saveRow('values_records',{student_id:$('vs').value,value_title:$('vt').value,teacher_note:$('vn').value,status:$('vst').value})}catch(e){alert(e.message)}}
 function makeReport(){
- const n=$('rs').value.trim();if(!n){alert('Öğrenci seçin.');return}
+ const studentKey=$('rs').value;if(!studentKey){alert('Öğrenci seçin.');return}const selectedStudent=cache.students.find(s=>s.id===studentKey);const n=selectedStudent?.full_name||'Öğrenci';
  const end=new Date();end.setHours(12,0,0,0);const start=new Date(end);start.setDate(start.getDate()-6);
  const key=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day};
- const from=key(start),to=key(end),match=x=>String(x.student||'').toLocaleLowerCase('tr-TR')===n.toLocaleLowerCase('tr-TR');
+ const from=key(start),to=key(end),match=x=>x.student_id===studentKey;
  const w=cache.work.filter(x=>match(x)&&(x.recorded_on||'')>=from&&(x.recorded_on||'')<=to);
  const e=cache.exams.filter(match),a=cache.attendance.filter(x=>match(x)&&(x.attendance_date||x.recorded_on||'')>=from&&(x.attendance_date||x.recorded_on||'')<=to);
  const b=cache.books.filter(x=>match(x)&&String(x.created_at||'').slice(0,10)>=from);
