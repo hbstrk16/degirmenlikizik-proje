@@ -196,7 +196,8 @@ function renderTodayPlan(){
  const lessons=items.length?items.map(x=>{const subject=subjectFor(x[1]);const done=subject&&cache.work.some(w=>w.recorded_on===todayKey&&w.subject===subject);const status=done?'Kayıt var':'Kayıt bekleniyor';return '<div class="entry" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><b>'+x[1]+'</b><small>'+x[0]+' • '+status+'</small></div><strong style="white-space:nowrap;color:'+(done?'#23845b':'var(--burgundy)')+'">'+x[2]+'</strong></div>'}).join(''):'<div class="entry"><b>Hafta sonu</b><small>Programda planlı etüt yok.</small></div>';
  $('todayPlan').innerHTML=lessons;
 }
-function updateDashboardStats(){const el=$('groupNet');if(!el)return;const latest=cache.students.map(s=>[...cache.exams].filter(e=>e.student_id===s.id).sort((a,b)=>String(b.exam_date||b.created_at||'').localeCompare(String(a.exam_date||a.created_at||'')))[0]).filter(Boolean);const avg=latest.length?latest.reduce((sum,e)=>sum+(Number(e.net)||0),0)/latest.length:null;el.textContent=avg===null?'—':avg.toFixed(2).replace('.',',');}\nfunction renderWeeklyCompletion(){
+function updateDashboardStats(){const el=$('groupNet');if(!el)return;const latest=cache.students.map(s=>[...cache.exams].filter(e=>e.student_id===s.id).sort((a,b)=>String(b.exam_date||b.created_at||'').localeCompare(String(a.exam_date||a.created_at||'')))[0]).filter(Boolean);const avg=latest.length?latest.reduce((sum,e)=>sum+(Number(e.net)||0),0)/latest.length:null;el.textContent=avg===null?'—':avg.toFixed(2).replace('.',',');}
+function renderWeeklyCompletion(){
  const box=$('weeklyCompletion');if(!box)return;
  const plan={
   1:['Paragraf','Fen Bilimleri','İnkılap','Türkçe','Matematik','Fen Bilimleri'],
