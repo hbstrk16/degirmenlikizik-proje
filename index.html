@@ -16,7 +16,7 @@
 <div id="reports" class="page"><h2>Haftalık öğrenci raporu</h2><div class="card"><label>Öğrenci</label><input id="rs" placeholder="Ad Soyad"><button class="full" onclick="makeReport()">Raporu oluştur</button></div><div class="card" id="reportout"><p class="muted">Öğrenci adını girerek özet oluşturun.</p></div></div></section><p class="muted" style="text-align:center;padding:20px">Değirmenlikızık Proje • İlk prototip</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL='https://rcznuwejtwkgdruegspi.supabase.co';
+const SUPABASE_URL='https://rcznuwejtkwgdruegspi.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_px8199-BPlceDZV6gBXpIQ_fh7n1GBf';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=id=>document.getElementById(id),get=k=>JSON.parse(localStorage.getItem('dk_'+k)||'[]'),put=(k,v)=>localStorage.setItem('dk_'+k,JSON.stringify(v)),today=()=>new Date().toLocaleDateString('tr-TR');
