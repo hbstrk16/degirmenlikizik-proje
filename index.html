@@ -432,14 +432,14 @@ function loadWorkSessions(){
 }
 function renderWorkTable(){
  const chosen=selectedWorkSlot();if(!chosen){$('workTable').innerHTML='<p class="muted">Önce programdan bir etüt seçin.</p>';return}
- const [label,subject,duration]=chosen.slot,session=label+' • '+duration;
- $('workSessionInfo').textContent=chosen.date+' • '+session+' • '+cache.students.length+' öğrenci';
+ const [label,subject,duration]=chosen.slot,session=label+' • '+duration,totalTarget=['Türkçe','Matematik','Fen Bilimleri'].includes(subject)?20:10;
+ $('workSessionInfo').textContent=chosen.date+' • '+session+' • '+cache.students.length+' öğrenci • Soru hedefi: '+totalTarget;
  const records=cache.work.filter(w=>w.recorded_on===chosen.date&&w.session_label===session);
  $('workTable').innerHTML='<div class="work-table-wrap"><table class="work-table"><thead><tr><th>Öğrenci</th><th>Hedef</th><th>Çözülen</th><th>Doğru</th><th>Yanlış</th><th>Boş</th><th>Net</th><th>Durum</th></tr></thead><tbody>'+[...cache.students].sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr')).map(s=>{
- const rec=records.find(w=>w.student_id===s.id),id='wt_'+s.id.replace(/-/g,''),v=k=>rec?.[k]??'';
- return '<tr data-student="'+safe(s.id)+'" data-record="'+safe(rec?.id||'')+'"><td class="work-name">'+safe(s.full_name)+'</td><td><input aria-label="'+safe(s.full_name)+' hedef" class="wt-target" type="number" min="0" step="1" value="'+(rec?.target_questions??'')+'" placeholder="Hedef"></td><td><input aria-label="'+safe(s.full_name)+' çözülen" class="wt-total" type="number" min="0" step="1" value="'+(rec?.total_questions??'')+'" placeholder="—"></td><td><input aria-label="'+safe(s.full_name)+' doğru" class="wt-correct" type="number" min="0" step="1" value="'+(rec?.correct??'')+'" placeholder="—"></td><td><input aria-label="'+safe(s.full_name)+' yanlış" class="wt-wrong" type="number" min="0" step="1" value="'+(rec?.wrong??'')+'" placeholder="—"></td><td><input aria-label="'+safe(s.full_name)+' boş" class="wt-blank" type="number" min="0" step="1" value="'+(rec?.blank??'')+'" placeholder="—"></td><td class="wt-net">'+(rec?Number(rec.net||0).toFixed(2).replace('.',','):'—')+'</td><td><select class="wt-status" aria-label="'+safe(s.full_name)+' durum"><option value="">Seçin</option><option '+(rec?.status==='Tamamlandı'?'selected':'')+'>Tamamlandı</option><option '+(rec?.status==='Eksik'?'selected':'')+'>Eksik</option><option '+(rec?.status==='Yapılmadı'?'selected':'')+'>Yapılmadı</option></select></td></tr>'
- }).join('')+'</tbody></table></div><p class="muted">Net = Doğru − Yanlış / 3. Soru sayısı, doğru + yanlış + boş toplamına eşit olmalıdır. Boş bırakılan satırlar kaydedilmez.</p>';
- $('workTable').querySelectorAll('tbody tr').forEach(tr=>{const update=()=>{const c=Number(tr.querySelector('.wt-correct').value)||0,w=Number(tr.querySelector('.wt-wrong').value)||0;tr.querySelector('.wt-net').textContent=(c-w/3).toFixed(2).replace('.',',')};tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',update))});
+ const rec=records.find(w=>w.student_id===s.id),correct=rec?.correct??'',wrong=rec?.wrong??'',blank=correct===''||wrong===''?'':Math.max(0,totalTarget-Number(correct)-Number(wrong)),net=correct===''||wrong===''?'—':(Number(correct)-Number(wrong)/3).toFixed(2).replace('.',',');
+ return '<tr data-student="'+safe(s.id)+'" data-record="'+safe(rec?.id||'')+'" data-total="'+totalTarget+'"><td class="work-name">'+safe(s.full_name)+'</td><td><input aria-label="'+safe(s.full_name)+' hedef" class="wt-target" type="number" value="'+totalTarget+'" readonly></td><td><input aria-label="'+safe(s.full_name)+' çözülen" class="wt-total" type="number" value="'+totalTarget+'" readonly></td><td><input aria-label="'+safe(s.full_name)+' doğru" class="wt-correct" type="number" min="0" max="'+totalTarget+'" step="1" value="'+correct+'" placeholder="0"></td><td><input aria-label="'+safe(s.full_name)+' yanlış" class="wt-wrong" type="number" min="0" max="'+totalTarget+'" step="1" value="'+wrong+'" placeholder="0"></td><td><input aria-label="'+safe(s.full_name)+' boş" class="wt-blank" type="number" value="'+blank+'" placeholder="—" readonly></td><td class="wt-net">'+net+'</td><td><select class="wt-status" aria-label="'+safe(s.full_name)+' durum"><option value="">Seçin</option><option '+(rec?.status==='Tamamlandı'?'selected':'')+'>Tamamlandı</option><option '+(rec?.status==='Eksik'?'selected':'')+'>Eksik</option><option '+(rec?.status==='Yapılmadı'?'selected':'')+'>Yapılmadı</option></select></td></tr>'
+ }).join('')+'</tbody></table></div><p class="muted">Hedef ve çözülen soru sayısı ders programına göre otomatik belirlenir. Boş = '+totalTarget+' − doğru − yanlış. Net = doğru − yanlış / 3.</p>';
+ $('workTable').querySelectorAll('tbody tr').forEach(tr=>{const update=()=>{const total=Number(tr.dataset.total),c=tr.querySelector('.wt-correct').value,w=tr.querySelector('.wt-wrong').value,valid=c!==''&&w!==''&&Number(c)>=0&&Number(w)>=0&&Number(c)+Number(w)<=total;tr.querySelector('.wt-blank').value=valid?String(total-Number(c)-Number(w)):'';tr.querySelector('.wt-net').textContent=valid?(Number(c)-Number(w)/3).toFixed(2).replace('.',','):'—'};tr.querySelectorAll('.wt-correct,.wt-wrong').forEach(el=>el.addEventListener('input',update));update()});
  renderSelectedWorkRecords();
 }
 function renderSelectedWorkRecords(){
@@ -451,12 +451,12 @@ async function saveWorkBatch(){
  const chosen=selectedWorkSlot();if(!chosen){alert('Önce tarih ve etüt seçin.');return}
  const [label,subject,duration]=chosen.slot,session=label+' • '+duration,rows=[...$('workTable').querySelectorAll('tbody tr')],payloads=[];
  for(const tr of rows){
-  const val=cls=>tr.querySelector('.'+cls).value.trim(),nums=['wt-target','wt-total','wt-correct','wt-wrong','wt-blank'].map(cls=>val(cls)===''?0:Number(val(cls))),[target,total,correct,wrong,blank]=nums,status=val('wt-status');
-  if(!status&&nums.every((n,i)=>i===0||n===0))continue;
-  if(nums.some(n=>!Number.isInteger(n)||n<0)){alert('Hedef ve soru sayıları sıfır veya pozitif tam sayı olmalıdır.');return}
-  if(correct+wrong+blank!==total){alert('Bir öğrencide çözülen soru sayısı doğru + yanlış + boş toplamına eşit değil. Lütfen tabloyu kontrol edin.');return}
+  const val=cls=>tr.querySelector('.'+cls).value.trim(),total=Number(tr.dataset.total),correct=val('wt-correct')===''?0:Number(val('wt-correct')),wrong=val('wt-wrong')===''?0:Number(val('wt-wrong')),blank=val('wt-blank')===''?total-correct-wrong:Number(val('wt-blank')),target=total,status=val('wt-status');
+  if(!status&&val('wt-correct')===''&&val('wt-wrong')==='')continue;
+  if(![total,target,correct,wrong,blank].every(Number.isInteger)||[total,target,correct,wrong,blank].some(n=>n<0)||correct+wrong>total){alert('Doğru ve yanlış sayıları toplam soru sayısını aşamaz. Lütfen tabloyu kontrol edin.');return}
+  if(correct+wrong+blank!==total){alert('Boş soru sayısı otomatik hesaplanamadı. Lütfen doğru ve yanlış sayılarını kontrol edin.');return}
   if(!status){alert('Veri girilen her öğrenci için etüt durumunu seçin.');return}
-  if(status!=='Yapılmadı'&&total<1){alert('Çalışma girilen öğrencilerde çözülen soru sayısı en az 1 olmalıdır. Yapılmadı durumunda 0 olabilir.');return}
+  if(status!=='Yapılmadı'&&correct+wrong<1){alert('Çalışma girilen öğrencilerde doğru veya yanlış sayısı girin. Yapılmadı durumunda 0 olabilir.');return}
   const studentId=tr.dataset.student,existing=cache.work.find(w=>w.student_id===studentId&&w.recorded_on===chosen.date&&w.session_label===session);
   payloads.push({student_id:studentId,subject,total_questions:total,correct,wrong,blank,target_questions:target,recorded_on:chosen.date,status,session_label:session,existingId:existing?.id});
  }
