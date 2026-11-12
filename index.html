@@ -430,5 +430,28 @@ async function addExam(){try{if(!$('es').value||!$('en').value){alert('Öğrenci
 async function addAttendance(){try{if(!$('as').value){alert('Öğrenci adı girin.');return}await saveRow('attendance',{student_id:await studentIdByName($('as').value),attendance_date:$('ad').value||today(),status:$('ast').value})}catch(e){alert(e.message)}}
 async function addBook(){try{if(!$('bs').value||!$('bt').value){alert('Öğrenci ve kitap/metin adı girin.');return}await saveRow('reading_records',{student_id:await studentIdByName($('bs').value),title:$('bt').value,progress:$('bp').value,status:$('bst').value})}catch(e){alert(e.message)}}
 async function addValue(){try{if(!$('vs').value.trim()||!$('vt').value.trim()){alert('Öğrenci ve değer/kazanım girin.');return}await saveRow('values_records',{student_id:await studentIdByName($('vs').value),value_title:$('vt').value,teacher_note:$('vn').value,status:$('vst').value})}catch(e){alert(e.message)}}
-function makeReport(){let n=$('rs').value.trim();if(!n){alert('Öğrenci adını girin.');return}let match=x=>x.student.toLocaleLowerCase('tr-TR')===n.toLocaleLowerCase('tr-TR');let w=cache.work.filter(match),e=cache.exams.filter(match),a=cache.attendance.filter(match),b=cache.books.filter(match),v=cache.values.filter(match);let avg=e.length?(e.reduce((s,x)=>s+Number(x.net),0)/e.length).toFixed(2):'Kayıt yok';$('reportout').innerHTML='<h3>'+safe(n)+'</h3>'+row('Çalışma kaydı',w.length+' kayıt','Toplam')+row('Deneme ortalaması',avg,'Net')+row('Devamsızlık',a.filter(x=>x.status==='Gelmedi').length+' gün','Gelmedi')+row('Kitap / ezber',b.length+' kayıt','Toplam')+row('Tekâmül',v.length+' değerlendirme','Toplam')+'<p class="muted">Rapor, Supabase veritabanındaki kayıtlarla oluşturulmuştur.</p>'}
+function makeReport(){
+ const n=$('rs').value.trim();if(!n){alert('Öğrenci seçin.');return}
+ const end=new Date();end.setHours(12,0,0,0);const start=new Date(end);start.setDate(start.getDate()-6);
+ const key=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day};
+ const from=key(start),to=key(end),match=x=>String(x.student||'').toLocaleLowerCase('tr-TR')===n.toLocaleLowerCase('tr-TR');
+ const w=cache.work.filter(x=>match(x)&&(x.recorded_on||'')>=from&&(x.recorded_on||'')<=to);
+ const e=cache.exams.filter(match),a=cache.attendance.filter(x=>match(x)&&(x.attendance_date||x.recorded_on||'')>=from&&(x.attendance_date||x.recorded_on||'')<=to);
+ const b=cache.books.filter(x=>match(x)&&String(x.created_at||'').slice(0,10)>=from);
+ const q=w.reduce((s,x)=>s+Number(x.total_questions||0),0),correct=w.reduce((s,x)=>s+Number(x.correct||0),0),wrong=w.reduce((s,x)=>s+Number(x.wrong||0),0),blank=w.reduce((s,x)=>s+Number(x.blank||0),0),net=correct-wrong/3;
+ const target=w.reduce((s,x)=>s+Number(x.target_questions||0),0),targetPct=target?Math.min(100,Math.round(q/target*100)):null;
+ const subjects={};w.forEach(x=>{const k=x.subject||'Diğer';if(!subjects[k])subjects[k]={q:0,c:0,w:0,b:0,records:0};const z=subjects[k];z.q+=Number(x.total_questions||0);z.c+=Number(x.correct||0);z.w+=Number(x.wrong||0);z.b+=Number(x.blank||0);z.records++});
+ const incomplete=w.filter(x=>x.status==='Eksik'||x.status==='Yapılmadı'||Number(x.total_questions||0)!==Number(x.correct||0)+Number(x.wrong||0)+Number(x.blank||0));
+ const latest=[...e].sort((x,y)=>String(y.created_at||'').localeCompare(String(x.created_at||'')))[0];
+ const subjectRows=Object.entries(subjects).map(([s,x])=>row(s,x.q+' soru • '+x.c+' D / '+x.w+' Y / '+x.b+' B',x.records+' kayıt')).join('');
+ const noteRows=w.filter(x=>x.teacher_note&&String(x.teacher_note).trim()).slice(0,4).map(x=>row(x.subject||'Öğretmen notu',x.teacher_note,x.recorded_on||'')).join('');
+ $('reportout').innerHTML='<div class="eyebrow">HAFTALIK PERFORMANS • '+from+' – '+to+'</div><h3>'+safe(n)+'</h3><div class="stats"><div class="stat"><small>Çözülen soru</small><strong>'+q+'</strong></div><div class="stat"><small>Net (çalışma)</small><strong>'+net.toFixed(2).replace('.',',')+'</strong></div><div class="stat"><small>Hedef gerçekleşme</small><strong>'+(targetPct===null?'Hedef yok':'%'+targetPct)+'</strong></div></div>'+
+ '<h3>Çalışma özeti</h3>'+row('Doğru / yanlış / boş',correct+' / '+wrong+' / '+blank,'')+row('Çalışma kaydı',w.length+' kayıt','Son 7 gün')+row('Hedef soru toplamı',target+' soru',targetPct===null?'Hedef girilmemiş':'Gerçekleşme %'+targetPct)+
+ '<h3>Derslere göre performans</h3>'+(subjectRows||'<p class="muted">Bu hafta çalışma kaydı bulunmuyor.</p>')+
+ '<h3>Deneme sınavları</h3>'+row('Deneme sayısı',e.length+' kayıt','Tüm kayıtlar')+row('Son deneme',latest?latest.name+' • '+Number(latest.net||0).toFixed(2)+' net':'Kayıt yok',latest?.created_at?new Date(latest.created_at).toLocaleDateString('tr-TR'):'')+
+ '<h3>Eksik etütler / kayıtlar</h3>'+(incomplete.length?incomplete.map(x=>row(x.subject||'Çalışma',x.total_questions+' soru • '+x.status,x.recorded_on||'Kontrol et')).join(''):'<p class="muted">Eksik çalışma kaydı görünmüyor.</p>')+
+ '<h3>Devam ve okuma</h3>'+row('Devamsızlık',a.filter(x=>x.status==='Gelmedi').length+' gün','Son 7 gün')+row('Kitap / ezber',b.length+' kayıt','Son 7 gün')+
+ '<h3>Öğretmen değerlendirmesi</h3>'+(noteRows||'<p class="muted">Bu hafta öğretmen değerlendirmesi girilmemiş.</p>')+
+ '<p class="muted">Rapor, seçilen öğrencinin son 7 günlük kayıtlarına göre oluşturulmuştur. Deneme bilgileri tüm kayıtlarından alınır.</p>';
+}
 </script></body></html>
