@@ -16,29 +16,47 @@
 }
 
 
-/* Tek sayfalık, büyük yazılı A4 karne çıktısı */
-@page{size:A4 portrait;margin:8mm}
+/* Tek sayfa karne: iki sütunlu, dengeli A4 yerleşim */
+.grade-head{border-bottom:4px solid #7b2942;padding:8px 10px 12px;margin-bottom:10px}
+.grade-head h2{font-size:25px;color:#142d4e;margin:4px 0}
+.grade-head small{display:block;color:#718096;margin-top:5px}
+.grade-summary{margin-bottom:8px}
+.grade-summary h3,.grade-columns h3{font-size:15px;color:#142d4e;border-bottom:1px solid #dce3eb;padding-bottom:5px;margin:10px 0 6px}
+.grade-columns{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grade-columns section{min-width:0}
+.grade-columns h4{font-size:12px;color:#7b2942;margin:8px 0 4px}
+.grade-line{display:grid;grid-template-columns:1fr auto;gap:3px 8px;padding:5px 7px;border-bottom:1px solid #e5eaf0;font-size:11px}
+.grade-line span{font-weight:bold;color:#142d4e;text-align:right}
+.grade-line small{grid-column:1/-1;color:#718096;font-size:9px}
+.grade-sign{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding-top:9px;border-top:2px solid #dce3eb;font-size:10px}
+.grade-sign span:last-child{text-align:right;grid-column:1/-1}
+#growthCardOutput .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0}
+#growthCardOutput .stat{padding:8px;background:#f3f6fa;border-top:2px solid #7b2942}
+#growthCardOutput .stat strong{font-size:20px;color:#142d4e}
+@page{size:A4 portrait;margin:9mm}
 @media print{
- html,body{margin:0!important;padding:0!important;width:100%!important;background:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
- body{font-size:12px!important}
- body *{visibility:hidden!important}
- #growthCardOutput,#growthCardOutput *{visibility:visible!important}
- #growthCardOutput{position:absolute!important;left:0!important;top:0!important;width:194mm!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:visible!important;box-sizing:border-box!important;margin:0!important;padding:4mm!important;border:0!important;border-top:5px solid #7b2942!important;border-radius:0!important;box-shadow:none!important;background:#fff!important;font-size:12px!important;line-height:1.35!important}
- #growthCardOutput h2{font-size:22px!important;margin:3px 0 5px!important}
- #growthCardOutput h3{font-size:14px!important;margin:11px 0 5px!important;padding-bottom:3px!important;break-after:avoid!important}
- #growthCardOutput h4{font-size:12px!important;margin:7px 0 3px!important}
- #growthCardOutput .eyebrow{font-size:10px!important}
- #growthCardOutput .muted{font-size:10px!important;line-height:1.3!important}
- #growthCardOutput .entry{padding:6px 8px!important;font-size:11px!important;line-height:1.3!important}
- #growthCardOutput .entry small{font-size:10px!important}
- #growthCardOutput .stats{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:7px!important;margin:7px 0!important}
- #growthCardOutput .stat{padding:8px!important}
- #growthCardOutput .stat strong{font-size:19px!important}
- #growthCardOutput .stat small{font-size:10px!important}
- #growthCardOutput>div:first-child{padding-bottom:7px!important;margin-bottom:8px!important}
- #growthCardOutput>div:last-child{margin-top:12px!important;padding-top:7px!important}
- #growthCardOutput p{margin:4px 0!important}
- #growthCardOutput h3,#growthCardOutput h4,#growthCardOutput .entry,#growthCardOutput .stat{break-inside:avoid!important}
+ html,body{width:100%!important;background:#fff!important;margin:0!important;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ body>header,body>main>section#login,body>main>p,body>main>#app>.roleline,body>main>#app>.tabs,body>main>#app>.page:not(#growthCard),#growthCard>.roleline,#growthCard>.card:first-of-type{display:none!important}
+ body>main{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+ #app,#growthCard{display:block!important;width:100%!important;margin:0!important;padding:0!important}
+ #growthCardOutput{width:100%!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:visible!important;box-sizing:border-box!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;font-size:11px!important;line-height:1.2!important}
+ .grade-head{padding:4px 7px 7px;margin-bottom:5px}
+ .grade-head h2{font-size:21px!important;margin:2px 0!important}
+ .grade-head small{font-size:9px!important;margin-top:3px}
+ .grade-summary{margin-bottom:4px}
+ .grade-summary h3,.grade-columns h3{font-size:12px!important;margin:6px 0 3px!important;padding-bottom:3px}
+ .grade-columns{grid-template-columns:1fr 1fr!important;gap:12px!important}
+ .grade-columns h4{font-size:10px!important;margin:5px 0 2px}
+ .grade-line{font-size:9px!important;padding:3px 5px!important;gap:2px 5px}
+ .grade-line small{font-size:8px!important}
+ #growthCardOutput .stats{gap:5px!important;margin:3px 0!important}
+ #growthCardOutput .stat{padding:5px!important}
+ #growthCardOutput .stat strong{font-size:16px!important;margin:2px 0!important}
+ #growthCardOutput .stat small{font-size:8px!important}
+ #growthCardOutput .muted{font-size:8px!important;margin:2px 0!important}
+ .grade-sign{margin-top:8px;padding-top:6px;gap:8px;font-size:8px}
+ .page{display:none!important}
+ #growthCard.page{display:block!important}
 }
 /* Gelişim karnesi: kurumsal bordo-lacivert A4 düzeni */
 #growthCardOutput{border-top:5px solid #7b2942;box-shadow:0 8px 24px #142d4e12;padding:24px}
@@ -230,33 +248,25 @@ function renderGrowthCard(){
  const student=cache.students.find(s=>s.id===id),period=$('growthPeriod').value;
  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-29);const from=cutoff.toISOString().slice(0,10);
  const within=x=>period==='all'||String(x.recorded_on||x.exam_date||x.attendance_date||x.created_at||'').slice(0,10)>=from;
- const work=cache.work.filter(x=>x.student_id===id&&within(x));
- const exams=cache.exams.filter(x=>x.student_id===id&&within(x));
- const attendance=cache.attendance.filter(x=>x.student_id===id&&within(x));
- const books=cache.books.filter(x=>x.student_id===id&&within(x));
- const values=cache.values.filter(x=>x.student_id===id&&within(x));
- const questions=work.reduce((n,x)=>n+(Number(x.total_questions)||0),0);
- const correct=work.reduce((n,x)=>n+(Number(x.correct)||0),0);
- const wrong=work.reduce((n,x)=>n+(Number(x.wrong)||0),0);
- const latest=[...exams].sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')))[0];
- const previous=[...exams].sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')))[1];
- const delta=latest&&previous?Number(latest.net)-Number(previous.net):null;
+ const work=cache.work.filter(x=>x.student_id===id&&within(x)),exams=cache.exams.filter(x=>x.student_id===id&&within(x));
+ const attendance=cache.attendance.filter(x=>x.student_id===id&&within(x)),books=cache.books.filter(x=>x.student_id===id&&within(x)),values=cache.values.filter(x=>x.student_id===id&&within(x));
+ const questions=work.reduce((n,x)=>n+(Number(x.total_questions)||0),0),correct=work.reduce((n,x)=>n+(Number(x.correct)||0),0),wrong=work.reduce((n,x)=>n+(Number(x.wrong)||0),0);
+ const ordered=[...exams].sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))),latest=ordered[0],previous=ordered[1],delta=latest&&previous?Number(latest.net)-Number(previous.net):null;
  const subjects=[['Türkçe','turkish_net'],['Matematik','math_net'],['Fen Bilimleri','science_net'],['İnkılap','revolution_net'],['Din Kültürü','religion_net'],['İngilizce','english_net']];
- const subjectRows=latest?subjects.map(([name,key])=>row(name,Number(latest[key]||0).toFixed(2).replace('.',',')+' net','Son deneme')).join(''):'<p class="muted">Deneme sonucu bulunmuyor.</p>';
- const notes=work.filter(x=>x.teacher_note&&String(x.teacher_note).trim()).slice(0,3);
- const valueRows=values.slice(0,3).map(x=>row(x.title||'Değerler eğitimi',x.note||'Değerlendirme girilmedi',x.status||'')).join('');
+ const compact=(a,b,c)=>'<div class="grade-line"><b>'+safe(a)+'</b><span>'+safe(b)+'</span><small>'+safe(c||'')+'</small></div>';
+ const subjectRows=latest?subjects.map(([n,k])=>compact(n,Number(latest[k]||0).toFixed(2).replace('.',',')+' net','')).join(''):'<p class="muted">Deneme sonucu bulunmuyor.</p>';
+ const notes=work.filter(x=>x.teacher_note&&String(x.teacher_note).trim()).slice(0,2);
+ const valueRows=values.slice(0,2).map(x=>compact(x.title||'Değerler eğitimi',x.status||'',x.note||'')).join('');
+ const bookRows=books.slice(0,2).map(x=>compact(x.title||'Kitap / metin',x.status||'',x.progress||'')).join('');
  const periodLabel=period==='all'?'Tüm kayıtlar':'Son 30 gün';
- box.innerHTML='<div style="border-bottom:3px solid #7b2942;padding-bottom:12px;margin-bottom:16px"><div class="eyebrow">DEĞİRMENLİKIZIK PROJE</div><h2 style="font-size:25px;margin:6px 0">Öğrenci Gelişim Karnesi</h2><b>'+safe(student.full_name)+'</b><p class="muted">'+safe(student.grade||'')+' • Rapor dönemi: '+periodLabel+' • '+new Date().toLocaleDateString('tr-TR')+'</p></div>'+
- '<h3>1. Çalışma performansı</h3><div class="stats"><div class="stat"><small>Çözülen soru</small><strong>'+questions+'</strong></div><div class="stat"><small>Doğru</small><strong>'+correct+'</strong></div><div class="stat"><small>Yanlış</small><strong>'+wrong+'</strong></div></div>'+
- '<p class="muted">Çalışma kayıt sayısı: '+work.length+' • Tamamlanan etüt: '+work.filter(x=>x.status==='Tamamlandı').length+'</p>'+
- '<h3>2. Deneme sınavı performansı</h3>'+row('Deneme sayısı',exams.length+' kayıt','Toplam')+row('Son deneme',latest?latest.name+' • '+Number(latest.net).toFixed(2).replace('.',',')+' net':'Kayıt yok',latest?.created_at?new Date(latest.created_at).toLocaleDateString('tr-TR'):'')+
- (delta===null?'<p class="muted">Net değişimi için en az iki deneme kaydı gerekir.</p>':row('Son iki deneme değişimi',(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' net',delta>0?'Artış':delta<0?'Azalış':'Değişmedi'))+
- '<h4>Ders bazında son deneme</h4>'+subjectRows+
- '<h3>3. Devam durumu</h3>'+row('Devamsızlık',attendance.filter(x=>x.status==='Gelmedi').length+' gün','Gelmedi')+row('Devam kaydı',attendance.length+' kayıt','Seçilen dönem')+
- '<h3>4. Kitap okuma ve ezber</h3>'+row('Kayıt sayısı',books.length+' kayıt','Seçilen dönem')+books.slice(0,2).map(x=>row(x.title||'Kitap / metin',x.progress||'İlerleme belirtilmedi',x.status||'')).join('')+
- '<h3>5. Tekâmül ve değerler eğitimi</h3>'+(valueRows||'<p class="muted">Bu dönemde değerlendirme kaydı bulunmuyor.</p>')+
- '<h3>6. Öğretmen değerlendirmesi</h3>'+(notes.length?notes.map(x=>row(x.subject||'Çalışma değerlendirmesi',x.teacher_note,x.recorded_on||'')).join(''):'<p class="muted">Bu dönemde öğretmen notu girilmemiş.</p>')+
- '<div style="margin-top:26px;padding-top:14px;border-top:1px solid #d8dee8"><p><b>Öğretmen görüşü:</b> ....................................................................................................</p><p><b>Veli görüşü:</b> ...........................................................................................................</p><p style="text-align:right;margin-top:28px">Öğretmen imzası: __________________</p></div>';
+ box.innerHTML='<div class="grade-head"><div class="eyebrow">DEĞİRMENLİKIZIK PROJE</div><h2>Öğrenci Gelişim Karnesi</h2><b>'+safe(student.full_name)+'</b><small>'+safe(student.grade||'')+' • '+periodLabel+' • '+new Date().toLocaleDateString('tr-TR')+'</small></div>'+
+ '<div class="grade-summary"><h3>1. Çalışma performansı</h3><div class="stats"><div class="stat"><small>Çözülen soru</small><strong>'+questions+'</strong></div><div class="stat"><small>Doğru</small><strong>'+correct+'</strong></div><div class="stat"><small>Yanlış</small><strong>'+wrong+'</strong></div></div><p class="muted">'+work.length+' çalışma kaydı • '+work.filter(x=>x.status==='Tamamlandı').length+' tamamlanan etüt</p></div>'+
+ '<div class="grade-columns"><section><h3>2. Deneme sınavı</h3>'+compact('Deneme sayısı',exams.length+' kayıt','')+compact('Son deneme',latest?latest.name+' • '+Number(latest.net).toFixed(2).replace('.',',')+' net':'Kayıt yok',latest?.created_at?new Date(latest.created_at).toLocaleDateString('tr-TR'):'')+compact('Net değişimi',delta===null?'İki deneme gerekli':(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' net',delta===null?'':delta>0?'Artış':delta<0?'Azalış':'Değişmedi')+'<h4>Ders netleri</h4>'+subjectRows+'</section>'+
+ '<section><h3>3. Devam durumu</h3>'+compact('Devamsızlık',attendance.filter(x=>x.status==='Gelmedi').length+' gün','Gelmedi')+compact('Devam kaydı',attendance.length+' kayıt','Seçilen dönem')+
+ '<h3>4. Kitap okuma ve ezber</h3>'+compact('Kayıt sayısı',books.length+' kayıt','')+(bookRows||'<p class="muted">Kayıt bulunmuyor.</p>')+
+ '<h3>5. Tekâmül / değerler eğitimi</h3>'+(valueRows||'<p class="muted">Değerlendirme kaydı bulunmuyor.</p>')+
+ '<h3>6. Öğretmen değerlendirmesi</h3>'+(notes.length?notes.map(x=>compact(x.subject||'Çalışma',x.teacher_note,x.recorded_on||'')).join(''):'<p class="muted">Öğretmen notu girilmemiş.</p>')+'</section></div>'+
+ '<div class="grade-sign"><span><b>Öğretmen görüşü:</b> __________________________________</span><span><b>Veli görüşü:</b> __________________________________</span><span><b>Öğretmen imzası:</b> __________________</span></div>';
 }
 function populateStudentSelect(){const el=$('ws');if(!el)return;const val=el.value;el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');if(cache.students.some(s=>s.id===val))el.value=val;}
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
