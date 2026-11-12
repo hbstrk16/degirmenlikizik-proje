@@ -143,7 +143,7 @@ function renderExamAnalysis(){
  const chosen=select.value;
  const students=chosen==='all'?cache.students:cache.students.filter(s=>s.id===chosen);
  const exams=cache.exams.filter(e=>chosen==='all'||e.student_id===chosen);
- const sorted=[...exams].sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
+ const sorted=[...exams].sort((a,b)=>new Date(a.exam_date||a.created_at||0)-new Date(b.exam_date||b.created_at||0));
  const nets=sorted.map(e=>Number(e.net)||0);
  const avg=nets.length?nets.reduce((a,b)=>a+b,0)/nets.length:0;
  const best=nets.length?Math.max(...nets):0;
@@ -168,8 +168,7 @@ function renderExamAnalysis(){
  }
  const subjects=[['Türkçe','turkish_net'],['Matematik','math_net'],['Fen Bilimleri','science_net'],['İnkılap','revolution_net'],['Din Kültürü','religion_net'],['İngilizce','english_net']];
  $('examSubjectAnalysis').innerHTML=subjects.map(([label,key])=>{const vals=exams.filter(e=>e[key]!==null&&e[key]!==undefined).map(e=>Number(e[key]));const mean=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;const latest=sorted.slice().reverse().find(e=>e[key]!==null&&e[key]!==undefined);return row(label,latest?'Son kayıt: '+Number(latest[key]).toFixed(2).replace('.',',')+' net':'Ders verisi henüz yok',mean===null?'Ortalama bekleniyor':'Ortalama: '+mean.toFixed(2).replace('.',',')+' net')}).join('');
- const goals=latestByStudent.map(x=>row(x.s.full_name,'LGS hedefi: '+(x.s.target_lgs_score??'Belirtilmemiş')+' puan',x.delta===null?'Karşılaştırma için en az 2 deneme gerekli':(x.delta>0?'+':'')+x.delta.toFixed(2).replace('.',',')+' net değişim'));
- const changeRows=[];
+  const changeRows=[];
  const compareStudents=chosen==='all'?students:students;
  compareStudents.forEach(s=>{
   const list=sorted.filter(e=>e.student_id===s.id);
@@ -284,8 +283,8 @@ function renderProgress(){
  const prior=select.value||'all';
  select.innerHTML='<option value="all">Tüm öğrenciler</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');
  if(prior==='all'||cache.students.some(s=>s.id===prior))select.value=prior;
- const days=Number($('progressPeriod')?.value||7);
- const since=new Date();since.setDate(since.getDate()-(days-1));const cutoff=since.toISOString().slice(0,10);
+ const period=$('progressPeriod')?.value||'30',days=period==='all'?null:Number(period);
+ const since=new Date();if(days)since.setDate(since.getDate()-(days-1));const cutoff=days?localDateString(since):'0000-01-01';
  const recent=cache.work.filter(w=>(w.recorded_on||'')>=cutoff);
  const chosen=select.value,students=chosen==='all'?cache.students:cache.students.filter(s=>s.id===chosen);
  const rows=recent.filter(w=>chosen==='all'||w.student_id===chosen);
