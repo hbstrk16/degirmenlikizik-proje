@@ -16,7 +16,8 @@
 
 <div id="progress" class="page">
  <div class="roleline"><h2>Öğrenci gelişim analizi</h2><button type="button" class="secondary" onclick="renderProgress()">Yenile</button></div>
- <div class="card"><label>Öğrenci seç</label><select id="progressStudent" onchange="renderProgress()"><option value="all">Tüm öğrenciler</option></select><p class="muted">Son 7 günün çalışma kayıtları üzerinden hesaplanır.</p></div>
+ <div class="card grid"><div><label>Öğrenci seç</label><select id="progressStudent" onchange="renderProgress()"><option value="all">Tüm öğrenciler</option></select></div><div><label>Analiz dönemi</label><select id="progressPeriod" onchange="renderProgress()"><option value="7">Son 7 gün</option><option value="30">Son 30 gün</option></select></div><p class="muted" style="grid-column:1/-1">Çalışma kayıtları seçilen döneme göre hesaplanır. Öğrenci seçildiğinde net hedef çizgisi gösterilir.</p></div>
+ <div class="card"><h3>Net gelişim grafiği ve hedef çizgisi</h3><div id="progressTrendChart"><p class="muted">Grafik için öğrenci seçin.</p></div></div>
  <div id="progressSummary" class="stats"></div>
  <div class="card"><h3>Derslere göre net gelişimi</h3><div id="subjectProgress"></div></div>
  <div class="card"><h3>Haftalık öğrenci karşılaştırması</h3><div id="studentProgress"></div></div>
@@ -103,7 +104,8 @@ function renderProgress(){
  const prior=select.value||'all';
  select.innerHTML='<option value="all">Tüm öğrenciler</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');
  if(prior==='all'||cache.students.some(s=>s.id===prior))select.value=prior;
- const since=new Date();since.setDate(since.getDate()-6);const cutoff=since.toISOString().slice(0,10);
+ const days=Number($('progressPeriod')?.value||7);
+ const since=new Date();since.setDate(since.getDate()-(days-1));const cutoff=since.toISOString().slice(0,10);
  const recent=cache.work.filter(w=>(w.recorded_on||'')>=cutoff);
  const chosen=select.value;
  const students=chosen==='all'?cache.students:cache.students.filter(s=>s.id===chosen);
@@ -117,7 +119,23 @@ function renderProgress(){
  perStudent.sort((a,b)=>b.net-a.net);
  $('studentProgress').innerHTML=perStudent.map((x,i)=>row((i+1)+'. '+x.s.full_name,x.q+' soru • '+x.r.length+' kayıt',x.net.toFixed(2).replace('.',',')+' net')).join('')||'<p class="muted">Öğrenci bulunamadı.</p>';
  const alerts=perStudent.filter(x=>!x.r.length||x.target===0||x.q<x.target);
- $('workAlerts').innerHTML=alerts.length?alerts.map(x=>row(x.s.full_name,!x.r.length?'Son 7 günde çalışma kaydı yok':x.target===0?'Soru hedefi girilmemiş':'Hedefin altında: '+x.q+'/'+x.target+' soru','Kontrol gerekli')).join(''):'<p class="muted">Eksik çalışma uyarısı yok.</p>';
+ $('workAlerts').innerHTML=alerts.length?alerts.map(x=>row(x.s.full_name,!x.r.length?'Seçilen dönemde çalışma kaydı yok':x.target===0?'Soru hedefi girilmemiş':'Hedefin altında: '+x.q+'/'+x.target+' soru','Kontrol gerekli')).join(''):'<p class="muted">Eksik çalışma uyarısı yok.</p>';
+ const chart=$('progressTrendChart');
+ if(chosen==='all'){chart.innerHTML='<p class="muted">Net hedef çizgisini görmek için yukarıdan bir öğrenci seçin.</p>';}
+ else{
+  const student=students[0],items=rows.filter(w=>w.student_id===student.id).sort((a,b)=>String(a.recorded_on).localeCompare(String(b.recorded_on)));
+  if(!items.length){chart.innerHTML='<p class="muted">Seçilen dönemde bu öğrenciye ait çalışma kaydı yok.</p>';}
+  else{
+   const vals=items.map(x=>Number(x.net)||0),targetNet=Number(student.target_net)||0,max=Math.max(90,...vals,targetNet),w=680,h=250,left=42,right=18,top=24,bottom=42;
+   const pts=vals.map((v,i)=>({x:items.length===1?(w-left-right)/2+left:left+i*(w-left-right)/(items.length-1),y:top+(max-v)/max*(h-top-bottom)}));
+   const poly=pts.map(p=>p.x+','+p.y).join(' ');
+   const dots=pts.map((p,i)=>'<circle cx="'+p.x+'" cy="'+p.y+'" r="5" fill="#7b2942"/><text x="'+p.x+'" y="'+(p.y-11)+'" text-anchor="middle" font-size="11" fill="#142d4e">'+vals[i].toFixed(1).replace('.',',')+'</text>').join('');
+   const targetY=targetNet?top+(max-targetNet)/max*(h-top-bottom):null;
+   const targetLine=targetNet?'<line x1="'+left+'" y1="'+targetY+'" x2="'+(w-right)+'" y2="'+targetY+'" stroke="#23845b" stroke-width="2" stroke-dasharray="7 5"/><text x="'+(w-right)+'" y="'+(targetY-7)+'" text-anchor="end" font-size="11" fill="#23845b">Hedef '+targetNet.toFixed(1).replace('.',',')+'</text>':'';
+   const labels=items.map((x,i)=>'<text x="'+pts[i].x+'" y="'+(h-13)+'" text-anchor="middle" font-size="10" fill="#718096">'+(i+1)+'. kayıt</text>').join('');
+   chart.innerHTML='<p class="muted">'+safe(student.full_name)+' • '+items.length+' çalışma kaydı • Hedef net: '+(targetNet?targetNet.toFixed(1).replace('.',','):'belirtilmemiş')+'</p><svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Çalışma netleri ve hedef çizgisi" style="width:100%;height:auto"><line x1="'+left+'" y1="'+top+'" x2="'+left+'" y2="'+(h-bottom)+'" stroke="#cbd5e0"/><line x1="'+left+'" y1="'+(h-bottom)+'" x2="'+(w-right)+'" y2="'+(h-bottom)+'" stroke="#cbd5e0"/>'+targetLine+'<polyline points="'+poly+'" fill="none" stroke="#7b2942" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+dots+labels+'</svg><p class="muted">Bordo çizgi çalışma kayıtlarındaki neti, kesikli yeşil çizgi öğrencinin net hedefini gösterir.</p>';
+  }
+ }
 }
 function populateStudentSelect(){const el=$('ws');if(!el)return;const val=el.value;el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');if(cache.students.some(s=>s.id===val))el.value=val;}
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
