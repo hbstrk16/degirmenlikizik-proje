@@ -78,8 +78,9 @@ function renderExamAnalysis(){
  $('examAnalysisSummary').innerHTML='<div class="stat"><span class="muted">Kayıtlı deneme</span><strong>'+exams.length+'</strong><small>Seçili kapsam</small></div><div class="stat"><span class="muted">Ortalama net</span><strong>'+avg.toFixed(2).replace('.',',')+'</strong><small>Deneme kayıt ortalaması</small></div><div class="stat"><span class="muted">En yüksek net</span><strong>'+best.toFixed(2).replace('.',',')+'</strong><small>Kaydedilen sonuçlar</small></div>';
  $('examRanking').innerHTML=latestByStudent.map((x,i)=>row((i+1)+'. '+x.s.full_name,x.latest?x.latest.name+' • '+x.list.length+' deneme':'Henüz deneme kaydı yok',x.latest?Number(x.latest.net).toFixed(2).replace('.',',')+' net':'Kayıt bekleniyor')).join('')||'<p class="muted">Öğrenci bulunamadı.</p>';
  $('examTrend').innerHTML=sorted.length?sorted.slice().reverse().map(e=>row(e.student+' • '+e.name,e.created_at?new Date(e.created_at).toLocaleDateString('tr-TR'):'Tarih yok',Number(e.net).toFixed(2).replace('.',',')+' net')).join(''):'<p class="muted">Henüz deneme sonucu girilmedi.</p>';
- const chartItems=chosen==='all'?sorted.slice(-10):sorted.filter(e=>e.student_id===chosen).slice(-10);
- if(chartItems.length<2){$('examTrendChart').innerHTML='<p class="muted">Grafiği oluşturmak için aynı öğrenciye ait en az 2 deneme kaydı gerekli.</p>';}
+ const chartItems=chosen==='all'?[]:sorted.filter(e=>e.student_id===chosen).slice(-10);
+ if(chosen==='all'){$('examTrendChart').innerHTML='<p class="muted">Öğrenci bazlı gelişim grafiği için yukarıdan bir öğrenci seçin.</p>';}
+ else if(chartItems.length<2){$('examTrendChart').innerHTML='<p class="muted">Grafiği oluşturmak için aynı öğrenciye ait en az 2 deneme kaydı gerekli.</p>';}
  else{
   const vals=chartItems.map(e=>Number(e.net)||0),max=Math.max(90,...vals),min=0,w=640,h=210,left=42,right=16,top=18,bottom=38;
   const pts=vals.map((v,i)=>({x:left+i*(w-left-right)/(vals.length-1),y:top+(max-v)/(max-min)*(h-top-bottom)}));
