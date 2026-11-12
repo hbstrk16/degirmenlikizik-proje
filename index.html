@@ -205,19 +205,18 @@ function renderExamAnalysis(){
 
 function renderTodayPlan(){
  const schedules={
-  1:[['İnkılap',40,'20–25 soru'],['Türkçe',40,'20–25 soru'],['Matematik',40,'12–18 soru'],['Fen Bilimleri',60,'30–40 soru']],
-  2:[['Türkçe',40,'20–25 soru'],['Matematik',60,'20–30 soru']],
-  3:[['Fen Bilimleri',40,'18–25 soru'],['Din Kültürü',40,'20–25 soru'],['İngilizce',40,'20–25 soru'],['Matematik',60,'20–30 soru']],
-  4:[['İnkılap',40,'20–25 soru'],['Fen Bilimleri',40,'18–25 soru'],['Matematik',40,'12–18 soru'],['Türkçe',60,'30–40 soru']],
-  5:[['İngilizce',40,'20–25 soru']],
+  1:[['14.00–14.20','Paragraf','20 dk'],['14.20–15.00','Fen Bilimleri • Branş denemesi','40 dk'],['15.30–16.10','Test etütü • İnkılap Tarihi','40 dk'],['16.20–17.00','Test etütü • Türkçe','40 dk'],['19.30–19.55','Kitap okuma','25 dk'],['20.00–20.40','Test etütü • Matematik','40 dk'],['20.50–21.30','Ödev etütü','40 dk'],['22.30–23.30','Test etütü • Fen Bilimleri','60 dk']],
+  2:[['14.00–14.20','Paragraf','20 dk'],['14.20–15.00','Matematik • Branş denemesi','40 dk'],['15.30–16.10','Test etütü • Türkçe','40 dk'],['16.20–17.00','Ödev etütü','40 dk'],['19.30–19.55','Kitap okuma','25 dk'],['20.00–20.40','Türkçe ders','40 dk'],['20.50–21.30','Türkçe ders','40 dk'],['22.30–23.30','Test etütü • Matematik','60 dk']],
+  3:[['14.00–14.20','Paragraf','20 dk'],['14.20–15.00','Türkçe • Branş denemesi','40 dk'],['15.30–16.10','Test etütü • Fen Bilimleri','40 dk'],['16.20–17.00','Test etütü • Din Kültürü','40 dk'],['19.30–19.55','Kitap okuma','25 dk'],['20.00–20.40','Test etütü • İngilizce','40 dk'],['20.50–21.30','Ödev etütü','40 dk'],['22.30–23.30','Test etütü • Matematik','60 dk']],
+  4:[['14.00–14.20','Paragraf','20 dk'],['14.20–15.00','İnkılap Tarihi • Branş denemesi','40 dk'],['15.30–16.10','Serbest çalışma • Deneme analizi','40 dk'],['16.20–17.00','Test etütü • Fen Bilimleri','40 dk'],['19.30–19.55','Kitap okuma','25 dk'],['20.00–20.40','Test etütü • Matematik','40 dk'],['20.50–21.30','Ödev etütü','40 dk'],['22.30–23.30','Test etütü • Türkçe','60 dk']],
+  5:[['14.00–14.20','Paragraf','20 dk'],['14.20–15.00','İngilizce • Branş denemesi','40 dk'],['15.30–16.10','Serbest çalışma • Deneme analizi','40 dk'],['16.20–17.00','Ödev etütü','40 dk'],['19.30–19.55','Manevi sohbet','25 dk'],['20.00–20.40','TÜZDER oyunları','40 dk'],['20.50–21.30','Sosyal faaliyet • İkram','40 dk'],['22.30','İstirahat','']],
   6:[],0:[]
  };
  const names=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
  const day=new Date().getDay(),items=schedules[day]||[];
- $('todayPlanTitle').textContent=names[day]+' • Günlük çalışma programı';
- const daily='<div class="entry"><b>Paragraf</b><small>20 dakika • 10–15 soru</small></div>';
- const lessons=items.length?items.map(x=>'<div class="entry"><b>'+x[0]+'</b><small>'+x[1]+' dakika • '+x[2]+'</small></div>').join(''):'<div class="entry"><b>Hafta sonu</b><small>Eksik tamamlama, kitap okuma ve haftalık tekrar</small></div>';
- $('todayPlan').innerHTML=daily+lessons;
+ $('todayPlanTitle').textContent=names[day]+' • Haftalık etüt programı';
+ const lessons=items.length?items.map(x=>'<div class="entry" style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><b>'+x[1]+'</b><small>'+x[0]+'</small></div><strong style="white-space:nowrap;color:var(--burgundy)">'+x[2]+'</strong></div>').join(''):'<div class="entry"><b>Hafta sonu</b><small>Programda planlı etüt yok.</small></div>';
+ $('todayPlan').innerHTML=lessons;
 }
 function renderTeacherChecks(){
  const box=$('teacherChecks');if(!box)return;
