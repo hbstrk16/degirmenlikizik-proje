@@ -32,7 +32,7 @@
  <div class="card"><label>Öğrenci seç</label><select id="examAnalysisStudent" onchange="renderExamAnalysis()"><option value="all">Tüm öğrenciler</option></select><p class="muted">Analiz, kaydedilmiş toplam deneme netleri ve kayıt tarihlerine göre hazırlanır.</p></div>
  <div id="examAnalysisSummary" class="stats"></div>
  <div class="card"><h3>Öğrenci başarı sıralaması</h3><div id="examRanking"></div></div>
- <div class="card"><h3>Deneme bazında net gelişim grafiği</h3><div id="examTrendChart"></div><div id="examTrend"></div></div><div class="card"><h3>Ders bazında net analizi</h3><div id="examSubjectAnalysis"></div></div>
+ <div class="card"><h3>Deneme bazında net gelişim grafiği</h3><div id="examTrendChart"></div><div id="examTrend"></div></div><div class="card"><h3>Ders bazında net analizi</h3><div id="examSubjectAnalysis"></div></div><div class="card"><h3>Öğrenci bazında ders neti artış-azalışı</h3><p class="muted">Her öğrencinin son iki denemesi karşılaştırılır. Pozitif değer artışı, negatif değer düşüşü gösterir.</p><div id="examSubjectChanges"></div></div>
  <div class="card"><h3>Hedef bilgileri ve takip uyarıları</h3><div id="examGoals"></div></div>
 </div>
 <div id="reports" class="page"><h2>Haftalık öğrenci raporu</h2><div class="card"><label>Öğrenci</label><input id="rs" placeholder="Ad Soyad"><button class="full" onclick="makeReport()">Raporu oluştur</button></div><div class="card" id="reportout"><p class="muted">Öğrenci adını girerek özet oluşturun.</p></div></div></section><p class="muted" style="text-align:center;padding:20px">Değirmenlikızık Proje • İlk prototip</p></main>
@@ -96,6 +96,23 @@ function renderExamAnalysis(){
  const subjects=[['Türkçe','turkish_net'],['Matematik','math_net'],['Fen Bilimleri','science_net'],['İnkılap','revolution_net'],['Din Kültürü','religion_net'],['İngilizce','english_net']];
  $('examSubjectAnalysis').innerHTML=subjects.map(([label,key])=>{const vals=exams.filter(e=>e[key]!==null&&e[key]!==undefined).map(e=>Number(e[key]));const mean=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;const latest=sorted.slice().reverse().find(e=>e[key]!==null&&e[key]!==undefined);return row(label,latest?'Son kayıt: '+Number(latest[key]).toFixed(2).replace('.',',')+' net':'Ders verisi henüz yok',mean===null?'Ortalama bekleniyor':'Ortalama: '+mean.toFixed(2).replace('.',',')+' net')}).join('');
  const goals=latestByStudent.map(x=>row(x.s.full_name,'LGS hedefi: '+(x.s.target_lgs_score??'Belirtilmemiş')+' puan',x.delta===null?'Karşılaştırma için en az 2 deneme gerekli':(x.delta>0?'+':'')+x.delta.toFixed(2).replace('.',',')+' net değişim'));
+ const changeRows=[];
+ const compareStudents=chosen==='all'?students:students;
+ compareStudents.forEach(s=>{
+  const list=sorted.filter(e=>e.student_id===s.id);
+  if(list.length<2){changeRows.push(row(s.full_name,'Ders bazında karşılaştırma için en az 2 deneme gerekli','Veri bekleniyor'));return;}
+  const prev=list[list.length-2],last=list[list.length-1];
+  const diffs=subjects.map(([label,key])=>{
+   const a=Number(prev[key]),b=Number(last[key]);
+   if(prev[key]===null||prev[key]===undefined||last[key]===null||last[key]===undefined||!Number.isFinite(a)||!Number.isFinite(b))return null;
+   const d=b-a,sign=d>0?'+':'';
+   return label+': '+sign+d.toFixed(2).replace('.',',');
+  }).filter(Boolean);
+  const positive=subjects.filter(([label,key])=>prev[key]!=null&&last[key]!=null&&Number(last[key])>Number(prev[key])).length;
+  const negative=subjects.filter(([label,key])=>prev[key]!=null&&last[key]!=null&&Number(last[key])<Number(prev[key])).length;
+  changeRows.push(row(s.full_name,'Son iki deneme: '+(prev.name||'Önceki')+' → '+(last.name||'Son'),diffs.length?diffs.join(' • '):'Ders netleri girilmemiş'));
+ });
+ $('examSubjectChanges').innerHTML=changeRows.join('')||'<p class="muted">Karşılaştırılacak öğrenci bulunamadı.</p>';
  $('examGoals').innerHTML=latestByStudent.map(x=>{
   const target=Number(x.s.target_net)||0,latestNet=x.latest?Number(x.latest.net):null;
   const comparison=target>0&&latestNet!==null?'Son net: '+latestNet.toFixed(2).replace('.',',')+' / Hedef: '+target.toFixed(2).replace('.',',')+' • '+(latestNet>=target?'Hedefe ulaştı':'Kalan: '+(target-latestNet).toFixed(2).replace('.',',')+' net'):'Net hedefi girilmemiş';
