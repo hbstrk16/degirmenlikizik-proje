@@ -340,7 +340,7 @@ function populateAllStudentSelects(){
   const el=$(id);if(!el)return;
   const value=el.value;
   el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');
-  if(cache.students.some(s=>s.full_name===value))el.value=value;
+  if(cache.students.some(s=>s.id===value))el.value=value;
  });
 }
 function populateStudentSelect(){const el=$('ws');if(!el)return;const val=el.value;el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');if(cache.students.some(s=>s.id===val))el.value=val;}
