@@ -444,15 +444,32 @@ function openStudentDetail(id){
  const examHtml=exams.length?exams.map(e=>row(e.name||'Deneme',e.exam_date||'Tarih yok',Number(e.net||0).toFixed(2)+' net')).join(''):'<p class="muted">Henüz deneme kaydı yok.</p>';
  const targetHtml=target?subjects.map(([n,k])=>row(n,'Doğru hedefi: '+Number(target[k+'_correct_target']||0)+' • Yanlış hedefi: '+Number(target[k+'_wrong_target']||0),'Net hedefi: '+Number(target[k+'_net_target']||0).toFixed(2))).join(''):'<p class="muted">Henüz öğrenci hedefi belirlenmedi.</p>';
  const performanceHtml=exams.length?'<div class="work-table-wrap"><table class="work-table"><thead><tr><th>Ders</th><th>Son net</th><th>Önceki net</th><th>Değişim</th><th>Başarı</th></tr></thead><tbody>'+subjects.map(([name,key,limit])=>{
-  const values=exams.map(e=>({exam:e,net:Number(e[key+'_net']??(Number(e[key+'_correct']||0)-Number(e[key+'_wrong']||0)/3))})).filter(x=>Number.isFinite(x.net));
+  const values=exams.map(e=>({net:Number(e[key+'_net']??(Number(e[key+'_correct']||0)-Number(e[key+'_wrong']||0)/3))}));
   const latest=values[0],previous=values[1],delta=latest&&previous?latest.net-previous.net:null;
   const pct=latest?Math.max(0,Math.min(100,latest.net/limit*100)):0;
   const goal=Number(target?.[key+'_net_target']||0),goalPct=goal>0&&latest?Math.round(latest.net/goal*100):null;
   const change=delta===null?'—':(delta>0?'+':'')+delta.toFixed(2).replace('.',',');
   const status=delta===null?'İlk kayıt':delta>0?'Yükseliş':delta<0?'Düşüş':'Aynı';
-  return '<tr><td class="work-name">'+name+'</td><td><b>'+(latest?latest.net.toFixed(2).replace('.',','):'—')+'</b></td><td>'+(previous?previous.net.toFixed(2).replace('.',','):'—')+'</td><td>'+change+'<br><small>'+status+'</small></td><td><b>'+Math.round(pct)+'%</b>'+(goalPct===null?'':'<br><small>Hedefin %'+goalPct+'’i</small>')+'</td></tr>';
- }).join('')+'</tbody></table></div><p class="muted">Başarı yüzdesi, son denemedeki ders netinin o dersin soru sayısına oranıdır. Değişim, son iki denemenin net farkıdır.</p>':'<p class="muted">Ders ders başarı yüzdesi ve net gelişimini görmek için en az bir deneme sonucu girilmelidir.</p>';
- $('studentDetailContent').innerHTML='<div class="card"><h3>Öğrenci bilgileri</h3>'+row('Ad Soyad',s.full_name,'Sınıf: '+s.grade)+'</div><div class="card"><h3>Etüt Takibi özeti</h3><div class="stats"><div class="stat"><small>Etüt kaydı</small><strong>'+work.length+'</strong></div><div class="stat"><small>Çözülen soru</small><strong>'+q+'</strong></div><div class="stat"><small>Doğru / Yanlış</small><strong>'+c+' / '+w+'</strong></div></div>'+workHtml+'</div><div class="card"><h3>Ders ders başarı ve net gelişimi</h3>'+performanceHtml+'</div><div class="card"><h3>Deneme sonuçları</h3>'+examHtml+'</div><div class="card"><h3>Öğrenci hedefleri</h3>'+targetHtml+'</div><div class="card"><h3>Haftalık rapor</h3><p class="muted">Bu öğrenci için tarih aralığı seçerek haftalık rapor oluşturabilirsin.</p><button type="button" class="full" onclick="openStudentWeeklyReport(\''+id+'\')">Bu öğrencinin raporunu aç</button></div>';
+  return '<tr><td class="work-name">'+name+'</td><td><b>'+latest.net.toFixed(2).replace('.',',')+'</b></td><td>'+(previous?previous.net.toFixed(2).replace('.',','):'—')+'</td><td>'+change+'<br><small>'+status+'</small></td><td><b>'+Math.round(pct)+'%</b>'+(goalPct===null?'':'<br><small>Hedefin %'+goalPct+'’i</small>')+'</td></tr>';
+ }).join('')+'</tbody></table></div><p class="muted">Başarı yüzdesi son denemedeki ders netinin soru sayısına oranıdır. Değişim son iki denemenin net farkıdır.</p>':'<p class="muted">Ders ders başarı yüzdesi ve net gelişimini görmek için en az bir deneme sonucu girilmelidir.</p>';
+ const insightHtml=exams.length?(()=>{
+  const stats=subjects.map(([name,key,limit])=>{
+   const latest=exams[0],previous=exams[1];
+   const net=Number(latest[key+'_net']??(Number(latest[key+'_correct']||0)-Number(latest[key+'_wrong']||0)/3));
+   const prev=previous?Number(previous[key+'_net']??(Number(previous[key+'_correct']||0)-Number(previous[key+'_wrong']||0)/3)):null;
+   return {name,net,prev,pct:net/limit*100,delta:prev===null?null:net-prev};
+  });
+  const strong=stats.filter(x=>x.pct>=90);
+  const weak=stats.filter(x=>x.pct<80||(x.delta!==null&&x.delta<0));
+  const strongHtml=strong.length?strong.map(x=>row(x.name,'Başarı: %'+x.pct.toFixed(0),x.delta===null?'İlk deneme':(x.delta>=0?'+':'')+x.delta.toFixed(2).replace('.',',')+' net değişim')).join(''):'<p class="muted">Henüz belirgin bir güçlü ders oluşmadı. Düzenli takip sürdürülsün.</p>';
+  const weakHtml=weak.length?weak.map(x=>row(x.name,'Başarı: %'+x.pct.toFixed(0),x.delta===null?'Gelişim için takip':(x.delta>=0?'+':'')+x.delta.toFixed(2).replace('.',',')+' net değişim')).join(''):'<p class="muted">Son denemede %80 altında veya düşüş gösteren ders yok.</p>';
+  const priorities=(weak.length?weak:stats).slice().sort((a,b)=>a.pct-b.pct).slice(0,2);
+  const advice=priorities.map(x=>x.name+' dersinde yanlış yapılan kazanımları analiz edip hedefli soru çözümü yapılmalı').join('. ');
+  const total=stats.reduce((n,x)=>n+x.net,0);
+  const evaluation='<p><b>Öğretmen değerlendirmesi:</b> Son deneme toplamı '+total.toFixed(2).replace('.',',')+' net. '+(strong.length?'Güçlü dersler: '+strong.map(x=>x.name).join(', ')+'. ':'')+(weak.length?'Öncelikli gelişim alanları: '+weak.map(x=>x.name).join(', ')+'. ':'')+'Öneri: '+advice+'. Sonraki denemede bu derslerin net değişimi yeniden kontrol edilmeli.</p>';
+  return '<div class="card"><h3>Güçlü yönler</h3>'+strongHtml+'</div><div class="card"><h3>Geliştirilmesi gereken dersler</h3>'+weakHtml+'</div><div class="card"><h3>Öğretmen değerlendirmesi ve öneri</h3>'+evaluation+'<p class="muted">Otomatik değerlendirme son deneme netleri ve önceki denemeyle karşılaştırma üzerinden oluşturulur; öğretmenin bireysel gözleminin yerine geçmez.</p></div>';
+ })():'<div class="card"><h3>Güçlü yönler ve öğretmen değerlendirmesi</h3><p class="muted">Bu değerlendirme için önce en az bir deneme sonucu girilmelidir.</p></div>';
+ $('studentDetailContent').innerHTML='<div class="card"><h3>Öğrenci bilgileri</h3>'+row('Ad Soyad',s.full_name,'Sınıf: '+s.grade)+'</div><div class="card"><h3>Etüt Takibi özeti</h3><div class="stats"><div class="stat"><small>Etüt kaydı</small><strong>'+work.length+'</strong></div><div class="stat"><small>Çözülen soru</small><strong>'+q+'</strong></div><div class="stat"><small>Doğru / Yanlış</small><strong>'+c+' / '+w+'</strong></div></div>'+workHtml+'</div><div class="card"><h3>Ders ders başarı ve net gelişimi</h3>'+performanceHtml+'</div>'+insightHtml+'<div class="card"><h3>Deneme sonuçları</h3>'+examHtml+'</div><div class="card"><h3>Öğrenci hedefleri</h3>'+targetHtml+'</div><div class="card"><h3>Haftalık rapor</h3><p class="muted">Bu öğrenci için tarih aralığı seçerek haftalık rapor oluşturabilirsin.</p><button type="button" class="full" onclick="openStudentWeeklyReport(\''+id+'\')">Bu öğrencinin raporunu aç</button></div>';
  show('studentDetail',document.querySelector('.tabs .tab:nth-child(2)'));
 }
 function openStudentWeeklyReport(id){
