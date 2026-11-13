@@ -357,11 +357,36 @@ function updateWorkPreview(){const c=+$('correct').value||0,w=+$('wrong').value|
 ['correct','wrong','total','targetq'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',updateWorkPreview)});
 
 const etutProgram={
- 1:[['Fen Bilimleri • Branş denemesi','Fen Bilimleri','40 dk']],
- 2:[['Matematik • Branş denemesi','Matematik','40 dk']],
- 3:[['Türkçe • Branş denemesi','Türkçe','40 dk']],
- 4:[['İnkılap Tarihi • Branş denemesi','İnkılap','40 dk']],
- 5:[['İngilizce • Branş denemesi','İngilizce','40 dk']],
+ 1:[
+  ['Fen Bilimleri • Branş denemesi','Fen Bilimleri','40 dk'],
+  ['15.30 • Test etütü • İnkılap Tarihi','İnkılap','40 dk'],
+  ['16.20 • Test etütü • Türkçe','Türkçe','40 dk'],
+  ['20.00 • Test etütü • Matematik','Matematik','40 dk'],
+  ['22.30 • Test etütü • Fen Bilimleri','Fen Bilimleri','60 dk']
+ ],
+ 2:[
+  ['Matematik • Branş denemesi','Matematik','40 dk'],
+  ['15.30 • Test etütü • Türkçe','Türkçe','40 dk'],
+  ['22.30 • Test etütü • Matematik','Matematik','60 dk']
+ ],
+ 3:[
+  ['Türkçe • Branş denemesi','Türkçe','40 dk'],
+  ['15.30 • Test etütü • Fen Bilimleri','Fen Bilimleri','40 dk'],
+  ['16.20 • Test etütü • Din Kültürü','Din Kültürü','40 dk'],
+  ['20.00 • Test etütü • İngilizce','İngilizce','40 dk'],
+  ['22.30 • Test etütü • Matematik','Matematik','60 dk']
+ ],
+ 4:[
+  ['İnkılap Tarihi • Branş denemesi','İnkılap','40 dk'],
+  ['15.30 • Test etütü • İnkılap Tarihi','İnkılap','40 dk'],
+  ['16.20 • Test etütü • Fen Bilimleri','Fen Bilimleri','40 dk'],
+  ['20.00 • Test etütü • Matematik','Matematik','40 dk'],
+  ['22.30 • Test etütü • Türkçe','Türkçe','60 dk']
+ ],
+ 5:[
+  ['İngilizce • Branş denemesi','İngilizce','40 dk'],
+  ['15.30 • Test etütü • İngilizce','İngilizce','40 dk']
+ ],
  0:[],6:[]
 };
 function localDateValue(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day}
@@ -374,7 +399,7 @@ function loadWorkSessions(){
 }
 function renderWorkTable(){
  const chosen=selectedWorkSlot();if(!chosen){$('workTable').innerHTML='<p class="muted">Önce programdan bir etüt seçin.</p>';return}
- const [label,subject,duration]=chosen.slot,session=label+' • '+duration,totalTarget=['Türkçe','Matematik','Fen Bilimleri'].includes(subject)?20:10;
+ const [label,subject,duration]=chosen.slot,session=label+' • '+duration,isTest=label.includes('Test etütü'),totalTarget=isTest?(duration==='60 dk'?35:25):(['Türkçe','Matematik','Fen Bilimleri'].includes(subject)?20:10);
  $('workSessionInfo').textContent=chosen.date+' • '+session+' • '+cache.students.length+' öğrenci • Soru hedefi: '+totalTarget;
  const records=cache.work.filter(w=>w.recorded_on===chosen.date&&w.session_label===session);
  $('workTable').innerHTML='<div class="work-table-wrap"><table class="work-table"><thead><tr><th>Öğrenci</th><th>Hedef</th><th>Çözülen</th><th>Doğru</th><th>Yanlış</th><th>Boş</th><th>Net</th><th>Durum</th></tr></thead><tbody>'+[...cache.students].sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr')).map(s=>{
