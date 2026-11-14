@@ -97,10 +97,27 @@ create table if not exists public.attendance_records (
   id uuid primary key default gen_random_uuid(),
   student_id uuid not null references public.students(id) on delete cascade,
   attendance_date date not null default current_date,
-  status text not null check(status in ('Tam gün devamsız','Yarım gün devamsız','Geç geldi','İzinli')),
+  status text not null check(status in ('Geldi','Tam gün devamsız','Yarım gün devamsız','Geç geldi','İzinli')),
   note text,
   created_at timestamptz not null default now()
 );
+
+-- Eski başlangıç şemasındaki devam kayıtlarını yeni tabloya güvenli aktar.
+-- Aynı kayıt kimliği daha önce taşındıysa tekrar eklenmez.
+insert into public.attendance_records (id,student_id,attendance_date,status,note,created_at)
+select
+  a.id,
+  a.student_id,
+  a.attendance_date,
+  case a.status
+    when 'Gelmedi' then 'Tam gün devamsız'
+    else a.status
+  end,
+  a.note,
+  a.created_at
+from public.attendance a
+where a.status in ('Geldi','Gelmedi','Geç geldi','İzinli')
+on conflict (id) do nothing;
 
 -- 5) Yetkilendirme: öğrenci/veli yalnızca bağlı olduğu öğrencinin
 -- kayıtlarını okuyabilir; yazma işlemleri öğretmene aittir.
