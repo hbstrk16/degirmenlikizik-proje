@@ -576,9 +576,9 @@ function selectedWorkSlot(){const date=$('workdate')?.value,idx=Number($('workSe
 function loadWorkSessions(){
  const date=$('workdate').value||localDateValue(),day=new Date(date+'T12:00:00').getDay(),slots=etutProgram[day]||[],select=$('workSession'),isSaturday=day===6;
  $('workdate').value=date;
- const selectorCard=select.closest('.grid');
+ const selectorField=select.parentElement;
  const helpText=select.closest('.card')?.querySelector('p.muted');
- if(selectorCard)selectorCard.style.display=isSaturday?'none':'grid';
+ if(selectorField)selectorField.style.display=isSaturday?'none':'';
  if(helpText)helpText.style.display=isSaturday?'none':'';
  $('workTable').style.display=isSaturday?'none':'';
  $('saveWorkBatch').style.display=isSaturday?'none':'';
