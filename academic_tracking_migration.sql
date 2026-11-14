@@ -102,6 +102,12 @@ create table if not exists public.attendance_records (
   created_at timestamptz not null default now()
 );
 
+alter table public.attendance_records
+  drop constraint if exists attendance_records_status_check;
+alter table public.attendance_records
+  add constraint attendance_records_status_check
+  check(status in ('Geldi','Tam gün devamsız','Yarım gün devamsız','Geç geldi','İzinli'));
+
 -- Eski başlangıç şemasındaki devam kayıtlarını yeni tabloya güvenli aktar.
 -- Aynı kayıt kimliği daha önce taşındıysa tekrar eklenmez.
 insert into public.attendance_records (id,student_id,attendance_date,status,note,created_at)
