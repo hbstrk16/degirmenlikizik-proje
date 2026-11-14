@@ -186,15 +186,10 @@ input,select{min-height:44px;max-width:100%}
 <div id="studentModal" class="modal-backdrop hide" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
  <form class="modal" onsubmit="saveStudent(event)">
   <div class="roleline"><h2 id="studentModalTitle">Yeni öğrenci kaydı</h2><button type="button" class="secondary" onclick="closeStudentForm()">Kapat</button></div>
-  <p class="muted">Öğrenci, veli iletişim ve hedef bilgilerini bu karttan yönetebilirsiniz.</p>
+  <p class="muted">Yalnızca öğrencinin adı soyadı ve sınıf bilgisi kaydedilir.</p>
   <div class="grid">
    <div><label for="sfName">Öğrenci adı soyadı *</label><input id="sfName" required maxlength="120" placeholder="Ad Soyad"></div>
    <div><label for="sfGrade">Sınıf *</label><select id="sfGrade" required><option value="8. sınıf">8. sınıf</option><option value="7. sınıf">7. sınıf</option><option value="6. sınıf">6. sınıf</option><option value="5. sınıf">5. sınıf</option></select></div>
-   <div><label for="sfEmail">Öğrenci e-posta adresi</label><input id="sfEmail" type="email" maxlength="254" placeholder="ogrenci@ornek.com" autocomplete="email"></div>
-   <div><label for="sfParentName">Veli adı soyadı</label><input id="sfParentName" maxlength="120" placeholder="Veli adı soyadı"></div>
-   <div><label for="sfParentEmail">Veli e-posta adresi</label><input id="sfParentEmail" type="email" maxlength="254" placeholder="veli@ornek.com" autocomplete="email"></div>
-   <div><label for="sfTargetScore">LGS puan hedefi (0–500)</label><input id="sfTargetScore" type="number" min="0" max="500" step="0.01" placeholder="Örn. 480"></div>
-   <div style="grid-column:1/-1"><label for="sfTargetHighSchool">Hedef lise</label><input id="sfTargetHighSchool" maxlength="180" placeholder="Hedeflenen lise adı"></div>
   </div>
   <p id="studentFormMsg" class="muted" aria-live="polite">Yıldızlı alanlar zorunludur.</p>
   <div class="modal-actions"><button type="button" class="secondary" onclick="closeStudentForm()">Vazgeç</button><button id="studentSaveBtn" type="submit">Öğrenciyi kaydet</button></div>
@@ -505,7 +500,7 @@ function renderStudentDirectory(){
  const grade=$('studentGradeFilter')?.value||'';
  const rows=[...cache.students].filter(x=>(!query||String(x.full_name||'').toLocaleLowerCase('tr-TR').includes(query))&&(!grade||x.grade===grade)).sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr'));
  const summary=$('studentFilterSummary');if(summary)summary.textContent=rows.length+' / '+cache.students.length+' öğrenci gösteriliyor.';
- box.innerHTML=rows.length?rows.map(x=>'<div class="entry student-row"><div class="student-info"><b>'+safe(x.full_name)+'</b><small>'+safe(x.grade)+(x.target_lgs_score!==null&&x.target_lgs_score!==undefined?' • LGS hedefi: '+Number(x.target_lgs_score).toLocaleString('tr-TR'):'')+(x.target_high_school?' • '+safe(x.target_high_school):'')+'</small></div><button type="button" class="secondary" data-edit-id="'+safe(x.id)+'" onclick="editStudent(this.dataset.editId)">Düzenle</button><button type="button" class="secondary" data-id="'+safe(x.id)+'" onclick="openStudentDetail(this.dataset.id)">Detaylar</button></div>').join(''):'<p class="muted">Arama ve sınıf filtresine uygun öğrenci bulunamadı.</p>';
+ box.innerHTML=rows.length?rows.map(x=>'<div class="entry student-row"><div class="student-info"><b>'+safe(x.full_name)+'</b><small>'+safe(x.grade)+'</small></div><button type="button" class="secondary" data-edit-id="'+safe(x.id)+'" onclick="editStudent(this.dataset.editId)">Düzenle</button><button type="button" class="secondary" data-id="'+safe(x.id)+'" onclick="openStudentDetail(this.dataset.id)">Detaylar</button></div>').join(''):'<p class="muted">Arama ve sınıf filtresine uygun öğrenci bulunamadı.</p>';
 }
 function renderStudyAlerts(){
  const box=$('studyAlerts');if(!box)return;
@@ -542,8 +537,6 @@ function editStudent(id){
  const s=cache.students.find(x=>x.id===id);if(!s)return;
  editingStudentId=id;$('studentModalTitle').textContent='Öğrenci bilgilerini düzenle';
  $('sfName').value=s.full_name||'';$('sfGrade').value=s.grade||'8. sınıf';
- $('sfEmail').value=s.email||'';$('sfParentName').value=s.parent_name||'';$('sfParentEmail').value=s.parent_email||'';
- $('sfTargetScore').value=s.target_lgs_score??'';$('sfTargetHighSchool').value=s.target_high_school||'';
  $('studentSaveBtn').textContent='Değişiklikleri kaydet';$('studentFormMsg').textContent='Mevcut öğrenci kaydı güncellenecek; yeni kayıt oluşturulmayacak.';
  $('studentModal').classList.remove('hide');$('sfName').focus();
 }
@@ -552,15 +545,12 @@ async function saveStudent(event){
  event.preventDefault();
  const btn=$('studentSaveBtn'),msg=$('studentFormMsg');
  const full_name=$('sfName').value.trim().replace(/\s+/g,' '),grade=$('sfGrade').value;
- const email=$('sfEmail').value.trim().toLocaleLowerCase('tr-TR')||null,parent_name=$('sfParentName').value.trim().replace(/\s+/g,' ')||null,parent_email=$('sfParentEmail').value.trim().toLocaleLowerCase('tr-TR')||null;
- const scoreText=$('sfTargetScore').value.trim(),target_lgs_score=scoreText===''?null:Number(scoreText),target_high_school=$('sfTargetHighSchool').value.trim()||null;
  if(!full_name){msg.textContent='Öğrenci adı soyadı zorunludur.';return}
- if(target_lgs_score!==null&&(!Number.isFinite(target_lgs_score)||target_lgs_score<0||target_lgs_score>500)){msg.textContent='LGS puan hedefi 0 ile 500 arasında olmalıdır.';return}
  const normalized=full_name.toLocaleLowerCase('tr-TR');
  if(cache.students.some(s=>s.id!==editingStudentId&&String(s.full_name||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('tr-TR')===normalized)){
   msg.textContent='Bu isimde bir öğrenci zaten kayıtlı. Mevcut kaydı düzenleyin.';return;
  }
- const payload={full_name,grade,email,parent_name,parent_email,target_lgs_score,target_high_school};
+ const payload={full_name,grade};
  btn.disabled=true;btn.textContent='Kaydediliyor...';msg.textContent='Öğrenci kaydı veritabanına gönderiliyor...';
  try{
   const query=editingStudentId
