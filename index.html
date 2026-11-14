@@ -505,7 +505,7 @@ function renderStudentDirectory(){
  const grade=$('studentGradeFilter')?.value||'';
  const rows=[...cache.students].filter(x=>(!query||String(x.full_name||'').toLocaleLowerCase('tr-TR').includes(query))&&(!grade||x.grade===grade)).sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr'));
  const summary=$('studentFilterSummary');if(summary)summary.textContent=rows.length+' / '+cache.students.length+' öğrenci gösteriliyor.';
- box.innerHTML=rows.length?rows.map(x=>'<div class="entry student-row"><div class="student-info"><b>'+safe(x.full_name)+'</b><small>'+safe(x.grade)+'</small></div><button type="button" class="secondary" data-edit-id="'+safe(x.id)+'" onclick="editStudent(this.dataset.editId)">Düzenle</button><button type="button" class="secondary" data-id="'+safe(x.id)+'" onclick="openStudentDetail(this.dataset.id)">Detaylar</button></div>').join(''):'<p class="muted">Arama ve sınıf filtresine uygun öğrenci bulunamadı.</p>';
+ box.innerHTML=rows.length?rows.map(x=>'<div class="entry student-row"><div class="student-info"><b>'+safe(x.full_name)+'</b><small>'+safe(x.grade)+(x.target_lgs_score!==null&&x.target_lgs_score!==undefined?' • LGS hedefi: '+Number(x.target_lgs_score).toLocaleString('tr-TR'):'')+(x.target_high_school?' • '+safe(x.target_high_school):'')+'</small></div><button type="button" class="secondary" data-edit-id="'+safe(x.id)+'" onclick="editStudent(this.dataset.editId)">Düzenle</button><button type="button" class="secondary" data-id="'+safe(x.id)+'" onclick="openStudentDetail(this.dataset.id)">Detaylar</button></div>').join(''):'<p class="muted">Arama ve sınıf filtresine uygun öğrenci bulunamadı.</p>';
 }
 function renderStudyAlerts(){
  const box=$('studyAlerts');if(!box)return;
