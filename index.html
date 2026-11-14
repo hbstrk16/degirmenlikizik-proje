@@ -315,26 +315,33 @@ async function renderStudentPortal(userId){
   if(error)throw error;
   if(!student){$('studentPortalBody').innerHTML='<div class="card"><h2>Öğrenci hesabı eşleştirilmemiş</h2><p>Giriş yaptınız ancak öğrenci kaydınız henüz bu hesapla ilişkilendirilmemiş. Öğretmeninizden öğrenci hesabınızı eşleştirmesini isteyin.</p></div>';return}
   const sid=student.id;
-  const [workRes,examRes,bookRes]=await Promise.all([
-   supabaseClient.from('study_records').select('*').eq('student_id',sid).order('recorded_on',{ascending:false}).limit(10),
-   supabaseClient.from('exam_results').select('*').eq('student_id',sid).order('exam_date',{ascending:false}).limit(10),
-   supabaseClient.from('reading_records').select('*').eq('student_id',sid).order('recorded_on',{ascending:false}).limit(10)
+  const [workRes,examRes,bookRes,attendanceRes,valuesRes,targetRes]=await Promise.all([
+   supabaseClient.from('study_records').select('*').eq('student_id',sid).order('recorded_on',{ascending:false}).limit(20),
+   supabaseClient.from('exam_results').select('*').eq('student_id',sid).order('exam_date',{ascending:false}).limit(15),
+   supabaseClient.from('reading_records').select('*').eq('student_id',sid).order('recorded_on',{ascending:false}).limit(15),
+   supabaseClient.from('attendance_records').select('*').eq('student_id',sid).order('attendance_date',{ascending:false}).limit(15),
+   supabaseClient.from('values_records').select('*').eq('student_id',sid).order('recorded_on',{ascending:false}).limit(15),
+   supabaseClient.from('exam_targets').select('*').eq('student_id',sid).maybeSingle()
   ]);
-  if(workRes.error)throw workRes.error;if(examRes.error)throw examRes.error;if(bookRes.error)throw bookRes.error;
-  const work=workRes.data||[],exams=examRes.data||[],books=bookRes.data||[];
+  for(const result of [workRes,examRes,bookRes,attendanceRes,valuesRes,targetRes])if(result.error)throw result.error;
+  const work=workRes.data||[],exams=examRes.data||[],books=bookRes.data||[],attendance=attendanceRes.data||[],values=valuesRes.data||[],target=targetRes.data;
   const totalQuestions=work.reduce((n,x)=>n+Number(x.total_questions||0),0),totalNet=work.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
   const latestExam=exams[0],avgExam=exams.length?exams.reduce((n,x)=>n+Number(x.total_net||0),0)/exams.length:0;
   $('studentPortalName').textContent='Merhaba, '+student.full_name;
   const metric=(label,value)=>'<div class="stat"><small>'+label+'</small><strong>'+value+'</strong></div>';
   const studentRow=(a,b,c)=>'<div class="entry"><b>'+safe(a)+'</b><small>'+safe(b)+' • '+safe(c)+'</small></div>';
   const list=(items,empty)=>items.length?items.join(''):'<p class="muted">'+empty+'</p>';
+  const subjects=[['Türkçe','turkish'],['Matematik','math'],['Fen Bilimleri','science'],['İnkılap','revolution'],['Din Kültürü','religion'],['İngilizce','english']];
   const workRows=work.map(x=>studentRow(x.subject||'Etüt',String(x.recorded_on||'Tarih yok')+' • '+Number(x.correct||0)+' doğru • '+Number(x.wrong||0)+' yanlış • '+Number(x.blank||0)+' boş',Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)).toFixed(2).replace('.',',')+' net • '+(x.status||'Kaydedildi')+(x.teacher_note?' • Öğretmen notu: '+x.teacher_note:'')));
   const examRows=exams.map(x=>studentRow(x.exam_name||'Deneme',String(x.exam_date||'Tarih yok'),Number(x.total_net||0).toFixed(2).replace('.',',')+' net'));
   const bookRows=books.map(x=>studentRow(x.title||'Kitap',String(x.recorded_on||'Tarih yok')+' • '+(x.progress||''),x.status||'Durum belirtilmedi'));
-  $('studentPortalBody').innerHTML='<div class="card"><div class="eyebrow">AKADEMİK ÖZET</div><p class="muted">'+safe(student.grade||'')+' • Kişisel gelişim ekranın</p><div class="stats">'+metric('Etüt kaydı',work.length)+metric('Çözülen soru',totalQuestions)+metric('Etüt neti toplamı',totalNet.toFixed(2).replace('.',','))+metric('Deneme sayısı',exams.length)+metric('Son deneme',latestExam?Number(latestExam.total_net||0).toFixed(2).replace('.',','):'—')+metric('Deneme ortalaması',avgExam.toFixed(2).replace('.',','))+'</div></div><div class="card"><div class="eyebrow">HEDEFLERİM</div><h2>LGS hedefim</h2><div class="stats">'+metric('Puan hedefi',student.target_lgs_score?Number(student.target_lgs_score).toFixed(0)+' / 500':'Henüz belirlenmedi')+metric('Lise hedefi',safe(student.target_high_school||'Henüz belirlenmedi'))+'</div></div><div class="card"><h2>Son etüt çalışmalarım</h2>'+list(workRows,'Henüz etüt kaydı girilmedi.')+'</div><div class="card"><h2>Deneme sonuçlarım</h2>'+list(examRows,'Henüz deneme sonucu girilmedi.')+'</div><div class="card"><h2>Kitap okuma takibim</h2>'+list(bookRows,'Henüz kitap okuma kaydı girilmedi.')+'</div><p class="muted">Bu ekrandaki bilgiler öğretmeninin sisteme kaydettiği son kayıtlardan oluşur.</p>';
+  const attendanceRows=attendance.map(x=>studentRow(x.status||'Devam kaydı',String(x.attendance_date||'Tarih yok'),x.note||''));
+  const valueRows=values.map(x=>studentRow(x.value_title||'Gelişim kaydı',String(x.recorded_on||'Tarih yok')+' • '+(x.status||''),x.teacher_note||''));
+  const targetRows=target?subjects.map(([name,key])=>studentRow(name,'Doğru hedefi: '+Number(target[key+'_correct_target']||0)+' • Yanlış hedefi: '+Number(target[key+'_wrong_target']||0),'Net hedefi: '+Number(target[key+'_net_target']||0).toFixed(2).replace('.',','))):[];
+  const targetTotal=target?Number(target.total_net_target||0).toFixed(2).replace('.',','):'Henüz belirlenmedi';
+  $('studentPortalBody').innerHTML='<div class="card"><div class="eyebrow">AKADEMİK ÖZET</div><p class="muted">'+safe(student.grade||'')+' • Kişisel gelişim ekranın</p><div class="stats">'+metric('Etüt kaydı',work.length)+metric('Çözülen soru',totalQuestions)+metric('Etüt neti toplamı',totalNet.toFixed(2).replace('.',','))+metric('Deneme sayısı',exams.length)+metric('Son deneme',latestExam?Number(latestExam.total_net||0).toFixed(2).replace('.',','):'—')+metric('Deneme ortalaması',avgExam.toFixed(2).replace('.',','))+'</div></div><div class="card"><div class="eyebrow">HEDEFLERİM</div><h2>LGS hedefim</h2><div class="stats">'+metric('Puan hedefi',student.target_lgs_score?Number(student.target_lgs_score).toFixed(0)+' / 500':'Henüz belirlenmedi')+metric('Lise hedefi',safe(student.target_high_school||'Henüz belirlenmedi'))+metric('Toplam net hedefi',targetTotal)+'</div><h3>Ders bazlı net hedeflerim</h3>'+list(targetRows,'Henüz ders bazlı deneme hedefi belirlenmedi.')+'</div><div class="card"><h2>Son etüt çalışmalarım</h2>'+list(workRows,'Henüz etüt kaydı girilmedi.')+'</div><div class="card"><h2>Deneme sonuçlarım</h2>'+list(examRows,'Henüz deneme sonucu girilmedi.')+'</div><div class="card"><h2>Devam durumum</h2>'+list(attendanceRows,'Henüz devam kaydı girilmedi.')+'</div><div class="card"><h2>Kitap okuma takibim</h2>'+list(bookRows,'Henüz kitap okuma kaydı girilmedi.')+'</div><div class="card"><h2>Değerler eğitimi ve öğretmen değerlendirmesi</h2>'+list(valueRows,'Henüz değerlendirme kaydı girilmedi.')+'</div><p class="muted">Bu ekrandaki bilgiler öğretmeninin sisteme kaydettiği kayıtlardan oluşur. Öğrenci paneli görüntüleme amaçlıdır.</p>';
  }catch(e){$('studentPortalBody').innerHTML='<div class="card"><h2>Bilgiler yüklenemedi</h2><p class="muted">'+safe(e.message||'Bağlantı hatası')+'</p><button class="secondary" onclick="logout()">Çıkış yap</button></div>'}
 }
-
 async function renderParentPortal(userId){
  const app=$('app');
  app.innerHTML='<div class="roleline"><div><div class="eyebrow">VELİ PANELİ</div><h1>Çocuğumun gelişimi</h1></div><button class="secondary" onclick="logout()">Çıkış</button></div><div id="parentPortalBody"><div class="card"><p class="muted">Öğrenci bilgileriniz yükleniyor...</p></div></div>';
@@ -576,7 +583,7 @@ function makeReport(){
  const id=$('rs').value;if(!id){alert('Öğrenci seçin.');return}
  const from=$('reportFrom').value,to=$('reportTo').value;if(!from||!to||from>to){alert('Geçerli bir başlangıç ve bitiş tarihi seçin.');return}
  const student=cache.students.find(s=>s.id===id),inRange=d=>{const day=String(d||'').slice(0,10);return day>=from&&day<=to};
- const work=cache.work.filter(x=>x.student_id===id&&inRange(x.recorded_on)),exams=cache.exams.filter(x=>x.student_id===id&&inRange(x.exam_date||x.created_at)),books=cache.books.filter(x=>x.student_id===id&&inRange(x.created_at)),attendance=cache.attendance.filter(x=>x.student_id===id&&inRange(x.attendance_date));
+ const work=cache.work.filter(x=>x.student_id===id&&inRange(x.recorded_on)),exams=cache.exams.filter(x=>x.student_id===id&&inRange(x.exam_date||x.created_at)),books=cache.books.filter(x=>x.student_id===id&&inRange(x.recorded_on||x.created_at)),attendance=cache.attendance.filter(x=>x.student_id===id&&inRange(x.attendance_date));
  const q=work.reduce((n,x)=>n+Number(x.total_questions||0),0),wc=work.reduce((n,x)=>n+Number(x.correct||0),0),ww=work.reduce((n,x)=>n+Number(x.wrong||0),0),wb=work.reduce((n,x)=>n+Number(x.blank||0),0),wn=wc-ww/3;
  const ec=exams.reduce((n,x)=>n+['turkish','math','science','revolution','religion','english'].reduce((a,k)=>a+Number(x[k+'_correct']||0),0),0),ew=exams.reduce((n,x)=>n+['turkish','math','science','revolution','religion','english'].reduce((a,k)=>a+Number(x[k+'_wrong']||0),0),0),en=exams.reduce((n,x)=>n+Number(x.net||0),0);
  const subjects={};work.forEach(x=>{const k=x.subject||'Diğer';if(!subjects[k])subjects[k]={q:0,c:0,w:0,b:0};subjects[k].q+=Number(x.total_questions||0);subjects[k].c+=Number(x.correct||0);subjects[k].w+=Number(x.wrong||0);subjects[k].b+=Number(x.blank||0)});
