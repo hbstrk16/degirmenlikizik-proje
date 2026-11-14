@@ -283,7 +283,7 @@ function renderWeeklyCompletion(){
   3:['Paragraf','Türkçe','Fen Bilimleri','Din Kültürü','İngilizce','Matematik'],
   4:['Paragraf','İnkılap','Fen Bilimleri','Matematik','Türkçe'],
   5:['Paragraf','İngilizce'],
-  0:[],6:['İnkılap','İnkılap','Fen Bilimleri','Fen Bilimleri','Matematik','Matematik','İngilizce','İngilizce']
+  0:[],6:[]
  };
  const dateKey=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day};
  const dates=[];for(let i=6;i>=0;i--){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-i);dates.push({date:dateKey(d),day:d.getDay()})}
@@ -569,15 +569,28 @@ const etutProgram={
  3:[['14.00 • Test etütü • Paragraf','Paragraf','20 dk'],['14.20–15.00 • Türkçe • Branş denemesi','Türkçe','40 dk'],['15.30 • Test etütü • Fen Bilimleri','Fen Bilimleri','40 dk'],['16.20 • Test etütü • Din Kültürü','Din Kültürü','40 dk'],['20.00 • Test etütü • İngilizce','İngilizce','40 dk'],['22.30 • Test etütü • Matematik','Matematik','60 dk']],
  4:[['14.00–14.20 • Test etütü • Paragraf','Paragraf','20 dk'],['14.20–15.00 • İnkılap • Branş denemesi','İnkılap','40 dk'],['15.30–16.10 • Serbest test etütü','Serbest Test','40 dk'],['16.20 • Test etütü • Fen Bilimleri','Fen Bilimleri','40 dk'],['20.00 • Test etütü • Matematik','Matematik','40 dk'],['22.30 • Test etütü • Türkçe','Türkçe','60 dk']],
  5:[['14.00–14.20 • Test etütü • Paragraf','Paragraf','20 dk'],['14.20–15.00 • İngilizce • Branş denemesi','İngilizce','40 dk'],['15.30–16.10 • Serbest test etütü','Serbest Test','40 dk']],
- 0:[],6:[['08.00–08.40 • 1. Ders • İnkılap Tarihi','İnkılap','40 dk'],['08.40–09.20 • 1. Ders • İnkılap Tarihi','İnkılap','40 dk'],['09.40–10.20 • 2. Ders • Fen Bilimleri','Fen Bilimleri','40 dk'],['10.30–11.10 • 2. Ders • Fen Bilimleri','Fen Bilimleri','40 dk'],['11.20–12.00 • 3. Ders • Matematik','Matematik','40 dk'],['12.10–12.50 • 3. Ders • Matematik','Matematik','40 dk'],['13.40–14.20 • 4. Ders • İngilizce','İngilizce','40 dk'],['14.20–15.00 • 4. Ders • İngilizce','İngilizce','40 dk']]
+ 0:[],6:[]
 };
 function localDateValue(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day}
 function selectedWorkSlot(){const date=$('workdate')?.value,idx=Number($('workSession')?.value);if(!date||!Number.isInteger(idx))return null;const day=new Date(date+'T12:00:00').getDay(),slot=(etutProgram[day]||[])[idx];return slot?{date,idx,day,slot}:null}
 function loadWorkSessions(){
- const date=$('workdate').value||localDateValue(),day=new Date(date+'T12:00:00').getDay(),slots=etutProgram[day]||[],select=$('workSession');
+ const date=$('workdate').value||localDateValue(),day=new Date(date+'T12:00:00').getDay(),slots=etutProgram[day]||[],select=$('workSession'),isSaturday=day===6;
  $('workdate').value=date;
- select.innerHTML=slots.length?slots.map((s,i)=>'<option value="'+i+'">'+(i+1)+'. '+safe(s[0])+' • '+safe(s[2])+'</option>').join(''):'<option value="">Bu gün programlı etüt yok</option>';
- if(slots.length){select.value='0';renderWorkTable()}else{$('workTable').innerHTML='<p class="muted">Bu tarihte programlı etüt bulunmuyor.</p>';$('workSessionInfo').textContent='';$('worklist').innerHTML='<h3>Seçili etüdün kayıtları</h3><p class="muted">Kayıt yok.</p>'}renderSaturdayRatings();
+ const selectorCard=select.closest('.grid');
+ const helpText=select.closest('.card')?.querySelector('p.muted');
+ if(selectorCard)selectorCard.style.display=isSaturday?'none':'grid';
+ if(helpText)helpText.style.display=isSaturday?'none':'';
+ $('workTable').style.display=isSaturday?'none':'';
+ $('saveWorkBatch').style.display=isSaturday?'none':'';
+ $('worklist').style.display=isSaturday?'none':'';
+ if(isSaturday){
+  select.innerHTML='<option value="">Cumartesi puanlama günü</option>';
+  $('workSessionInfo').textContent='';
+ }else{
+  select.innerHTML=slots.length?slots.map((s,i)=>'<option value="'+i+'">'+(i+1)+'. '+safe(s[0])+' • '+safe(s[2])+'</option>').join(''):'<option value="">Bu gün programlı etüt yok</option>';
+  if(slots.length){select.value='0';renderWorkTable()}else{$('workTable').innerHTML='<p class="muted">Bu tarihte programlı etüt bulunmuyor.</p>';$('workSessionInfo').textContent='';$('worklist').innerHTML='<h3>Seçili etüdün kayıtları</h3><p class="muted">Kayıt yok.</p>'}
+ }
+ renderSaturdayRatings();
 }
 const saturdayRatingSubjects=['Türkçe','Matematik','Fen Bilimleri','İnkılap Tarihi','İngilizce'];
 function renderSaturdayRatings(){
