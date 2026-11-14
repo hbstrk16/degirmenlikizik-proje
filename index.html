@@ -596,13 +596,13 @@ function renderSaturdayRatings(){
 async function saveSaturdayRatings(){
  const date=$('workdate')?.value||localDateValue();if(new Date(date+'T12:00:00').getDay()!==6){alert('Bu puanlama yalnızca Cumartesi tarihleri için kullanılabilir.');return}
  if(cache.saturdayRatingLoadError){alert('Önce saturday_lesson_ratings veritabanı tablosu kurulmalı.');return}
- const rows=[...$('saturdayRatingContent').querySelectorAll('tbody tr')],payloads=[];
+ const rows=[...$('saturdayRatingContent').querySelectorAll('tbody tr')],payloads=[],deletions=[];
  for(const tr of rows){const studentId=tr.dataset.ratingStudent,note=tr.querySelector('.sr-note').value.trim()||null;
-  for(const inp of tr.querySelectorAll('.sr-score')){const raw=inp.value.trim();if(raw==='')continue;const score=Number(raw);if(!Number.isInteger(score)||score<0||score>10){alert('Puanlar 0 ile 10 arasında tam sayı olmalıdır.');inp.focus();return}payloads.push({student_id:studentId,lesson_date:date,subject:inp.dataset.subject,score,teacher_note:note});}
+  for(const inp of tr.querySelectorAll('.sr-score')){const raw=inp.value.trim(),subject=inp.dataset.subject,existing=cache.saturdayRatings.some(x=>x.student_id===studentId&&x.lesson_date===date&&x.subject===subject);if(raw===''){if(existing)deletions.push({studentId,subject});continue}const score=Number(raw);if(!Number.isInteger(score)||score<0||score>10){alert('Puanlar 0 ile 10 arasında tam sayı olmalıdır.');inp.focus();return}payloads.push({student_id:studentId,lesson_date:date,subject,score,teacher_note:note});}
  }
- if(!payloads.length){alert('Kaydedilecek puan girilmedi.');return}
+ if(!payloads.length&&!deletions.length){alert('Kaydedilecek veya silinecek puan bulunamadı.');return}
  const btn=$('saveSaturdayRatings');btn.disabled=true;btn.textContent='Kaydediliyor...';
- try{const {error}=await supabaseClient.from('saturday_lesson_ratings').upsert(payloads,{onConflict:'student_id,lesson_date,subject'});if(error)throw error;alert('Cumartesi ders dinleme puanları kaydedildi.');await render();$('workdate').value=date;loadWorkSessions();}
+ try{for(const item of deletions){const {error}=await supabaseClient.from('saturday_lesson_ratings').delete().eq('student_id',item.studentId).eq('lesson_date',date).eq('subject',item.subject);if(error)throw error}if(payloads.length){const {error}=await supabaseClient.from('saturday_lesson_ratings').upsert(payloads,{onConflict:'student_id,lesson_date,subject'});if(error)throw error}alert('Cumartesi ders dinleme puanları kaydedildi.');await render();$('workdate').value=date;loadWorkSessions();}
  catch(e){alert('Puanlar kaydedilemedi: '+e.message)}
  finally{btn.disabled=false;btn.textContent='Cumartesi puanlarını kaydet'}
 }
