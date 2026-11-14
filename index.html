@@ -129,6 +129,7 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_px8199-BPlceDZV6gBXpIQ_fh7n1GBf';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=id=>document.getElementById(id),today=()=>new Date().toISOString().slice(0,10);
 let currentProfile=null, editingStudentId=null, cache={students:[],work:[],exams:[],books:[],values:[],targets:[],attendance:[]};
+let parentChildren=[];
 
 
 function renderExamAnalysis(){
@@ -305,7 +306,7 @@ function populateAllStudentSelects(){
 function populateStudentSelect(){const el=$('ws');if(!el)return;const val=el.value;el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');if(cache.students.some(s=>s.id===val))el.value=val;}
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function login(){const email=$('person').value.trim(),btn=$('loginBtn'),msg=$('authmsg');if(!email){msg.textContent='Lütfen e-posta adresinizi yazın.';$('person').focus();return}if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.textContent='Geçerli bir e-posta adresi yazın.';$('person').focus();return}btn.disabled=true;btn.textContent='Gönderiliyor...';msg.textContent='Giriş bağlantısı hazırlanıyor...';try{const {error}=await supabaseClient.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;msg.textContent='Giriş bağlantısı e-posta adresinize gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.'}catch(error){msg.textContent='Gönderilemedi: '+(error.message||'Bağlantı kurulamadı. Sayfayı yenileyip tekrar deneyin.')}finally{btn.disabled=false;btn.textContent='Giriş bağlantısı gönder'}}
-async function startSession(){const {data:{session}}=await supabaseClient.auth.getSession();if(!session)return;const {data:profile,error}=await supabaseClient.from('profiles').select('full_name,role').eq('id',session.user.id).maybeSingle();if(error||!profile){$('authmsg').textContent='Hesap profili bulunamadı. Öğretmen yetkilendirmesini kontrol etmeliyiz.';return}currentProfile=profile;$('login').classList.add('hide');$('app').classList.remove('hide');$('hello').textContent='Merhaba, '+profile.full_name;$('rolelabel').textContent=profile.role.toLocaleUpperCase('tr-TR')+' PANELİ';if(profile.role==='student'){await renderStudentPortal(session.user.id);return}if(profile.role==='parent'){$('app').innerHTML='<div class="card"><h2>Veli paneli sıradaki aşamada</h2><p>Veli hesabınız tanımlı. Veli ekranını bir sonraki geliştirme aşamasında etkinleştireceğiz.</p><button class="secondary" onclick="logout()">Çıkış</button></div>';return}if(profile.role!=='teacher'){$('app').innerHTML='<div class="card"><h2>Hesap yetkisi</h2><p>Bu hesap için yetkili panel bulunamadı. Yöneticiyle iletişime geçin.</p><button class="secondary" onclick="logout()">Çıkış</button></div>';return}await render()}
+async function startSession(){const {data:{session}}=await supabaseClient.auth.getSession();if(!session)return;const {data:profile,error}=await supabaseClient.from('profiles').select('full_name,role').eq('id',session.user.id).maybeSingle();if(error||!profile){$('authmsg').textContent='Hesap profili bulunamadı. Öğretmen yetkilendirmesini kontrol etmeliyiz.';return}currentProfile=profile;$('login').classList.add('hide');$('app').classList.remove('hide');$('hello').textContent='Merhaba, '+profile.full_name;$('rolelabel').textContent=profile.role.toLocaleUpperCase('tr-TR')+' PANELİ';if(profile.role==='student'){await renderStudentPortal(session.user.id);return}if(profile.role==='parent'){await renderParentPortal(session.user.id);return}if(profile.role!=='teacher'){$('app').innerHTML='<div class="card"><h2>Hesap yetkisi</h2><p>Bu hesap için yetkili panel bulunamadı. Yöneticiyle iletişime geçin.</p><button class="secondary" onclick="logout()">Çıkış</button></div>';return}await render()}
 async function renderStudentPortal(userId){
  const app=$('app');
  app.innerHTML='<div class="roleline"><div><div class="eyebrow">ÖĞRENCİ PANELİ</div><h1 id="studentPortalName">Öğrenci ekranı</h1></div><button class="secondary" onclick="logout()">Çıkış</button></div><div id="studentPortalBody"><div class="card"><p class="muted">Öğrenci bilgileriniz yükleniyor...</p></div></div>';
@@ -333,6 +334,66 @@ async function renderStudentPortal(userId){
   $('studentPortalBody').innerHTML='<div class="card"><div class="eyebrow">AKADEMİK ÖZET</div><p class="muted">'+safe(student.grade||'')+' • Kişisel gelişim ekranın</p><div class="stats">'+metric('Etüt kaydı',work.length)+metric('Çözülen soru',totalQuestions)+metric('Etüt neti toplamı',totalNet.toFixed(2).replace('.',','))+metric('Deneme sayısı',exams.length)+metric('Son deneme',latestExam?Number(latestExam.total_net||0).toFixed(2).replace('.',','):'—')+metric('Deneme ortalaması',avgExam.toFixed(2).replace('.',','))+'</div></div><div class="card"><div class="eyebrow">HEDEFLERİM</div><h2>LGS hedefim</h2><div class="stats">'+metric('Puan hedefi',student.target_lgs_score?Number(student.target_lgs_score).toFixed(0)+' / 500':'Henüz belirlenmedi')+metric('Lise hedefi',safe(student.target_high_school||'Henüz belirlenmedi'))+'</div></div><div class="card"><h2>Son etüt çalışmalarım</h2>'+list(workRows,'Henüz etüt kaydı girilmedi.')+'</div><div class="card"><h2>Deneme sonuçlarım</h2>'+list(examRows,'Henüz deneme sonucu girilmedi.')+'</div><div class="card"><h2>Kitap okuma takibim</h2>'+list(bookRows,'Henüz kitap okuma kaydı girilmedi.')+'</div><p class="muted">Bu ekrandaki bilgiler öğretmeninin sisteme kaydettiği son kayıtlardan oluşur.</p>';
  }catch(e){$('studentPortalBody').innerHTML='<div class="card"><h2>Bilgiler yüklenemedi</h2><p class="muted">'+safe(e.message||'Bağlantı hatası')+'</p><button class="secondary" onclick="logout()">Çıkış yap</button></div>'}
 }
+
+async function renderParentPortal(userId){
+ const app=$('app');
+ app.innerHTML='<div class="roleline"><div><div class="eyebrow">VELİ PANELİ</div><h1>Çocuğumun gelişimi</h1></div><button class="secondary" onclick="logout()">Çıkış</button></div><div id="parentPortalBody"><div class="card"><p class="muted">Öğrenci bilgileriniz yükleniyor...</p></div></div>';
+ try{
+  const {data:links,error:linkError}=await supabaseClient.from('parent_student').select('student_id').eq('parent_user_id',userId);
+  if(linkError)throw linkError;
+  const ids=[...new Set((links||[]).map(x=>x.student_id).filter(Boolean))];
+  if(!ids.length){$('parentPortalBody').innerHTML='<div class="card"><h2>Öğrenci hesabı henüz bağlanmamış</h2><p>Veli hesabınız açıldı ancak çocuğunuzun öğrenci kaydı bu hesaba henüz bağlanmamış. Öğretmeninizden veli hesabı eşleştirmesini isteyin.</p></div>';return}
+  const {data:students,error}=await supabaseClient.from('students').select('id,full_name,grade,target_lgs_score,target_high_school').in('id',ids);
+  if(error)throw error;
+  parentChildren=students||[];
+  if(!parentChildren.length){$('parentPortalBody').innerHTML='<div class="card"><h2>Öğrenci kaydı bulunamadı</h2><p>Bağlantı kaydı var ancak öğrenci bilgisi okunamadı. Öğretmeninizle iletişime geçin.</p></div>';return}
+  const options=parentChildren.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.full_name)+' • '+safe(x.grade||'')+'</option>').join('');
+  $('parentPortalBody').innerHTML=(parentChildren.length>1?'<div class="card"><label for="parentChildSelect">Görüntülenecek öğrenci</label><select id="parentChildSelect" onchange="loadParentChild(this.value)">'+options+'</select></div>':'')+'<div id="parentChildContent"></div>';
+  await loadParentChild(parentChildren[0].id);
+ }catch(e){$('parentPortalBody').innerHTML='<div class="card"><h2>Bilgiler yüklenemedi</h2><p class="muted">'+safe(e.message||'Bağlantı hatası')+'</p><button class="secondary" onclick="logout()">Çıkış yap</button></div>'}
+}
+async function loadParentChild(studentId){
+ const student=parentChildren.find(x=>x.id===studentId);if(!student)return;
+ const box=$('parentChildContent');if(!box)return;
+ box.innerHTML='<div class="card"><p class="muted">Öğrenci kayıtları yükleniyor...</p></div>';
+ try{
+  const [workR,examR,attendanceR,booksR,valuesR]=await Promise.all([
+   supabaseClient.from('study_records').select('*').eq('student_id',studentId).order('recorded_on',{ascending:false}).limit(60),
+   supabaseClient.from('exam_results').select('*').eq('student_id',studentId).order('exam_date',{ascending:false}).limit(20),
+   supabaseClient.from('attendance_records').select('*').eq('student_id',studentId).order('attendance_date',{ascending:false}).limit(30),
+   supabaseClient.from('reading_records').select('*').eq('student_id',studentId).order('recorded_on',{ascending:false}).limit(30),
+   supabaseClient.from('values_records').select('*').eq('student_id',studentId).order('recorded_on',{ascending:false}).limit(30)
+  ]);
+  for(const result of [workR,examR,attendanceR,booksR,valuesR])if(result.error)throw result.error;
+  const work=workR.data||[],exams=examR.data||[],attendance=attendanceR.data||[],books=booksR.data||[],values=valuesR.data||[];
+  const now=new Date(),monday=new Date(now);monday.setDate(now.getDate()-((now.getDay()+6)%7));
+  const dateValue=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day};
+  const from=dateValue(monday),to=dateValue(now),within=d=>String(d||'').slice(0,10)>=from&&String(d||'').slice(0,10)<=to;
+  const weekWork=work.filter(x=>within(x.recorded_on)),weekExams=exams.filter(x=>within(x.exam_date)),weekAttendance=attendance.filter(x=>within(x.attendance_date)),weekBooks=books.filter(x=>within(x.recorded_on)),weekValues=values.filter(x=>within(x.recorded_on));
+  const fmt=d=>{const v=String(d||'').slice(0,10);if(!v)return 'Tarih belirtilmedi';const p=v.split('-');return p.length===3?p[2]+'.'+p[1]+'.'+p[0]:safe(v)};
+  const metric=(label,value)=>'<div class="stat"><small>'+label+'</small><strong>'+value+'</strong></div>';
+  const item=(title,detail,note='')=>'<div class="entry"><b>'+safe(title)+'</b><small>'+safe(detail)+(note?' • '+safe(note):'')+'</small></div>';
+  const empty='<p class="muted">Bu döneme ait kayıt bulunmuyor.</p>';
+  const q=weekWork.reduce((n,x)=>n+Number(x.total_questions||0),0),correct=weekWork.reduce((n,x)=>n+Number(x.correct||0),0),wrong=weekWork.reduce((n,x)=>n+Number(x.wrong||0),0),blank=weekWork.reduce((n,x)=>n+Number(x.blank||0),0),net=correct-wrong/3;
+  const target=weekWork.reduce((n,x)=>n+Number(x.target_questions||0),0),completion=target?Math.round(q/target*100):null;
+  const avgExam=weekExams.length?weekExams.reduce((n,x)=>n+Number(x.total_net||0),0)/weekExams.length:0;
+  const workRows=weekWork.map(x=>item(x.subject||'Etüt',fmt(x.recorded_on)+' • '+Number(x.correct||0)+' D / '+Number(x.wrong||0)+' Y / '+Number(x.blank||0)+' B • '+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)).toFixed(2)+' net • '+(x.status||'Kaydedildi'),x.teacher_note||''));
+  const examRows=exams.slice(0,8).map(x=>item(x.exam_name||'Deneme',fmt(x.exam_date)+' • '+Number(x.total_net||0).toFixed(2)+' net'));
+  const attendanceRows=attendance.slice(0,8).map(x=>item(x.status||'Devam kaydı',fmt(x.attendance_date),x.note||''));
+  const bookRows=books.slice(0,8).map(x=>item(x.title||'Kitap',fmt(x.recorded_on)+' • '+(x.progress||'')+' • '+(x.status||'')));
+  const valueRows=values.slice(0,8).map(x=>item(x.value_title||'Gelişim kaydı',fmt(x.recorded_on)+' • '+(x.status||''),x.teacher_note||''));
+  const weekRows=arr=>arr.length?arr.join(''):empty;
+  const report='<div class="report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE<small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">HAFTALIK VELİ BİLGİLENDİRME</div><h2>'+safe(student.full_name)+'</h2><p>'+safe(student.grade||'')+' • '+fmt(from)+' – '+fmt(to)+'</p></div><div class="report-overview"><div class="report-metric"><small>Çözülen soru</small><b>'+q+'</b></div><div class="report-metric"><small>Etüt neti</small><b>'+net.toFixed(2).replace('.',',')+'</b></div><div class="report-metric"><small>Hedef tamamlama</small><b>'+(completion===null?'—':'%'+completion)+'</b></div></div><div class="report-section"><h3>Haftalık çalışma özeti</h3><p class="report-empty">Doğru: '+correct+' • Yanlış: '+wrong+' • Boş: '+blank+' • Etüt kaydı: '+weekWork.length+'</p>'+weekRows(workRows)+'</div><div class="report-section"><h3>Deneme sonuçları</h3>'+weekRows(weekExams.map(x=>item(x.exam_name||'Deneme',fmt(x.exam_date)+' • '+Number(x.total_net||0).toFixed(2)+' net')))+'</div><div class="report-section"><h3>Öğretmen notları ve gelişim</h3>'+weekRows(weekValues.map(x=>item(x.value_title||'Gelişim',x.status||'',x.teacher_note||'')))+'</div><div class="report-footer"><div><span>Öğretmen</span><span>Veli</span></div><small>Bu rapor sistemde kayıtlı bilgiler esas alınarak hazırlanmıştır.</small></div>';
+  box.innerHTML='<div class="report-actions"><span>Haftalık veli raporu • '+fmt(from)+' – '+fmt(to)+'</span><button type="button" onclick="printParentPortalReport()">Raporu Yazdır / PDF Kaydet</button></div><div id="parentWeeklyReport">'+report+'</div><div class="card"><div class="eyebrow">HAFTALIK ÖZET</div><h2>Çalışma performansı</h2><div class="stats">'+metric('Etüt kaydı',weekWork.length)+metric('Çözülen soru',q)+metric('Doğru / yanlış',correct+' / '+wrong)+metric('Etüt neti',net.toFixed(2).replace('.',','))+metric('Deneme sayısı',weekExams.length)+metric('Deneme ortalaması',avgExam.toFixed(2).replace('.',','))+'</div></div><div class="card"><h2>Etüt çalışmaları</h2>'+weekRows(workRows)+'</div><div class="card"><h2>Deneme sonuçları</h2>'+(examRows.length?examRows.join(''):empty)+'</div><div class="card"><h2>Devam durumu</h2>'+(attendanceRows.length?attendanceRows.join(''):empty)+'</div><div class="card"><h2>Kitap okuma</h2>'+(bookRows.length?bookRows.join(''):empty)+'</div><div class="card"><h2>Değerler eğitimi ve öğretmen değerlendirmesi</h2>'+(valueRows.length?valueRows.join(''):empty)+'</div><p class="muted">Ekranda yalnızca hesabınıza bağlanmış öğrencinin kayıtları gösterilir. Kayıt girişleri öğretmen tarafından yapılır.</p>';
+ }catch(e){box.innerHTML='<div class="card"><h2>Öğrenci bilgileri yüklenemedi</h2><p class="muted">'+safe(e.message||'Bağlantı hatası')+'</p></div>'}
+}
+function printParentPortalReport(){
+ const content=$('parentWeeklyReport');if(!content){alert('Önce haftalık raporun yüklenmesini bekleyin.');return}
+ const win=window.open('','_blank');if(!win){alert('Yazdırma penceresi açılamadı. Tarayıcı açılır pencere iznini kontrol edin.');return}
+ win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Haftalık Veli Raporu</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#243247;margin:0;padding:8mm;background:#fff}.report-head{background:#142d4e;color:#fff;padding:18px;border-bottom:5px solid #7b2942;border-radius:8px}.report-brand{font-size:12px;font-weight:bold;letter-spacing:1.3px}.report-brand small{display:block;color:#dce5ef;font-size:8px;margin-top:4px}.report-tag{font-size:9px;color:#f1cbd5;margin-top:15px;letter-spacing:1.5px}.report-head h2{font-size:22px;margin:7px 0}.report-head p{font-size:10px;color:#e0e7ef}.report-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}.report-metric{border:1px solid #e1e6ed;border-top:3px solid #7b2942;padding:8px}.report-metric small{display:block;font-size:9px;color:#64748b}.report-metric b{display:block;font-size:18px;color:#142d4e;margin-top:3px}.report-section{border:1px solid #e1e6ed;padding:9px;margin:8px 0;border-radius:6px;break-inside:avoid}.report-section h3{font-size:11px;color:#142d4e;margin:0 0 6px;border-bottom:1px solid #e5eaf0;padding-bottom:5px}.report-section .entry{font-size:9px;padding:4px 5px;border-bottom:1px solid #edf0f4}.report-section .entry small{font-size:8px;color:#64748b}.report-empty{font-size:9px;color:#64748b}.report-footer{font-size:9px;text-align:center;margin-top:10px}.report-footer>div{display:flex;justify-content:space-between;margin:18px 12px 10px}.report-footer>div span{width:35%;border-top:1px solid #9aa7b7;padding-top:5px}@page{size:A4 portrait;margin:7mm}@media print{body{padding:0}.report-head,.report-section,.report-overview{break-inside:avoid}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+content.innerHTML+'</body></html>');
+ win.document.close();win.focus();setTimeout(()=>win.print(),350);
+}
+
 async function logout(){await supabaseClient.auth.signOut();location.reload()}
 supabaseClient.auth.onAuthStateChange((_event,session)=>{if(session)setTimeout(startSession,0)});
 startSession();
