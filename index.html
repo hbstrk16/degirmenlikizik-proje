@@ -428,7 +428,7 @@ function populateAllStudentSelects(){
 function populateStudentSelect(){const el=$('ws');if(!el)return;const val=el.value;el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');if(cache.students.some(s=>s.id===val))el.value=val;}
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function login(){const email=$('person').value.trim(),btn=$('loginBtn'),msg=$('authmsg');if(!email){msg.textContent='Lütfen e-posta adresinizi yazın.';$('person').focus();return}if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.textContent='Geçerli bir e-posta adresi yazın.';$('person').focus();return}btn.disabled=true;btn.textContent='Gönderiliyor...';msg.textContent='Giriş bağlantısı hazırlanıyor...';try{const {error}=await supabaseClient.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;msg.textContent='Giriş bağlantısı e-posta adresinize gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.'}catch(error){msg.textContent='Gönderilemedi: '+(error.message||'Bağlantı kurulamadı. Sayfayı yenileyip tekrar deneyin.')}finally{btn.disabled=false;btn.textContent='Giriş bağlantısı gönder'}}
-async function startSession(){const {data:{session}}=await supabaseClient.auth.getSession();if(!session)return;const {data:profile,error}=await supabaseClient.from('profiles').select('full_name,role').eq('id',session.user.id).maybeSingle();if(error||!profile){$('authmsg').textContent='Hesap profili bulunamadı. Öğretmen yetkilendirmesini kontrol etmeliyiz.';return}currentProfile=profile;$('login').classList.add('hide');$('app').classList.remove('hide');$('hello').textContent='Merhaba, '+profile.full_name;$('rolelabel').textContent=profile.role.toLocaleUpperCase('tr-TR')+' PANELİ';if(profile.role==='student'){await renderStudentPortal(session.user.id);return}if(profile.role==='parent'){await renderParentPortal(session.user.id);return}if(profile.role!=='teacher'){$('app').innerHTML='<div class="card"><h2>Hesap yetkisi</h2><p>Bu hesap için yetkili panel bulunamadı. Yöneticiyle iletişime geçin.</p><button class="secondary" onclick="logout()">Çıkış</button></div>';return}await render()}
+async function startSession(){const {data:{session}}=await supabaseClient.auth.getSession();if(!session)return;const {data:profile,error}=await supabaseClient.from('profiles').select('full_name,role').eq('id',session.user.id).maybeSingle();if(error||!profile){$('authmsg').textContent='Hesap profili bulunamadı. Öğretmen yetkilendirmesini kontrol etmeliyiz.';return}currentProfile=profile;$('login').classList.add('hide');$('app').classList.remove('hide');$('hello').textContent='Merhaba, '+profile.full_name;$('rolelabel').textContent=profile.role.toLocaleUpperCase('tr-TR')+' PANELİ';if(profile.role==='student'){await renderStudentPortal(session.user.id);return}if(profile.role==='parent'){await renderParentPortal(session.user.id);return}if(profile.role!=='teacher'){$('app').innerHTML='<div class="card"><h2>Hesap yetkisi</h2><p>Bu hesap için yetkili panel bulunamadı. Yöneticiyle iletişime geçin.</p><button class="secondary" onclick="logout()">Çıkış</button></div>';return}await render();await loadComparisonGroups()}
 async function renderStudentPortal(userId){
  const app=$('app');
  app.innerHTML='<div class="roleline"><div><div class="eyebrow">ÖĞRENCİ PANELİ</div><h1 id="studentPortalName">Öğrenci ekranı</h1></div><button class="secondary" onclick="logout()">Çıkış</button></div><div id="studentPortalBody"><div class="card"><p class="muted">Öğrenci bilgileriniz yükleniyor...</p></div></div>';
@@ -693,10 +693,34 @@ async function saveExamTarget(){const id=$('targetStudent').value;if(!id){alert(
 
 let comparisonSelectedIds=[];
 let activeComparisonGroupId=null;
+let comparisonGroups=[];
+let comparisonGroupsLoaded=false;
 const comparisonGroupsKey='degirmenlikizik_exam_comparison_groups_v1';
-function readComparisonGroups(){try{const value=JSON.parse(localStorage.getItem(comparisonGroupsKey)||'[]');return Array.isArray(value)?value:[]}catch(e){return []}}
-function writeComparisonGroups(groups){try{localStorage.setItem(comparisonGroupsKey,JSON.stringify(groups));return true}catch(e){$('comparisonGroupMessage').textContent='Gruplar bu cihazda kaydedilemedi: '+e.message;return false}}
-function comparisonId(){return 'cg-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
+function readComparisonGroups(){return comparisonGroups}
+function comparisonGroupRow(row){return {id:row.id,name:row.name,studentIds:Array.isArray(row.student_ids)?row.student_ids:[],createdAt:row.created_at,updatedAt:row.updated_at}}
+async function loadComparisonGroups(){
+ const box=$('comparisonSavedGroups');if(box)box.innerHTML='<p class="muted">Kayıtlı gruplar yükleniyor...</p>';
+ const {data,error}=await supabaseClient.from('exam_comparison_groups').select('id,name,student_ids,created_at,updated_at').order('updated_at',{ascending:false});
+ if(error){comparisonGroupsLoaded=false;if(box)box.innerHTML='<p class="muted">Gruplar yüklenemedi: '+safe(error.message)+'</p>';return}
+ comparisonGroups=data.map(comparisonGroupRow);comparisonGroupsLoaded=true;
+ // Previously saved browser-only groups are copied to Supabase once, without overwriting server data.
+ try{
+  const legacy=JSON.parse(localStorage.getItem(comparisonGroupsKey)||'[]');
+  if(Array.isArray(legacy)&&legacy.length){
+   const existing=new Set(comparisonGroups.map(g=>g.name+'|'+[...g.studentIds].sort().join(',')));
+   const pending=legacy.filter(g=>g.name&&Array.isArray(g.studentIds)&&!existing.has(g.name+'|'+[...g.studentIds].sort().join(',')));
+   if(pending.length){
+    const {data:auth}=await supabaseClient.auth.getUser();
+    if(auth?.user){
+     const {error:importError}=await supabaseClient.from('exam_comparison_groups').insert(pending.map(g=>({user_id:auth.user.id,name:g.name,student_ids:g.studentIds})));
+     if(importError){$('comparisonGroupMessage').textContent='Eski gruplar aktarılmadı: '+importError.message}
+     else{localStorage.removeItem(comparisonGroupsKey);const reload=await supabaseClient.from('exam_comparison_groups').select('id,name,student_ids,created_at,updated_at').order('updated_at',{ascending:false});if(!reload.error)comparisonGroups=reload.data.map(comparisonGroupRow)}
+    }
+   }else localStorage.removeItem(comparisonGroupsKey);
+  }
+ }catch(e){$('comparisonGroupMessage').textContent='Eski grup aktarımı kontrol edilemedi: '+e.message}
+ renderComparisonGroups();renderGroupComparison();
+}
 function renderComparisonStudentPicker(){
  const box=$('comparisonStudentPicker');if(!box)return;
  const search=($('comparisonStudentSearch')?.value||'').trim().toLocaleLowerCase('tr-TR'),grade=$('comparisonGradeFilter')?.value||'';
@@ -708,19 +732,34 @@ function renderComparisonStudentPicker(){
 }
 function toggleComparisonStudent(id,checked){if(checked&&!comparisonSelectedIds.includes(id))comparisonSelectedIds.push(id);if(!checked)comparisonSelectedIds=comparisonSelectedIds.filter(x=>x!==id);$('comparisonSelectedCount').textContent=comparisonSelectedIds.length+' öğrenci seçildi'}
 function clearComparisonGroupForm(){comparisonSelectedIds=[];activeComparisonGroupId=null;$('comparisonGroupName').value='';$('comparisonGroupMessage').textContent='Yeni grup oluşturmak için öğrencileri seç.';renderComparisonStudentPicker()}
-function saveComparisonGroup(){
- const name=$('comparisonGroupName').value.trim(),ids=[...new Set(comparisonSelectedIds)].filter(id=>cache.students.some(s=>s.id===id));
- if(!name){$('comparisonGroupMessage').textContent='Lütfen gruba bir isim ver.';return}
- if(ids.length<2){$('comparisonGroupMessage').textContent='Bir grup oluşturmak için en az iki öğrenci seç.';return}
- const groups=readComparisonGroups(),now=new Date().toISOString(),existing=groups.findIndex(g=>g.id===activeComparisonGroupId);
- const item={id:activeComparisonGroupId||comparisonId(),name,studentIds:ids,updatedAt:now,createdAt:existing>=0?groups[existing].createdAt:now};
- if(existing>=0)groups[existing]=item;else groups.unshift(item);
- if(!writeComparisonGroups(groups))return;
- activeComparisonGroupId=item.id;$('comparisonGroupMessage').textContent='“'+name+'” grubu kaydedildi. '+ids.length+' öğrenci gruba eklendi.';
+async function saveComparisonGroup(){
+ const msg=$('comparisonGroupMessage'),name=$('comparisonGroupName').value.trim(),ids=[...new Set(comparisonSelectedIds)].filter(id=>cache.students.some(s=>s.id===id));
+ if(!comparisonGroupsLoaded){msg.textContent='Gruplar henüz yüklenmedi. Lütfen tekrar dene.';return}
+ if(!name||name.length>100){msg.textContent='Grup adı 1-100 karakter olmalı.';return}
+ if(ids.length<2){msg.textContent='Bir grup oluşturmak için en az iki öğrenci seç.';return}
+ const {data:auth,error:authError}=await supabaseClient.auth.getUser();
+ if(authError||!auth?.user){msg.textContent='Oturum doğrulanamadı. Yeniden giriş yap.';return}
+ msg.textContent='Grup kaydediliyor...';
+ const payload={name,student_ids:ids,user_id:auth.user.id,updated_at:new Date().toISOString()};
+ let result;
+ if(activeComparisonGroupId)result=await supabaseClient.from('exam_comparison_groups').update(payload).eq('id',activeComparisonGroupId).select('id,name,student_ids,created_at,updated_at').single();
+ else result=await supabaseClient.from('exam_comparison_groups').insert(payload).select('id,name,student_ids,created_at,updated_at').single();
+ if(result.error){msg.textContent='Grup kaydedilemedi: '+result.error.message;return}
+ const item=comparisonGroupRow(result.data),index=comparisonGroups.findIndex(g=>g.id===item.id);
+ if(index>=0)comparisonGroups[index]=item;else comparisonGroups.unshift(item);
+ activeComparisonGroupId=item.id;msg.textContent='“'+name+'” grubu Supabase\'e kaydedildi. '+ids.length+' öğrenci grupta.';
  renderComparisonGroups();renderGroupComparison();
 }
 function openComparisonGroup(id){const group=readComparisonGroups().find(g=>g.id===id);if(!group)return;activeComparisonGroupId=id;comparisonSelectedIds=group.studentIds.filter(id=>cache.students.some(s=>s.id===id));$('comparisonGroupName').value=group.name;$('comparisonGroupMessage').textContent='“'+group.name+'” grubu düzenleniyor. Öğrenci ekleyip çıkarabilir, tekrar kaydedebilirsin.';renderComparisonStudentPicker();renderComparisonGroups();renderGroupComparison()}
-function deleteComparisonGroup(id){const group=readComparisonGroups().find(g=>g.id===id);if(!group)return;if(!confirm('“'+group.name+'” grubu silinsin mi?'))return;writeComparisonGroups(readComparisonGroups().filter(g=>g.id!==id));if(activeComparisonGroupId===id){activeComparisonGroupId=null;comparisonSelectedIds=[];$('comparisonGroupName').value=''}renderComparisonGroups();renderGroupComparison()}
+async function deleteComparisonGroup(id){
+ const group=readComparisonGroups().find(g=>g.id===id);if(!group||!comparisonGroupsLoaded)return;
+ if(!confirm('“'+group.name+'” grubu silinsin mi?'))return;
+ const {error}=await supabaseClient.from('exam_comparison_groups').delete().eq('id',id);
+ if(error){$('comparisonGroupMessage').textContent='Grup silinemedi: '+error.message;return}
+ comparisonGroups=comparisonGroups.filter(g=>g.id!==id);
+ if(activeComparisonGroupId===id){activeComparisonGroupId=null;comparisonSelectedIds=[];$('comparisonGroupName').value=''}
+ renderComparisonStudentPicker();renderComparisonGroups();renderGroupComparison();
+}
 function renderComparisonGroups(){
  const box=$('comparisonSavedGroups');if(!box)return;const groups=readComparisonGroups();
  box.innerHTML=groups.length?groups.map(g=>'<div class="comparison-group-row"><div><b>'+safe(g.name)+'</b><div class="muted">'+g.studentIds.filter(id=>cache.students.some(s=>s.id===id)).length+' kayıtlı öğrenci</div></div><div class="comparison-group-actions"><button type="button" onclick="openComparisonGroup(\''+safe(g.id)+'\')">Grubu Aç</button><button type="button" class="secondary" onclick="deleteComparisonGroup(\''+safe(g.id)+'\')">Sil</button></div></div>').join(''):'<p class="muted">Henüz kayıtlı grup yok. Öğrencileri seçip ilk grubunu oluştur.</p>';
