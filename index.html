@@ -1064,6 +1064,7 @@ function dailyReportData(){
  const attendance=cache.attendance.filter(x=>String(x.attendance_date||'').slice(0,10)===date);
  const sum=(rows,key)=>rows.reduce((n,x)=>n+Number(x[key]||0),0);
  const fmt=n=>Number(n||0).toFixed(2).replace('.',',');
+ const studentSelect=$('dailyReportStudent');if(studentSelect){const prior=studentSelect.value;studentSelect.innerHTML='<option value="">Öğrenci seçin</option>'+students.map(st=>'<option value="'+safe(st.id)+'">'+safe(st.full_name)+'</option>').join('');if(students.some(st=>st.id===prior))studentSelect.value=prior;}
  const activeIds=new Set(work.map(x=>x.student_id));
  const activeData=students.filter(st=>activeIds.has(st.id)).map(st=>{
   const rows=work.filter(x=>x.student_id===st.id),c=sum(rows,'correct'),w=sum(rows,'wrong'),b=sum(rows,'blank');
