@@ -1122,6 +1122,7 @@ function makeReport(){
  const metric=(label,value)=>'<div class="report-metric"><small>'+label+'</small><b>'+value+'</b></div>';
  const section=(title,content)=>'<section class="report-section"><h3>'+title+'</h3>'+content+'</section>';
  const html='<div class="report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">ÖĞRENCİ GELİŞİM KARNESİ</div><h2>'+safe(student?.full_name||'')+'</h2><p>'+safe(student?.grade||'')+' • Rapor dönemi: '+from+' – '+to+'</p></div>'+
+ '<div class="report-overview">'+metric('ETÜT KAYDI',work.length)+metric('ETÜT NETİ',wn.toFixed(2).replace('.',','))+metric('DENEME SAYISI',exams.length)+metric('DENEME NETİ',en.toFixed(2).replace('.',','))+metric('OKUMA KAYDI',books.length)+metric('DEVAMSIZLIK',attendance.length)+'</div>'+
  
  section('01 · ETÜT TAKİBİ','<div class="report-table-head"><span>Ders / etüt sayısı</span><span>Doğru • Yanlış</span><span>Net</span></div>'+(workRows||'<p class="report-empty">Bu dönemde etüt kaydı bulunmuyor.</p>')+'<p class="report-note">Toplam etüt kaydı: '+work.length+' • Toplam doğru: '+wc+' • Toplam yanlış: '+ww+' • Toplam net: '+wn.toFixed(2).replace('.',',')+'</p>')+
  section('02 · DENEME SONUÇLARI','<div class="report-table-head"><span>Deneme</span><span>Tarih</span><span>Gerçekleşen Net</span></div>'+(examRows||'<p class="report-empty">Bu dönemde deneme kaydı bulunmuyor.</p>')+'<p class="report-note">Toplam doğru: '+ec+' • Toplam yanlış: '+ew+' • Toplam net: '+en.toFixed(2).replace('.',',')+'</p>')+
