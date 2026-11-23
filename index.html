@@ -1065,21 +1065,25 @@ function makeDailyReport(){
  const attendance=cache.attendance.filter(x=>String(x.attendance_date||'').slice(0,10)===date);
  const validWork=work.filter(hasStudyData),emptyWork=work.filter(x=>!hasStudyData(x));
  const active=new Set(validWork.map(x=>x.student_id)),missing=students.filter(x=>!active.has(x.id));
- const correct=validWork.reduce((n,x)=>n+Number(x.correct||0),0),wrong=validWork.reduce((n,x)=>n+Number(x.wrong||0),0),blank=validWork.reduce((n,x)=>n+Number(x.blank||0),0);
+ const sum=(rows,key)=>rows.reduce((n,x)=>n+Number(x[key]||0),0);
+ const correct=sum(validWork,'correct'),wrong=sum(validWork,'wrong'),blank=sum(validWork,'blank');
  const net=validWork.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
  const fmt=n=>Number(n||0).toFixed(2).replace('.',',');
  const metric=(label,value)=>'<div class="report-metric"><small>'+label+'</small><b>'+value+'</b></div>';
  const line=(a,b,c)=>'<div class="report-line"><b>'+safe(a)+'</b><span>'+safe(b)+'</span><strong>'+safe(c)+'</strong></div>';
- const studentData=students.map(st=>{const all=work.filter(x=>x.student_id===st.id),r=all.filter(hasStudyData),empty=all.filter(x=>!hasStudyData(x));return {st,all,r,empty,c:r.reduce((n,x)=>n+Number(x.correct||0),0),w:r.reduce((n,x)=>n+Number(x.wrong||0),0),b:r.reduce((n,x)=>n+Number(x.blank||0),0),n:r.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0),a:attendance.filter(x=>x.student_id===st.id)}});
- const studentRows=studentData.map(x=>line(x.st.full_name,x.r.length+' etüt • '+x.c+' D / '+x.w+' Y / '+x.b+' B',fmt(x.n)+' net')).join('');
+ const data=students.map(st=>{
+  const all=work.filter(x=>x.student_id===st.id),rows=all.filter(hasStudyData);
+  return {st,rows,c:sum(rows,'correct'),w:sum(rows,'wrong'),b:sum(rows,'blank'),n:rows.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0),a:attendance.filter(x=>x.student_id===st.id)};
+ });
+ const studentRows=data.map(x=>line(x.st.full_name,x.rows.length+' etüt • '+x.c+' D / '+x.w+' Y / '+x.b+' B',fmt(x.n))).join('');
  const absent=attendance.filter(x=>String(x.status||'').toLocaleLowerCase('tr-TR').includes('devamsız')).length;
  const general='<section class="daily-page daily-group-page"><div class="report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">01 · GENEL GRUP RAPORU</div><h2>'+safe(date)+'</h2><p>Günlük etüt performansı • Tüm grup</p></div><div class="report-overview">'+metric('Toplam öğrenci',students.length)+metric('Veri girilmiş öğrenci',students.length-missing.length)+metric('Veri girilmemiş öğrenci',missing.length)+metric('Veri girilmiş etüt',validWork.length)+metric('Boş etüt kaydı',emptyWork.length)+metric('Toplam doğru',correct)+metric('Toplam yanlış',wrong)+metric('Toplam boş',blank)+metric('Toplam etüt neti',fmt(net))+metric('Devamsızlık kaydı',absent)+'</div><section class="report-section"><h3>Grup performans özeti · Öğrenci bazında</h3><div class="report-table-head"><span>Öğrenci</span><span>Etüt • D / Y / B</span><span>Net</span></div>'+(studentRows||'<p class="report-empty">Öğrenci kaydı bulunmuyor.</p>')+'</section><section class="report-section"><h3>Günlük değerlendirme</h3><p class="report-note">Bu sayfa grubun genel performansını gösterir. İkinci sayfada her öğrencinin bireysel günlük özeti ayrı ayrı yer alır.</p></section></section>';
- const detailRows=studentData.map((x,index)=>{
+ const detailsRows=data.map((x,index)=>{
   const attendanceText=x.a.length?x.a.map(y=>safe(y.status||'Durum yok')+(y.note?' · '+safe(y.note):'')).join(' / '):'Devam kaydı yok';
-  const sessionText=x.r.length?x.r.map(y=>safe(y.subject||'Etüt')+': '+Number(y.correct||0)+'D/'+Number(y.wrong||0)+'Y/'+Number(y.blank||0)+'B').join('  •  '):'Veri girişi yapılmamış';
-  return '<article class="daily-student"><div class="daily-student-head"><b>'+(index+1)+'. '+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'Sınıf belirtilmemiş')+'</span></div><div class="daily-student-metrics"><span><b>'+x.r.length+'</b> Etüt</span><span><b>'+x.c</b> Doğru</span><span><b>'+x.w+'</b> Yanlış</span><span><b>'+x.b+'</b> Boş</span><span><b>'+fmt(x.n)+'</b> Net</span></div><div class="daily-student-sessions">'+sessionText+'</div><div class="daily-attendance">Devam durumu: '+attendanceText+'</div></article>';
+  const sessionText=x.rows.length?x.rows.map(y=>safe(y.subject||'Etüt')+': '+Number(y.correct||0)+'D / '+Number(y.wrong||0)+'Y / '+Number(y.blank||0)+'B').join(' • '):'Veri girişi yapılmamış';
+  return '<article class="daily-student"><div class="daily-student-head"><b>'+(index+1)+'. '+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'Sınıf belirtilmemiş')+'</span></div><div class="daily-student-metrics"><span><b>'+x.rows.length+'</b> Etüt</span><span><b>'+x.c+'</b> Doğru</span><span><b>'+x.w+'</b> Yanlış</span><span><b>'+x.b+'</b> Boş</span><span><b>'+fmt(x.n)+'</b> Net</span></div><div class="daily-student-sessions">'+sessionText+'</div><div class="daily-attendance">Devam durumu: '+attendanceText+'</div></article>';
  }).join('');
- const details='<section class="daily-page daily-individual-page"><div class="daily-detail-title"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">02 · ÖĞRENCİ BAZLI GÜNLÜK RAPOR</div><h2>'+safe(date)+'</h2><p>Tüm öğrencilerin bireysel performansları</p></div><div class="daily-student-grid">'+detailRows+'</div></section>';
+ const details='<section class="daily-page daily-individual-page"><div class="daily-detail-title"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">02 · ÖĞRENCİ BAZLI GÜNLÜK RAPOR</div><h2>'+safe(date)+'</h2><p>Tüm öğrencilerin bireysel performansları</p></div><div class="daily-student-grid">'+detailsRows+'</div></section>';
  box.innerHTML='<div class="report-actions"><span>Günlük rapor • '+safe(date)+' • '+students.length+' öğrenci • 2 sayfa</span><button type="button" onclick="printDailyReport()">Günlük Raporu PDF Kaydet</button></div><div id="dailyReportPrint" class="daily-report-document">'+general+details+'</div>';
 }
 function printDailyReport(){
