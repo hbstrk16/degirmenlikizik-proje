@@ -1153,7 +1153,8 @@ function dailyReportShell(title,subtitle,date,body){
 }
 function dailyMetric(label,value){return '<div class="daily-reference-metric"><small>'+label+'</small><b>'+value+'</b></div>'}
 function dailySection(title,headers,rows,empty,footer){
- return '<section class="daily-reference-section"><h3>'+title+'</h3><div class="daily-reference-table"><div class="daily-reference-thead">'+headers.map(x=>'<span>'+x+'</span>').join('')+'</div>'+(rows||'<p class="daily-reference-empty">'+empty+'</p>')+'</div>'+(footer?'<div class="daily-reference-note">'+footer+'</div>':'')+'</section>';
+ const cols=headers.length===5?'1.35fr .7fr .5fr 1.3fr .6fr':'1.35fr 1.25fr .7fr';
+ return '<section class="daily-reference-section"><h3>'+title+'</h3><div class="daily-reference-table"><div class="daily-reference-thead" style="grid-template-columns:'+cols+'">'+headers.map(x=>'<span>'+x+'</span>').join('')+'</div>'+(rows||'<p class="daily-reference-empty">'+empty+'</p>')+'</div>'+(footer?'<div class="daily-reference-note">'+footer+'</div>':'')+'</section>';
 }
 function makeDailyReport(){
  dailyReportHasBeenGenerated=true;
