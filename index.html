@@ -166,6 +166,94 @@ input,select{min-height:44px;max-width:100%}
  .modal{padding:14px}
 }
 
+
+/* PREMIUM VISUAL REFRESH — yalnızca arayüz katmanı; içerik ve işleyiş korunur */
+:root{
+ --navy:#24364b;--burgundy:#8b7960;--bg:#f5f6f7;--ink:#263445;
+ --muted:#778392;--line:#e7e9ec;--surface:#ffffff;
+ --accent:#71869a;--soft:#eef1f4;--gold:#b6a184;
+}
+html{background:var(--bg)}
+body{background:linear-gradient(180deg,#f7f8f9 0%,#f2f4f6 100%);color:var(--ink);
+ font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;letter-spacing:.005em}
+.top{background:linear-gradient(115deg,#26394f 0%,#344b63 100%);color:#fff;
+ padding:19px max(18px,calc((100% - 1120px)/2));gap:14px;
+ box-shadow:0 5px 22px rgba(31,48,67,.10);border-bottom:1px solid rgba(255,255,255,.12)}
+.mark{background:linear-gradient(145deg,#c2b194,#a58f70);color:#fff;border:1px solid #d3c4ac;
+ border-radius:13px;min-width:42px;text-align:center;box-shadow:0 4px 12px #101d2b35}
+.top b{font-size:16px;letter-spacing:.02em}.top small{color:#dce3e9;font-size:11px;letter-spacing:.04em}
+main{max-width:1120px;padding:28px 20px 44px}
+h1,h2,h3,h4{color:#26394e;letter-spacing:-.025em}
+h1{font-size:30px;font-weight:700;line-height:1.2}
+h2{font-size:21px;font-weight:650}
+.eyebrow{color:#9a8669;font-size:10px;letter-spacing:2px;font-weight:800}
+.card{background:rgba(255,255,255,.96);border:1px solid #e6e9ed;border-radius:18px;
+ padding:21px;margin:15px 0;box-shadow:0 5px 20px rgba(35,52,72,.035)}
+.card h2,.card h3{letter-spacing:-.02em}
+small,.muted{color:var(--muted)}
+label{color:#526173;font-size:11px;letter-spacing:.025em}
+input,select{background:#fff;border:1px solid #dfe4e9;border-radius:11px;color:#29394b;
+ padding:12px 13px;box-shadow:inset 0 1px 2px rgba(25,40,55,.025);transition:border-color .18s,box-shadow .18s}
+input:focus,select:focus{outline:none;border-color:#8fa1b2;box-shadow:0 0 0 3px rgba(113,134,154,.13)}
+button{background:linear-gradient(135deg,#344b63,#26394f);border:1px solid #26394f;border-radius:11px;
+ color:#fff;font-weight:650;letter-spacing:.005em;box-shadow:0 3px 9px rgba(36,54,75,.10);
+ transition:transform .16s,box-shadow .16s,filter .16s}
+button:hover{filter:brightness(1.06);box-shadow:0 5px 13px rgba(36,54,75,.14)}
+button:active{transform:translateY(1px)}
+button.secondary{background:#eef1f4;color:#34495e;border:1px solid #e0e5e9;box-shadow:none}
+.tabs{gap:8px;padding:7px 0 15px}
+.tab{background:#fff;color:#5d6b7b;border:1px solid #e4e8ec;border-radius:11px;
+ padding:11px 15px;box-shadow:0 2px 7px rgba(34,50,68,.025);font-weight:600}
+.tab.on{background:#2c4259;color:#fff;border-color:#2c4259;box-shadow:0 4px 11px rgba(36,54,75,.13)}
+.stats{gap:12px}
+.stat{background:linear-gradient(155deg,#fff,#fafbfc);border:1px solid #e6e9ed;border-radius:15px;
+ padding:16px;box-shadow:0 3px 12px rgba(35,52,72,.035)}
+.stat strong{color:#304960;font-size:27px;font-weight:700;letter-spacing:-.04em}
+.entry{border-color:#edf0f2}
+.modal{border:1px solid #e7eaee;border-radius:20px;box-shadow:0 24px 70px rgba(21,35,50,.22)}
+.modal-backdrop{background:rgba(28,43,59,.58);backdrop-filter:blur(4px)}
+.work-table{border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums}
+.work-table th{background:#f1f3f5;color:#46596d;font-weight:700}
+.work-table th:first-child{border-radius:8px 0 0 0}.work-table th:last-child{border-radius:0 8px 0 0}
+.work-table td{background:#fff}
+.work-table tr:last-child td{border-bottom:0}
+.work-table .wt-net{color:#304960}
+.report-head{background:linear-gradient(120deg,#26394f,#40576d);border-bottom:4px solid #b6a184;border-radius:16px}
+.report-tag{color:#e0d3bd}
+.report-metric{border-top:3px solid #b6a184;background:#fafbfc;border-radius:12px}
+.report-metric b{color:#304960}
+.report-section{border-radius:14px;border-color:#e7eaee;box-shadow:0 3px 12px rgba(35,52,72,.025)}
+.report-section h3{color:#304960}
+.report-table-head{background:#f2f4f6;color:#687789;border-radius:7px}
+.report-line{border-color:#edf0f2}
+.grade-head{border-color:#b6a184}
+.grade-head h2,.grade-summary h3,.grade-columns h3{color:#304960}
+.grade-columns h4{color:#8b7960}
+#growthCardOutput{border-top-color:#b6a184;border-radius:15px}
+#growthCardOutput .stat{border-top-color:#b6a184}
+.exam-compare-status.is-good{background:#eaf3ed;color:#47765a}
+.exam-compare-status.is-low{background:#f7f0e8;color:#98734b}
+.report-actions{background:#f4f6f7;border-color:#e5e9ed;border-radius:12px}
+.lesson-rating-card{border-color:#e5e9ed;border-radius:12px}
+.lesson-rating-average{background:#f2f4f6}
+.lesson-rating-average strong{color:#8b7960}
+@media(max-width:760px){
+ main{padding:18px 13px 32px}
+ .top{padding:14px 15px}
+ .card{padding:17px;margin:12px 0;border-radius:16px}
+ .tabs{padding-bottom:13px}
+ .tab{padding:10px 13px}
+ h1{font-size:26px}
+}
+@media(max-width:480px){
+ main{padding:14px 10px 28px}
+ .top b{font-size:14px}
+ .top small{font-size:10px}
+ .mark{min-width:38px}
+ .card{padding:14px}
+ .stat{border-radius:13px}
+}
+
 </style></head><body>
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Sisteme giriş</h2><label>E-posta adresi</label><input id="person" type="email" autocomplete="email" placeholder="E-posta adresiniz"><button id="loginBtn" type="button" class="full" onclick="document.getElementById('authmsg').textContent='Buton çalışıyor; giriş sistemi kontrol ediliyor...';if(typeof login==='function'){login()}else{document.getElementById('authmsg').textContent='Buton çalışıyor ancak giriş kodu yüklenmemiş. Sayfayı yeniden yükleyin veya bağlantı sorununu kontrol edelim.'}">Giriş bağlantısı gönder</button><p id="authmsg" class="muted">E-posta adresinize güvenli giriş bağlantısı gönderilecektir. Bağlantıyı aynı cihazda açın.</p></div></section>
