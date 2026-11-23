@@ -254,6 +254,94 @@ button.secondary{background:#eef1f4;color:#34495e;border:1px solid #e0e5e9;box-s
  .stat{border-radius:13px}
 }
 
+
+/* DASHBOARD POLISH — visual only; existing content, data and behavior untouched */
+#app>.roleline{
+ position:relative;isolation:isolate;overflow:hidden;
+ padding:25px 27px;margin:8px 0 18px;border:1px solid #e4e8ec;border-radius:19px;
+ background:linear-gradient(112deg,#fff 0%,#f7f8f9 64%,#eef2f4 100%);
+ box-shadow:0 8px 24px rgba(35,52,72,.045)
+}
+#app>.roleline:after{
+ content:"";position:absolute;z-index:-1;width:210px;height:210px;right:-72px;top:-112px;
+ border:1px solid rgba(182,161,132,.25);border-radius:50%;
+ box-shadow:0 0 0 22px rgba(182,161,132,.045),0 0 0 46px rgba(182,161,132,.03)
+}
+#app>.roleline .eyebrow{font-size:10px;letter-spacing:2.1px;color:#9a8669}
+#app>.roleline h1{font-size:29px;margin:7px 0 0;letter-spacing:-.04em}
+#app>.roleline button{position:relative;z-index:1;padding:11px 17px}
+#app>.tabs{
+ position:sticky;top:8px;z-index:10;
+ padding:8px;margin:0 0 18px;border:1px solid rgba(226,231,235,.9);
+ border-radius:15px;background:rgba(247,248,249,.91);
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ box-shadow:0 6px 18px rgba(35,52,72,.055)
+}
+#app>.tabs .tab{border-radius:10px}
+#home{animation:dashboardFade .28s ease-out}
+#home>.card:first-child{
+ position:relative;overflow:hidden;padding:25px 25px 20px;
+ border:1px solid #e4e8ec;border-radius:19px;
+ background:linear-gradient(135deg,#fff 0%,#fbfcfc 58%,#f1f4f5 100%);
+ box-shadow:0 9px 26px rgba(35,52,72,.045)
+}
+#home>.card:first-child:before{
+ content:"";position:absolute;right:-52px;top:-75px;width:190px;height:190px;
+ border-radius:50%;border:1px solid rgba(182,161,132,.28);
+ box-shadow:0 0 0 18px rgba(182,161,132,.045),0 0 0 38px rgba(182,161,132,.025);
+ pointer-events:none
+}
+#home>.card:first-child>.eyebrow,
+#home>.card:first-child>h2,
+#home>.card:first-child>#todayPlan,
+#home>.card:first-child>p{position:relative;z-index:1}
+#home>.card:first-child>.eyebrow{margin-bottom:9px}
+#home>.card:first-child>h2{font-size:23px;margin-bottom:18px}
+#todayPlan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#todayPlan .entry{
+ min-width:0;margin:0;padding:13px 14px!important;border:1px solid #e8ebee!important;
+ border-radius:12px;background:rgba(255,255,255,.9)!important;
+ box-shadow:0 2px 8px rgba(35,52,72,.025);
+ transition:border-color .18s,transform .18s,box-shadow .18s
+}
+#todayPlan .entry:has(b):hover{border-color:#d7dfe5!important;box-shadow:0 5px 13px rgba(35,52,72,.055)}
+#todayPlan .entry b{display:block;color:#34495e;font-size:13px;line-height:1.4}
+#todayPlan .entry small{display:block;color:#8793a0;font-size:10px;line-height:1.5;margin-top:5px}
+#todayPlan .entry strong{font-size:11px;color:#8b7960!important;white-space:nowrap}
+#todayPlan .entry[style*="text-align:center"]{grid-column:1/-1;background:#f3f5f6!important;text-align:center}
+#home>.card:first-child>p.muted{margin:16px 0 0;padding-top:13px;border-top:1px solid #e9ecef;font-size:11px}
+#app .page>h2{font-size:22px;margin:8px 0 16px;letter-spacing:-.03em}
+#app .page>.roleline{margin:5px 0 13px}
+#app .page>.card{box-shadow:0 4px 16px rgba(35,52,72,.03)}
+#app .page .card>h3{font-size:15px;color:#34495e}
+#app .page .card>.grid{row-gap:13px}
+#app .page .stats .stat{position:relative;overflow:hidden}
+#app .page .stats .stat:after{
+ content:"";position:absolute;right:-18px;bottom:-25px;width:66px;height:66px;
+ border-radius:50%;background:rgba(182,161,132,.055);pointer-events:none
+}
+#login{max-width:590px;margin:clamp(34px,8vh,88px) auto 0}
+#login>.eyebrow{font-size:10px;letter-spacing:2.3px}
+#login>h1{font-size:clamp(29px,5vw,39px);line-height:1.13;max-width:520px;letter-spacing:-.045em;margin:12px 0}
+#login>.card{padding:27px;border-radius:20px;box-shadow:0 14px 36px rgba(35,52,72,.065)}
+#login>.card h2{font-size:21px;margin-bottom:18px}
+@keyframes dashboardFade{from{opacity:.88;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:760px){
+ #app>.roleline{padding:19px 17px;margin:5px 0 13px;border-radius:16px}
+ #app>.roleline h1{font-size:24px}
+ #app>.tabs{top:5px;margin-bottom:14px;padding:6px}
+ #home>.card:first-child{padding:19px 16px 16px;border-radius:16px}
+ #home>.card:first-child>h2{font-size:20px}
+ #todayPlan{grid-template-columns:1fr;gap:7px}
+ #todayPlan .entry{padding:11px 12px!important}
+ #login{margin:28px auto 0}
+ #login>.card{padding:20px}
+}
+@media print{
+ #app>.roleline,#app>.tabs{position:static;backdrop-filter:none}
+ #home{animation:none}
+}
+
 </style></head><body>
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Sisteme giriş</h2><label>E-posta adresi</label><input id="person" type="email" autocomplete="email" placeholder="E-posta adresiniz"><button id="loginBtn" type="button" class="full" onclick="document.getElementById('authmsg').textContent='Buton çalışıyor; giriş sistemi kontrol ediliyor...';if(typeof login==='function'){login()}else{document.getElementById('authmsg').textContent='Buton çalışıyor ancak giriş kodu yüklenmemiş. Sayfayı yeniden yükleyin veya bağlantı sorununu kontrol edelim.'}">Giriş bağlantısı gönder</button><p id="authmsg" class="muted">E-posta adresinize güvenli giriş bağlantısı gönderilecektir. Bağlantıyı aynı cihazda açın.</p></div></section>
