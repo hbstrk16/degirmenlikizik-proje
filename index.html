@@ -282,61 +282,43 @@ function renderTodayPlan(){
 function updateDashboardStats(){const el=$('groupNet');if(!el)return;const latest=cache.students.map(s=>[...cache.exams].filter(e=>e.student_id===s.id).sort((a,b)=>String(b.exam_date||b.created_at||'').localeCompare(String(a.exam_date||a.created_at||'')))[0]).filter(Boolean);const avg=latest.length?latest.reduce((sum,e)=>sum+(Number(e.net)||0),0)/latest.length:null;el.textContent=avg===null?'—':avg.toFixed(2).replace('.',',');}
 function renderWeeklyCompletion(){
  const box=$('weeklyCompletion');if(!box)return;
- const plan={
-  1:['Paragraf','Fen Bilimleri','İnkılap','Türkçe','Matematik','Fen Bilimleri'],
-  2:['Paragraf','Matematik','Türkçe','Türkçe','Türkçe','Matematik'],
-  3:['Paragraf','Türkçe','Fen Bilimleri','Din Kültürü','İngilizce','Matematik'],
-  4:['Paragraf','İnkılap','Fen Bilimleri','Matematik','Türkçe'],
-  5:['Paragraf','İngilizce'],
-  0:[],6:[]
- };
  const dateKey=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day};
  const dates=[];for(let i=6;i>=0;i--){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-i);dates.push({date:dateKey(d),day:d.getDay()})}
  const results=cache.students.map(s=>{
   let planned=0,done=0;
   dates.forEach(d=>{
-   const slots=plan[d.day]||[];planned+=slots.length;
+   const slots=(etutProgram[d.day]||[]).filter(slot=>!String(slot[0]).toLocaleLowerCase('tr-TR').includes('serbest'));
+   planned+=slots.length;
    const records=cache.work.filter(w=>w.student_id===s.id&&w.recorded_on===d.date);
-   
    const used=new Set();
    slots.forEach(slot=>{
-    
-    const match=records.find(w=>w.subject===slot&&!used.has(w.id));
+    const expected=slot[0]+' • '+slot[2];
+    const match=records.find(w=>w.session_label===expected&&!used.has(w.id));
     if(match){used.add(match.id);done++}
    });
   });
   return {name:s.full_name,planned,done,pct:planned?Math.round(done/planned*100):0};
  }).sort((a,b)=>b.pct-a.pct||a.name.localeCompare(b.name,'tr'));
- const totalPlanned=results.reduce((n,x)=>n+x.planned,0),totalDone=results.reduce((n,x)=>n+x.done,0),overall=totalPlanned?Math.round(totalDone/totalPlanned*100):0;const rate=$('weeklyRate');if(rate)rate.textContent=totalPlanned?'%'+overall:'—';
+ const totalPlanned=results.reduce((n,x)=>n+x.planned,0),totalDone=results.reduce((n,x)=>n+x.done,0),overall=totalPlanned?Math.round(totalDone/totalPlanned*100):0;
+ const rate=$('weeklyRate');if(rate)rate.textContent=totalPlanned?'%'+overall:'—';
  box.innerHTML='<div class="stats"><div class="stat"><small>Planlanan etüt</small><strong>'+totalPlanned+'</strong><small>Tüm öğrenciler</small></div><div class="stat"><small>Kayıtla tamamlanan</small><strong>'+totalDone+'</strong><small>Tüm öğrenciler</small></div><div class="stat"><small>Grup gerçekleşme</small><strong>%'+overall+'</strong><small>Son 7 gün</small></div></div>'+
  (results.length?results.map(x=>'<div class="entry"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+safe(x.name)+'</b><strong>'+x.done+'/'+x.planned+' • %'+x.pct+'</strong></div><div style="height:9px;background:#edf1f5;border-radius:8px;overflow:hidden;margin-top:7px"><div style="height:100%;width:'+x.pct+'%;background:'+(x.pct>=100?'#23845b':'#7b2942')+'"></div></div></div>').join(''):'<p class="muted">Öğrenci kaydı bulunamadı.</p>')+
- '<p class="muted">Hesaplama yalnızca programda ders/kitap olarak tanımlı oturumları ve aynı gün girilmiş kayıtları eşleştirir. Ödev etütleri, serbest çalışma ve sosyal etkinlikler ders kaydıyla eşleştirilmediği için bu yüzdeye dahil değildir.</p>';
+ '<p class="muted">Tamamlanma, programdaki etüt saatinin ve süresinin kayıtla birebir eşleşmesine göre hesaplanır. Serbest çalışma, ödev ve sosyal etkinlikler hesaba katılmaz.</p>';
 }
 function renderDailyCompletion(){
  const box=$('dailyCompletion');if(!box)return;
  const day=new Date().getDay(),todayKey=today();
- const slots={
-  1:['Paragraf','Fen Bilimleri','İnkılap','Türkçe','Matematik','Fen Bilimleri'],
-  2:['Paragraf','Matematik','Türkçe','Türkçe','Türkçe','Matematik'],
-  3:['Paragraf','Türkçe','Fen Bilimleri','Din Kültürü','İngilizce','Matematik'],
-  4:['Paragraf','İnkılap','Serbest','Fen Bilimleri','Matematik','Türkçe'],
-  5:['Paragraf','İngilizce','Serbest','TÜZDER','Sosyal'],
-  0:[],6:[]
- };
- const planned=slots[day]||[];
- if(!planned.length){box.innerHTML='<p class="muted">Bugün için hafta içi etüt programı bulunmuyor.</p>';return}
+ const planned=(etutProgram[day]||[]).filter(slot=>!String(slot[0]).toLocaleLowerCase('tr-TR').includes('serbest'));
+ if(!planned.length){box.innerHTML='<p class="muted">Bugün için takip kapsamına giren test etütü bulunmuyor.</p>';return}
  const students=cache.students.map(s=>{
   const records=cache.work.filter(w=>w.student_id===s.id&&w.recorded_on===todayKey);
-  
-  const used={};let completed=0;
+  const used=new Set();let completed=0;
   planned.forEach(slot=>{
-   
-   if(['Serbest','TÜZDER','Sosyal'].includes(slot))return;
-   const found=records.find(w=>w.subject===slot&&(used[w.id]||0)<1);
-   if(found){used[found.id]=1;completed++}
+   const expected=slot[0]+' • '+slot[2];
+   const found=records.find(w=>w.session_label===expected&&!used.has(w.id));
+   if(found){used.add(found.id);completed++}
   });
-  const count=planned.filter(x=>!['Serbest','TÜZDER','Sosyal'].includes(x)).length;
-  return {name:s.full_name,completed,count,pct:count?Math.round(completed/count*100):0};
+  return {name:s.full_name,completed,count:planned.length,pct:planned.length?Math.round(completed/planned.length*100):0};
  }).sort((a,b)=>b.pct-a.pct||a.name.localeCompare(b.name,'tr'));
  box.innerHTML=students.map(x=>'<div class="entry"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+safe(x.name)+'</b><strong>'+x.completed+'/'+x.count+' • %'+x.pct+'</strong></div><div style="height:9px;background:#edf1f5;border-radius:8px;overflow:hidden;margin-top:7px"><div style="height:100%;width:'+x.pct+'%;background:'+(x.pct===100?'#23845b':'#7b2942')+'"></div></div></div>').join('')||'<p class="muted">Öğrenci bulunamadı.</p>';
 }
