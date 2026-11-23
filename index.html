@@ -546,6 +546,96 @@ body:has(#login:not(.hide))>main{
  #login>.card{grid-column:1;grid-row:5}
 }
 
+
+/* FINAL VISUAL POLISH — presentation only; no content or behavior changes */
+#app{max-width:1180px;margin:0 auto;padding:0 clamp(12px,2.4vw,28px) 42px}
+#app>.roleline{
+ min-height:112px;display:flex;align-items:center;justify-content:space-between;
+ gap:18px;padding:23px clamp(18px,3vw,32px);border-radius:20px
+}
+#app>.roleline h1{font-weight:750;letter-spacing:-.045em}
+#app>.roleline button{border-radius:11px;font-weight:650}
+#app>.tabs{
+ display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;
+ overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+ scroll-snap-type:x proximity;white-space:nowrap
+}
+#app>.tabs::-webkit-scrollbar{display:none}
+#app>.tabs .tab{
+ flex:0 0 auto;scroll-snap-align:start;min-height:48px;padding:0 19px;
+ border:1px solid #e3e8ed;background:#fff;color:#58697b;
+ font-size:13px;font-weight:650;letter-spacing:-.01em;
+ box-shadow:0 1px 3px rgba(35,52,72,.025);
+ transition:background .18s,border-color .18s,color .18s,box-shadow .18s
+}
+#app>.tabs .tab.on{
+ color:#fff;background:linear-gradient(115deg,#293f57,#3a536c);
+ border-color:#293f57;box-shadow:0 5px 13px rgba(35,57,79,.18)
+}
+#app>.page{min-width:0;animation:dashboardFade .22s ease-out}
+#app>.page>.card{
+ border:1px solid #e6eaed;border-radius:18px;background:#fff;
+ box-shadow:0 5px 20px rgba(35,52,72,.035);padding:clamp(17px,2.5vw,25px)
+}
+#home>.card:first-child{
+ padding:clamp(20px,3vw,32px);border-radius:21px;
+ background:linear-gradient(145deg,#fff 0%,#fdfdfc 72%,#f4f2ed 100%)
+}
+#home>.card:first-child>.eyebrow{
+ color:#9a8465;font-size:10px;letter-spacing:2.6px;font-weight:800
+}
+#home>.card:first-child>h2{
+ color:#2c4056;font-size:clamp(21px,2.6vw,29px);
+ line-height:1.25;letter-spacing:-.04em;margin:10px 0 23px
+}
+#todayPlan{gap:11px}
+#todayPlan .entry{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ min-height:86px;padding:16px 18px!important;border:1px solid #e6eaed!important;
+ border-left:4px solid #c8b18d!important;border-radius:15px;
+ background:linear-gradient(110deg,#fff,#fdfdfc)!important;
+ box-shadow:0 3px 10px rgba(35,52,72,.035)
+}
+#todayPlan .entry b{font-size:14px;line-height:1.45;color:#30465c}
+#todayPlan .entry small{font-size:11px;color:#8995a2;margin-top:6px}
+#todayPlan .entry strong{
+ min-width:54px;text-align:right;font-size:12px;font-weight:750;
+ color:#927b59!important;letter-spacing:.01em
+}
+#todayPlan .entry[style*="text-align:center"]{min-height:auto}
+#app .page .card h3{letter-spacing:-.02em}
+#app .page input,#app .page select,#app .page textarea{
+ border-radius:10px;border-color:#dfe5e9;background:#fcfdfd
+}
+#app .page input:focus,#app .page select:focus,#app .page textarea:focus{
+ border-color:#8b9bad;box-shadow:0 0 0 3px rgba(58,83,108,.09);outline:none
+}
+#app .page button:not(.tab){
+ border-radius:10px;font-weight:650;transition:transform .16s,box-shadow .16s
+}
+#app .page .table-wrap{border:1px solid #e7ebef;border-radius:13px;overflow:auto}
+#app .page table{border-collapse:separate;border-spacing:0}
+#app .page th{background:#f4f6f7;color:#526477;font-weight:700}
+@media(max-width:760px){
+ #app{padding:0 11px 28px}
+ #app>.roleline{min-height:90px;padding:17px 15px;border-radius:15px}
+ #app>.roleline h1{font-size:23px}
+ #app>.tabs{margin-left:-1px;margin-right:-1px;gap:6px;padding:6px}
+ #app>.tabs .tab{min-height:43px;padding:0 15px;font-size:12px;border-radius:10px}
+ #home>.card:first-child{padding:21px 15px 17px;border-radius:17px}
+ #home>.card:first-child>h2{font-size:21px;margin:9px 0 18px}
+ #todayPlan{grid-template-columns:1fr;gap:8px}
+ #todayPlan .entry{min-height:78px;padding:13px 13px!important;border-radius:13px}
+ #todayPlan .entry b{font-size:13px}
+ #todayPlan .entry small{font-size:10px}
+ #todayPlan .entry strong{font-size:11px}
+ #app>.page>.card{padding:16px;border-radius:15px}
+}
+@media(prefers-reduced-motion:reduce){
+ #app>.page,#home{animation:none!important}
+ #app>.tabs .tab,#app .page button{transition:none!important}
+}
+
 </style></head><body>
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Sisteme giriş</h2><label>E-posta adresi</label><input id="person" type="email" autocomplete="email" placeholder="E-posta adresiniz"><button id="loginBtn" type="button" class="full" onclick="document.getElementById('authmsg').textContent='Buton çalışıyor; giriş sistemi kontrol ediliyor...';if(typeof login==='function'){login()}else{document.getElementById('authmsg').textContent='Buton çalışıyor ancak giriş kodu yüklenmemiş. Sayfayı yeniden yükleyin veya bağlantı sorununu kontrol edelim.'}">Giriş bağlantısı gönder</button><p id="authmsg" class="muted">E-posta adresinize güvenli giriş bağlantısı gönderilecektir. Bağlantıyı aynı cihazda açın.</p></div></section>
