@@ -509,6 +509,43 @@ body:has(#login:not(.hide))>main{
  #login>.card{padding:22px 16px}
 }
 
+
+/* DORM PHOTO LOGIN — original user photo */
+#login{
+ grid-template-columns:minmax(0,1.05fr) minmax(360px,.88fr);
+ grid-template-rows:auto auto auto 1fr;
+ column-gap:clamp(26px,4vw,54px);
+ align-items:center;
+}
+#login:before{
+ content:"";grid-column:1;grid-row:1/5;align-self:stretch;min-height:560px;
+ border-radius:19px;
+ background:
+  linear-gradient(180deg,rgba(18,31,46,.03) 45%,rgba(18,31,46,.46) 100%),
+  url("./dorm.jpg") center center/cover no-repeat;
+ box-shadow:0 14px 35px rgba(28,42,56,.18);
+ border:1px solid rgba(255,255,255,.68)
+}
+#login>.eyebrow{grid-column:2;grid-row:1;align-self:end}
+#login>h1{grid-column:2;grid-row:2;align-self:end}
+#login>p.muted{grid-column:2;grid-row:3;align-self:start}
+#login>.card{grid-column:2;grid-row:4;align-self:start}
+@media(max-width:760px){
+ #login{
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:220px auto auto auto auto;
+  gap:15px
+ }
+ #login:before{
+  grid-column:1;grid-row:1;min-height:0;height:220px;
+  background-position:center 43%;border-radius:15px
+ }
+ #login>.eyebrow{grid-column:1;grid-row:2}
+ #login>h1{grid-column:1;grid-row:3}
+ #login>p.muted{grid-column:1;grid-row:4}
+ #login>.card{grid-column:1;grid-row:5}
+}
+
 </style></head><body>
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Sisteme giriş</h2><label>E-posta adresi</label><input id="person" type="email" autocomplete="email" placeholder="E-posta adresiniz"><button id="loginBtn" type="button" class="full" onclick="document.getElementById('authmsg').textContent='Buton çalışıyor; giriş sistemi kontrol ediliyor...';if(typeof login==='function'){login()}else{document.getElementById('authmsg').textContent='Buton çalışıyor ancak giriş kodu yüklenmemiş. Sayfayı yeniden yükleyin veya bağlantı sorununu kontrol edelim.'}">Giriş bağlantısı gönder</button><p id="authmsg" class="muted">E-posta adresinize güvenli giriş bağlantısı gönderilecektir. Bağlantıyı aynı cihazda açın.</p></div></section>
