@@ -615,6 +615,27 @@ body>header.top small{font-size:11px;letter-spacing:.09em;text-transform:upperca
 <div class="card"><h3>Toplu Hedef – Netice Kıyaslama</h3><p class="muted">Seçtiğin denemede hedefi ve gerçekleşen sonucu bulunan tüm öğrencileri tek tabloda görüntüle.</p>
 <div class="grid"><div><label for="bulkCompareExam">Deneme</label><select id="bulkCompareExam" onchange="renderBulkExamTargetComparison()"><option value="">Deneme seçin</option></select></div></div>
 <div id="bulkCompareSummary" class="stats"></div><div id="bulkExamTargetComparison"><p class="muted">Karşılaştırmak için deneme seçin.</p></div></div>
+<div class="card">
+<h3>Öğrenci Grubu Oluştur ve Karşılaştır</h3>
+<p class="muted">Öğrencileri seç, grubu kaydet ve aynı denemedeki netlerini ders ders karşılaştır.</p>
+<div class="grid">
+<div><label for="examGroupName">Grup adı</label><input id="examGroupName" placeholder="Örn. 500 Puan Özel Grubu"></div>
+<div><label for="savedExamGroups">Kayıtlı gruplarım</label><select id="savedExamGroups" onchange="applySavedExamComparisonGroup()"><option value="">Kayıtlı grup seçin</option></select></div>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
+<button type="button" class="secondary" onclick="selectAllExamGroupStudents(true)">Tümünü seç</button>
+<button type="button" class="secondary" onclick="selectAllExamGroupStudents(false)">Seçimi temizle</button>
+<button type="button" onclick="saveExamComparisonGroup()">Grubu kaydet</button>
+</div>
+<div id="examGroupStudentPicker" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;padding:10px;border:1px solid #e5e9ee;border-radius:10px;max-height:230px;overflow:auto"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+<button type="button" onclick="renderSavedExamGroupComparison()">Seçili grubu karşılaştır</button>
+<button type="button" class="secondary" onclick="exportExamGroupComparisonCsv()">Excel / CSV indir</button>
+<button type="button" class="secondary" onclick="printExamGroupComparison()">PDF / Yazdır</button>
+</div>
+<div id="savedExamGroupSummary" class="stats"></div>
+<div id="savedExamGroupComparison"><p class="muted">Karşılaştırmak için bir deneme seçip en az iki öğrenci işaretleyin.</p></div>
+</div>
 <div class="card"><h3>Bireysel Hedef – Netice Kıyaslama</h3><label for="compareStudent">Öğrenci</label><select id="compareStudent" onchange="renderExamTargetComparison()"><option value="">Öğrenci seçin</option></select><div id="examTargetComparison"><p class="muted">Kıyaslama için öğrenci seçin.</p></div></div></section></div>
 
 <div id="reports" class="page weekly-report-hub">
@@ -665,6 +686,10 @@ async function ensureSupabaseClient(){
 let currentProfile=null, editingStudentId=null, cache={students:[],work:[],exams:[],books:[],values:[],targets:[],attendance:[],saturdayRatings:[]};
 let parentChildren=[];
 let dailyReportHasBeenGenerated=false;
+let savedExamComparisonGroups=[];
+let selectedExamGroupIds=[];
+let currentExamGroupComparison=[];
+let currentExamGroupExamLabel='';
 
 
 function renderExamAnalysis(){
@@ -971,7 +996,7 @@ function renderStudentGradeOptions(){
 }
 async function render(){try{let ratingLoadError=null;const [s,w,e,b,v,t,a,sr]=await Promise.all(['students','study_records','exam_results','reading_records','values_records','exam_targets','attendance_records'].map(loadTable).concat([loadTable('saturday_lesson_ratings').catch(err=>{ratingLoadError=err.message;return []})]));cache.saturdayRatings=sr;cache.saturdayRatingLoadError=ratingLoadError;cache.students=s;cache.targets=t;cache.attendance=a.map(x=>({...x,student:s.find(z=>z.id===x.student_id)?.full_name||'Silinmiş öğrenci'}));populateStudentSelect();populateAllStudentSelects();populateExamModuleSelects();const name=id=>s.find(x=>x.id===id)?.full_name||'Silinmiş öğrenci';cache.work=w.map(x=>({...x,student:name(x.student_id)}));cache.exams=e.map(x=>({...x,student:name(x.student_id),name:x.exam_name,net:x.total_net}));cache.books=b.map(x=>({...x,student:name(x.student_id),title:x.title,progress:x.progress}));cache.values=v.map(x=>({...x,student:name(x.student_id),title:x.value_title,note:x.teacher_note}));renderTeacherDashboard();renderBookRecords();renderAttendanceRecords();if($('attDate')&&!$('attDate').value)$('attDate').value=today();renderTodayPlan();setDefaultReportDates();setDailyReportDefaults();if(dailyReportHasBeenGenerated)makeDailyReport();renderStudentGradeOptions();renderStudentDirectory();$('worklist').innerHTML=cache.work.length?cache.work.map(x=>row(x.student+' • '+x.subject,x.recorded_on,Number(x.net).toFixed(2)+' net / '+x.status)).join(''):'<p class="muted">Henüz kayıt yok.</p>';$('examlist').innerHTML=cache.exams.length?cache.exams.map(x=>row(x.student+' • '+x.name,x.exam_date,x.net+' net')).join(''):'<p class="muted">Henüz sonuç yok.</p>';renderExamModule();if($('workdate')){if(!$('workdate').value)$('workdate').value=localDateValue();loadWorkSessions();renderSaturdayRatings();}}catch(e){alert('Veriler yüklenemedi: '+e.message)}}
 async function studentIdByName(name){const s=cache.students.find(x=>x.full_name.trim().toLocaleLowerCase('tr-TR')===name.trim().toLocaleLowerCase('tr-TR'));if(!s)throw new Error('Öğrenci bulunamadı. Önce Öğrenciler sekmesinden ekleyin.');return s.id}
-async function ensureTeacherSession(){const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();if(sessionError||!session)throw new Error('Öğretmen oturumu bulunamadı veya süresi dolmuş. Lütfen çıkış yapıp yeniden giriş bağlantısıyla oturum açın.');const {data:refreshed,error:refreshError}=await supabaseClient.auth.refreshSession();if(refreshError||!refreshed?.session?.access_token)throw new Error('Güvenli oturum yenilenemedi. Lütfen çıkış yapıp yeniden giriş yapın.');const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',refreshed.session.user.id).maybeSingle();if(profileError)throw profileError;if(profile?.role!=='teacher')throw new Error('Bu işlem yalnızca öğretmen hesabıyla yapılabilir.');currentProfile={...currentProfile,role:profile.role};return refreshed.session}
+async function ensureTeacherSession(){const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();if(sessionError||!session)throw new Error('Öğretmen oturumu bulunamadı veya süresi dolmuş. Lütfen çıkış yapıp yeniden giriş bağlantısıyla oturum açın.');const {data:refreshed,error:refreshError}=await supabaseClient.auth.refreshSession();if(refreshError||!refreshed?.session?.access_token)throw new Error('Güvenli oturum yenilenemedi. Lütfen çıkış yapıp yeniden giriş yapın.');const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',refreshed.session.user.id).maybeSingle();if(profileError)throw profileError;if(profile?.role!=='teacher')throw new Error('Bu işlem yalnızca öğretmen hesabıyla yapılabilir.');currentProfile={...currentProfile,id:refreshed.session.user.id,role:profile.role};return refreshed.session}
 async function saveRow(table,payload){await ensureTeacherSession();const {error}=await supabaseClient.from(table).insert(payload);if(error)throw error;await render();alert('Kayıt veritabanına kaydedildi.')}
 async function bulkAddLgsGroup(){
  const names=['İlyas Ömer Narin','Eren Semiz','Selim Topaloğlu','Furkan Malgir','Ali Recep','Utku Bektaş','Hamza Hız','Eymen Ali Toraman','Ahmet Eren Yakupoğlu','Utku Satı'];
@@ -1130,7 +1155,7 @@ async function saveWorkBatch(){
 async function addWork(){try{const id=$('ws').value,t=Number($('total').value),c=Number($('correct').value),w=Number($('wrong').value),b=Number($('blank').value),target=Number($('targetq').value||0);if(!id){alert('Lütfen listeden öğrenci seçin.');return}if(![t,c,w,b,target].every(Number.isFinite)||![t,c,w,b,target].every(Number.isInteger)||[t,c,w,b,target].some(x=>x<0)){alert('Soru ve hedef değerleri sıfır veya pozitif tam sayı olmalıdır.');return}if(t<1){alert('Toplam soru sayısı en az 1 olmalıdır.');return}if(c+w+b!==t){alert('Toplam soru sayısı, doğru + yanlış + boş toplamına eşit olmalıdır.');return}await saveRow('study_records',{student_id:id,subject:$('subject').value,total_questions:t,correct:c,wrong:w,blank:b,teacher_note:$('worknote').value.trim()||null,recorded_on:$('workdate').value||today(),status:$('status').value})}catch(e){alert(e.message)}}
 const examSubjects=[{name:'Türkçe',key:'turkish',limit:20},{name:'Matematik',key:'math',limit:20},{name:'Fen Bilimleri',key:'science',limit:20},{name:'İnkılap',key:'revolution',limit:10},{name:'Din Kültürü',key:'religion',limit:10},{name:'İngilizce',key:'english',limit:10}];
 function renderExamTargetMatrix(){const body=$('examTargetMatrix');if(!body)return;const sorted=[...cache.students].sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr'));body.innerHTML=sorted.map(student=>{const t=cache.targets.find(x=>x.student_id===student.id);let sum=0,complete=!!t;const cells=examSubjects.map(s=>{const c=t?.[s.key+'_correct_target'],w=t?.[s.key+'_wrong_target'],n=t?.[s.key+'_net_target'];if(c===null||c===undefined||w===null||w===undefined||n===null||n===undefined||c===''||w===''||n===''){complete=false;return '<td>—</td>'}sum+=Number(n);return '<td><b>'+Number(n).toFixed(2).replace('.',',')+'</b><small style="display:block">D: '+c+' • Y: '+w+'</small></td>'}).join('');return '<tr><td class="work-name">'+safe(student.full_name)+'</td>'+cells+'<td><b>'+(complete?sum.toFixed(2).replace('.',','):'—')+'</b></td></tr>'}).join('')||'<tr><td colspan="8">Henüz öğrenci eklenmedi.</td></tr>'}
-function renderExamModule(){populateExamModuleSelects();populateBulkComparisonExams();renderBulkExamTargetComparison();renderExamTargetMatrix();if($('targetStudent')?.value)loadExamTargetForm();if($('es')?.value)renderExamTargetComparison();if($('examlist'))$('examlist').innerHTML='<h3>Deneme geçmişi</h3>'+(cache.exams.length?[...cache.exams].sort((a,b)=>new Date(b.exam_date||b.created_at||0)-new Date(a.exam_date||a.created_at||0)).map(e=>row(e.student+' • '+e.name,(e.exam_date||'Tarih yok')+' • '+Number(e.net||0).toFixed(2).replace('.',',')+' net','Doğru: '+examSubjects.reduce((n,s)=>n+Number(e[s.key+'_correct']||0),0)+' • Yanlış: '+examSubjects.reduce((n,s)=>n+Number(e[s.key+'_wrong']||0),0))).join(''):'<p class="muted">Henüz sonuç yok.</p>');}
+function renderExamModule(){populateExamModuleSelects();populateBulkComparisonExams();renderBulkExamTargetComparison();renderExamGroupStudentPicker();loadSavedExamComparisonGroups().catch(e=>console.warn('Kayıtlı karşılaştırma grupları yüklenemedi:',e));renderExamTargetMatrix();if($('targetStudent')?.value)loadExamTargetForm();if($('es')?.value)renderExamTargetComparison();if($('examlist'))$('examlist').innerHTML='<h3>Deneme geçmişi</h3>'+(cache.exams.length?[...cache.exams].sort((a,b)=>new Date(b.exam_date||b.created_at||0)-new Date(a.exam_date||a.created_at||0)).map(e=>row(e.student+' • '+e.name,(e.exam_date||'Tarih yok')+' • '+Number(e.net||0).toFixed(2).replace('.',',')+' net','Doğru: '+examSubjects.reduce((n,s)=>n+Number(e[s.key+'_correct']||0),0)+' • Yanlış: '+examSubjects.reduce((n,s)=>n+Number(e[s.key+'_wrong']||0),0))).join(''):'<p class="muted">Henüz sonuç yok.</p>');}
 function showExamPanel(id,b){document.querySelectorAll('.exam-panel').forEach(x=>x.classList.add('hide'));$(id).classList.remove('hide');document.querySelectorAll('.exam-tabs .tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');if(id==='examCompare')renderExamTargetComparison()}
 function populateExamModuleSelects(){['targetStudent','es','compareStudent'].forEach(id=>{const el=$(id);if(!el)return;const val=el.value;el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');if(cache.students.some(s=>s.id===val))el.value=val});if($('examDate')&&!$('examDate').value)$('examDate').value=localDateValue();if($('examInputRows')&&!$('examInputRows').children.length){$('examInputRows').innerHTML=examSubjects.map(s=>'<tr data-subject="'+s.key+'" data-limit="'+s.limit+'"><td class="work-name">'+s.name+'</td><td><input class="ex-correct" type="number" min="0" max="'+s.limit+'" step="1" value="0"></td><td><input class="ex-wrong" type="number" min="0" max="'+s.limit+'" step="1" value="0"></td><td class="ex-net">0,00</td></tr>').join('');$('examInputRows').querySelectorAll('input').forEach(el=>el.addEventListener('input',updateExamPreview));updateExamPreview()}}
 function updateExamPreview(){let total=0,correct=0,wrong=0;document.querySelectorAll('#examInputRows tr').forEach(tr=>{const c=Number(tr.querySelector('.ex-correct').value)||0,w=Number(tr.querySelector('.ex-wrong').value)||0,lim=Number(tr.dataset.limit),valid=c>=0&&w>=0&&c+w<=lim,net=valid?c-w/3:0;tr.querySelector('.ex-net').textContent=valid?net.toFixed(2).replace('.',','):'—';correct+=c;wrong+=w;total+=net});$('examTotalCorrect').textContent=correct;$('examTotalWrong').textContent=wrong;$('examTotalNet').textContent=total.toFixed(2).replace('.',',')}
@@ -1158,6 +1183,84 @@ function renderBulkExamTargetComparison(){
  const heads=examSubjects.map(s=>'<th>'+safe(s.name)+'<br>Hedef / Netice</th>').join('');
  const body=rows.map(r=>'<tr><td class="work-name">'+safe(r.student.full_name)+'</td><td>'+safe(r.student.grade||'—')+'</td>'+r.subjects.map(s=>'<td><small>H: '+s.target.toFixed(2).replace('.',',')+'<br>N: '+s.actual.toFixed(2).replace('.',',')+'</small></td>').join('')+'<td><b>'+r.targetNet.toFixed(2).replace('.',',')+'</b></td><td><b>'+r.actualNet.toFixed(2).replace('.',',')+'</b></td><td><span class="exam-compare-status '+(r.diff>=0?'is-good':'is-low')+'">'+(r.diff>=0?'+':'')+r.diff.toFixed(2).replace('.',',')+'</span></td></tr>').join('');
  box.innerHTML='<p class="muted">'+safe(examName)+' • '+safe(examDate||'Tarih yok')+' • Hedefi ve sonucu bulunan öğrenciler</p><div class="work-table-wrap"><table class="work-table"><thead><tr><th>Öğrenci</th><th>Sınıf</th>'+heads+'<th>Toplam Hedef</th><th>Toplam Netice</th><th>Fark</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+}
+
+// Öğrenci karşılaştırma grupları
+function renderExamGroupStudentPicker(){
+ const box=$('examGroupStudentPicker');if(!box)return;
+ const valid=new Set(cache.students.map(x=>x.id));selectedExamGroupIds=selectedExamGroupIds.filter(id=>valid.has(id));
+ box.innerHTML=[...cache.students].sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr')).map(st=>'<label style="display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid #e8edf2;border-radius:8px;background:#fff"><input type="checkbox" value="'+safe(st.id)+'" '+(selectedExamGroupIds.includes(st.id)?'checked':'')+' onchange="toggleExamGroupStudent(this.value,this.checked)"><span>'+safe(st.full_name)+' <small class="muted">• '+safe(st.grade||'')+'</small></span></label>').join('')||'<p class="muted">Henüz öğrenci kaydı yok.</p>';
+}
+function toggleExamGroupStudent(id,checked){if(checked&&!selectedExamGroupIds.includes(id))selectedExamGroupIds.push(id);if(!checked)selectedExamGroupIds=selectedExamGroupIds.filter(x=>x!==id)}
+function selectAllExamGroupStudents(checked){selectedExamGroupIds=checked?cache.students.map(x=>x.id):[];renderExamGroupStudentPicker()}
+async function loadSavedExamComparisonGroups(){
+ const el=$('savedExamGroups');if(!el)return;
+ const session=await ensureTeacherSession();
+ const {data,error}=await supabaseClient.from('exam_comparison_groups').select('id,name,student_ids,created_at').eq('user_id',session.user.id).order('created_at',{ascending:false});
+ if(error)throw error;
+ savedExamComparisonGroups=data||[];
+ const prior=el.value;
+ el.innerHTML='<option value="">Kayıtlı grup seçin</option>'+savedExamComparisonGroups.map(g=>'<option value="'+safe(g.id)+'">'+safe(g.name)+'</option>').join('');
+ if(savedExamComparisonGroups.some(g=>g.id===prior))el.value=prior;
+}
+function applySavedExamComparisonGroup(){
+ const group=savedExamComparisonGroups.find(g=>g.id===$('savedExamGroups')?.value);if(!group)return;
+ selectedExamGroupIds=Array.isArray(group.student_ids)?group.student_ids.filter(id=>cache.students.some(s=>s.id===id)):[];
+ $('examGroupName').value=group.name||'';
+ renderExamGroupStudentPicker();
+}
+async function saveExamComparisonGroup(){
+ const name=$('examGroupName')?.value.trim();
+ if(!name){alert('Lütfen gruba bir ad verin.');return}
+ if(selectedExamGroupIds.length<2){alert('Karşılaştırma grubu için en az iki öğrenci seçin.');return}
+ try{
+  const session=await ensureTeacherSession();
+  const {error}=await supabaseClient.from('exam_comparison_groups').insert({user_id:session.user.id,name,student_ids:selectedExamGroupIds});
+  if(error)throw error;
+  await loadSavedExamComparisonGroups();
+  alert('Öğrenci karşılaştırma grubu kaydedildi.');
+ }catch(e){alert('Grup kaydedilemedi: '+(e.message||e))}
+}
+function getExamGroupComparisonRows(){
+ const key=$('bulkCompareExam')?.value;
+ if(!key)return {label:'',rows:[]};
+ const [examName,examDate]=key.split('||');
+ const rows=selectedExamGroupIds.map(id=>{
+  const student=cache.students.find(x=>x.id===id);
+  const exam=cache.exams.find(e=>e.student_id===id&&String(e.exam_name||e.name||'Deneme')===examName&&String(e.exam_date||'')===examDate);
+  if(!student||!exam)return null;
+  const subjects=examSubjects.map(sub=>({name:sub.name,net:Number(exam[sub.key+'_net']??(Number(exam[sub.key+'_correct']||0)-Number(exam[sub.key+'_wrong']||0)/3))}));
+  return {student,exam,subjects,total:Number(exam.net??exam.total_net??subjects.reduce((n,x)=>n+x.net,0))};
+ }).filter(Boolean).sort((a,b)=>b.total-a.total);
+ return {label:examName+' • '+(examDate||'Tarih yok'),rows};
+}
+function renderSavedExamGroupComparison(){
+ const box=$('savedExamGroupComparison'),summary=$('savedExamGroupSummary');if(!box||!summary)return;
+ if(selectedExamGroupIds.length<2){summary.innerHTML='';box.innerHTML='<p class="muted">En az iki öğrenci seçin.</p>';return}
+ const result=getExamGroupComparisonRows(),rows=result.rows;currentExamGroupComparison=rows;currentExamGroupExamLabel=result.label;
+ if(!result.label){summary.innerHTML='';box.innerHTML='<p class="muted">Önce yukarıdaki deneme listesinden bir deneme seçin.</p>';return}
+ const missing=selectedExamGroupIds.length-rows.length;
+ summary.innerHTML='<div class="stat"><small>Seçilen öğrenci</small><strong>'+selectedExamGroupIds.length+'</strong></div><div class="stat"><small>Sonucu bulunan</small><strong>'+rows.length+'</strong></div><div class="stat"><small>Sonuç beklenen</small><strong>'+missing+'</strong></div><div class="stat"><small>Grup ortalaması</small><strong>'+(rows.length?(rows.reduce((n,x)=>n+x.total,0)/rows.length).toFixed(2).replace('.',','):'—')+'</strong></div>';
+ if(!rows.length){box.innerHTML='<p class="muted">Seçili grupta bu denemeye ait sonuç bulunamadı.</p>';return}
+ const heads=examSubjects.map(x=>'<th>'+safe(x.name)+'</th>').join('');
+ const body=rows.map((r,i)=>'<tr><td class="work-name">'+(i+1)+'. '+safe(r.student.full_name)+'</td><td>'+safe(r.student.grade||'—')+'</td>'+r.subjects.map(x=>'<td>'+x.net.toFixed(2).replace('.',',')+'</td>').join('')+'<td><b>'+r.total.toFixed(2).replace('.',',')+'</b></td></tr>').join('');
+ box.innerHTML='<p class="muted">'+safe(result.label)+' • Net sıralaması</p><div class="work-table-wrap"><table class="work-table"><thead><tr><th>Öğrenci</th><th>Sınıf</th>'+heads+'<th>Toplam Net</th></tr></thead><tbody>'+body+'</tbody></table></div>'+(missing?'<p class="muted">'+missing+' öğrencinin bu denemede kayıtlı sonucu bulunmuyor; dışa aktarıma da yalnızca kayıtlı sonuçlar alınır.</p>':'');
+}
+function exportExamGroupComparisonCsv(){
+ if(!currentExamGroupComparison.length){renderSavedExamGroupComparison();if(!currentExamGroupComparison.length)return}
+ const headers=['Sıra','Öğrenci','Sınıf',...examSubjects.map(x=>x.name),'Toplam Net'];
+ const lines=[headers,...currentExamGroupComparison.map((r,i)=>[i+1,r.student.full_name,r.student.grade||'',...r.subjects.map(x=>x.net.toFixed(2).replace('.',',')),r.total.toFixed(2).replace('.',',')])];
+ const csv='\uFEFF'+lines.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='ogrenci-grup-karsilastirma.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function printExamGroupComparison(){
+ if(!currentExamGroupComparison.length){renderSavedExamGroupComparison();if(!currentExamGroupComparison.length)return}
+ const headers=['Öğrenci','Sınıf',...examSubjects.map(x=>x.name),'Toplam Net'];
+ const rows=currentExamGroupComparison.map(r=>'<tr><td>'+safe(r.student.full_name)+'</td><td>'+safe(r.student.grade||'—')+'</td>'+r.subjects.map(x=>'<td>'+x.net.toFixed(2).replace('.',',')+'</td>').join('')+'<td><b>'+r.total.toFixed(2).replace('.',',')+'</b></td></tr>').join('');
+ const w=window.open('','_blank');if(!w){alert('Yazdırma penceresi açılamadı. Tarayıcı açılır pencere iznini kontrol edin.');return}
+ w.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Öğrenci Grup Karşılaştırması</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#20334a}h1{font-size:20px}p{color:#66758a}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #dce2e9;padding:8px;text-align:center}th{background:#f1f4f7}td:first-child{text-align:left}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>Değirmenlikızık Proje · Öğrenci Grup Karşılaştırması</h1><p>'+safe(currentExamGroupExamLabel)+'</p><table><thead><tr>'+headers.map(x=>'<th>'+safe(x)+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>');
+ w.document.close();
 }
 function renderExamTargetComparison(){const id=$('compareStudent')?.value;if(!id){$('examTargetComparison').innerHTML='<p class="muted">Kıyaslama için öğrenci seçin.</p>';return}const t=cache.targets.find(x=>x.student_id===id),e=cache.exams.filter(x=>x.student_id===id).sort((a,b)=>new Date(b.exam_date||b.created_at)-new Date(a.exam_date||a.created_at))[0];if(!t){$('examTargetComparison').innerHTML='<p class="muted">Bu öğrenci için hedef kaydı bulunamadı. Önce 1. Öğrenci Hedefleri bölümünden hedefleri kaydedin.</p>';return}if(!e){$('examTargetComparison').innerHTML='<p class="muted">Hedefler kayıtlı. Kıyaslama için önce 2. Deneme Neticesi bölümünden sonuç girin.</p>';return}let goalC=0,goalW=0,actualC=0,actualW=0,goalN=0,actualN=0;const rows=examSubjects.map(s=>{const gc=Number(t[s.key+'_correct_target']||0),gw=Number(t[s.key+'_wrong_target']||0),gn=Number(t[s.key+'_net_target']||0),c=Number(e[s.key+'_correct']||0),w=Number(e[s.key+'_wrong']||0),n=Number(e[s.key+'_net']??c-w/3),ok=n>=gn;goalC+=gc;goalW+=gw;goalN+=gn;actualC+=c;actualW+=w;actualN+=n;return '<tr><td class="work-name">'+s.name+'</td><td><small>Doğru '+gc+' • Yanlış '+gw+'<br><b>Net '+gn.toFixed(2).replace('.',',')+'</b></small></td><td><small>Doğru '+c+' • Yanlış '+w+'<br><b>Net '+n.toFixed(2).replace('.',',')+'</b></small></td><td><span class="exam-compare-status '+(ok?'is-good':'is-low')+'">'+(ok?'Hedefe ulaştı':'Hedef altında')+'</span></td></tr>'}).join('');$('examTargetComparison').innerHTML='<p><b>'+safe(e.name)+'</b> • '+safe(e.exam_date||'Tarih yok')+'</p><div class="work-table-wrap"><table class="work-table exam-compare-table"><thead><tr><th>Ders</th><th>Hedef</th><th>Netice</th><th>Kıyaslama</th></tr></thead><tbody>'+rows+'<tr class="exam-total-row"><td><b>TOPLAM</b></td><td><b>Doğru '+goalC+' • Yanlış '+goalW+'<br>Net '+goalN.toFixed(2).replace('.',',')+'</b></td><td><b>Doğru '+actualC+' • Yanlış '+actualW+'<br>Net '+actualN.toFixed(2).replace('.',',')+'</b></td><td><span class="exam-compare-status '+(actualN>=goalN?'is-good':'is-low')+'">'+(actualN>=goalN?'Hedefe ulaştı':'Hedef altında')+'</span></td></tr></tbody></table></div>'}
 async function addExam(){try{await ensureTeacherSession();if(!$('es').value||!$('en').value.trim()){alert('Öğrenci ve deneme adı girin.');return}const p={student_id:$('es').value,exam_name:$('en').value.trim(),exam_date:$('examDate').value||localDateValue()};let net=0;for(const tr of document.querySelectorAll('#examInputRows tr')){const k=tr.dataset.subject,c=Number(tr.querySelector('.ex-correct').value||0),w=Number(tr.querySelector('.ex-wrong').value||0),l=Number(tr.dataset.limit);if(!Number.isInteger(c)||!Number.isInteger(w)||c<0||w<0||c+w>l){alert(safe(tr.querySelector('.work-name').textContent)+' için doğru ve yanlış toplamı '+l+' soruyu aşamaz.');return}p[k+'_correct']=c;p[k+'_wrong']=w;p[k+'_net']=c-w/3;net+=c-w/3}p.total_net=net;const {error}=await supabaseClient.from('exam_results').insert(p);if(error)throw error;alert('Deneme neticesi kaydedildi.');$('en').value='';document.querySelectorAll('#examInputRows tr').forEach(tr=>{tr.querySelector('.ex-correct').value=0;tr.querySelector('.ex-wrong').value=0});updateExamPreview();await render();$('es').value=p.student_id;renderExamTargetComparison()}catch(e){alert('Deneme neticesi kaydedilemedi: '+e.message)}}
