@@ -599,6 +599,49 @@ body>header.top small{font-size:11px;letter-spacing:.09em;text-transform:upperca
  .dashboard-program-only #todayPlan .entry{min-height:68px;padding:12px 13px!important}
 }
 
+
+/* Weekly report: structured editorial layout */
+.weekly-report-hub .weekly-report-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:clamp(20px,3vw,30px);border-radius:18px;background:linear-gradient(118deg,#142a43,#304c68);color:#fff;border-bottom:4px solid #c5a66f}
+.weekly-report-hub .weekly-report-hero h2{margin:8px 0;color:#fff;font:700 clamp(23px,3vw,30px) Georgia,serif}
+.weekly-report-hub .weekly-report-hero p{margin:0;color:#d8e0e8;font-size:12px}
+.weekly-report-hub .weekly-report-seal{flex:0 0 auto;display:grid;place-content:center;width:82px;height:82px;border:1px solid #c5a66f;border-radius:50%;text-align:center;color:#e6d3ad;font-size:9px;letter-spacing:1.5px;line-height:1.5}
+.weekly-report-hub .weekly-report-seal b{font-size:17px}
+.weekly-report-hub .weekly-report-controls{margin:14px 0 18px}
+.weekly-report-hub .weekly-report-control-title{display:flex;align-items:center;gap:11px;margin-bottom:16px;color:#243e59}
+.weekly-report-hub .weekly-report-control-title b,.weekly-report-hub .weekly-report-control-title small{display:block}
+.weekly-report-hub .weekly-report-control-title small{margin-top:3px;color:#8491a0;font-size:11px}
+.weekly-report-hub .weekly-report-hint{margin:10px 0 13px;color:#8491a0;font-size:11px}
+#parentReport .weekly-overview{grid-template-columns:repeat(4,minmax(0,1fr))}
+#parentReport .weekly-metric-detail{display:block;margin-top:4px;color:#8792a0;font-size:9px}
+#parentReport .weekly-executive-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#parentReport .weekly-executive-grid>div,#parentReport .weekly-insight-grid>div{padding:12px 13px;border:1px solid #e8ebef;border-radius:8px;background:#fbfcfd}
+#parentReport .weekly-executive-grid span,#parentReport .weekly-insight-grid span{display:block;color:#927d5c;font-size:8px;font-weight:800;letter-spacing:.8px}
+#parentReport .weekly-executive-grid b{display:block;margin:6px 0 3px;color:#203a56;font-size:12px}
+#parentReport .weekly-executive-grid small{color:#7c8998;font-size:9px}
+#parentReport .weekly-insight-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#parentReport .weekly-insight-grid b{display:block;margin-top:7px;color:#203a56;font-size:20px;font-variant-numeric:tabular-nums}
+#parentReport .weekly-student-head,#parentReport .weekly-student-row{grid-template-columns:1.45fr .55fr .35fr 1fr .65fr .4fr .4fr}
+#parentReport .weekly-subject-head,#parentReport .weekly-subject-row{grid-template-columns:1fr 1.6fr .65fr}
+#parentReport .weekly-book-head,#parentReport .weekly-book-row{grid-template-columns:1fr 1.5fr .75fr .65fr}
+#parentReport .weekly-attendance-head,#parentReport .weekly-attendance-row{grid-template-columns:1fr .65fr 1fr 1.2fr}
+#parentReport .weekly-student-row,#parentReport .weekly-book-row,#parentReport .weekly-attendance-row,#parentReport .weekly-subject-row{font-size:10px}
+#parentReport .weekly-student-row strong,#parentReport .weekly-book-row strong,#parentReport .weekly-subject-row strong{text-align:right}
+#parentReport .weekly-report-head h2{font-size:28px}
+@media(max-width:680px){
+ .weekly-report-hub .weekly-report-hero{align-items:flex-start}
+ .weekly-report-hub .weekly-report-seal{width:65px;height:65px;font-size:8px}
+ #parentReport .weekly-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #parentReport .weekly-executive-grid{grid-template-columns:1fr}
+ #parentReport .weekly-insight-grid{grid-template-columns:1fr}
+}
+@media print{
+ #parentReport .weekly-overview{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #parentReport .weekly-executive-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #parentReport .weekly-insight-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #parentReport .weekly-student-row,#parentReport .weekly-book-row,#parentReport .weekly-attendance-row,#parentReport .weekly-subject-row{font-size:8.5px}
+ #parentReport .weekly-report-head h2{font-size:24px}
+}
+
 </style></head><body>
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Sisteme giriş</h2><label>E-posta adresi</label><input id="person" type="email" autocomplete="email" placeholder="E-posta adresiniz"><button id="loginBtn" type="button" class="full" onclick="document.getElementById('authmsg').textContent='Buton çalışıyor; giriş sistemi kontrol ediliyor...';if(typeof login==='function'){login()}else{document.getElementById('authmsg').textContent='Buton çalışıyor ancak giriş kodu yüklenmemiş. Sayfayı yeniden yükleyin veya bağlantı sorununu kontrol edelim.'}">Giriş bağlantısı gönder</button><p id="authmsg" class="muted">E-posta adresinize güvenli giriş bağlantısı gönderilecektir. Bağlantıyı aynı cihazda açın.</p></div></section>
@@ -1401,23 +1444,41 @@ function makeWeeklyGroupReport(){
   const exams=cache.exams.filter(x=>x.student_id===st.id&&inRange(x.exam_date||x.created_at));
   const books=cache.books.filter(x=>x.student_id===st.id&&inRange(x.recorded_on||x.created_at));
   const attendance=cache.attendance.filter(x=>x.student_id===st.id&&inRange(x.attendance_date));
-  const correct=work.reduce((n,x)=>n+Number(x.correct||0),0),wrong=work.reduce((n,x)=>n+Number(x.wrong||0),0);
+  const correct=work.reduce((n,x)=>n+Number(x.correct||0),0),wrong=work.reduce((n,x)=>n+Number(x.wrong||0),0),blank=work.reduce((n,x)=>n+Number(x.blank||0),0);
   const net=work.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
   const examNet=exams.reduce((n,x)=>n+Number(x.net||0),0);
-  return {st,work,exams,books,attendance,correct,wrong,net,examNet,hasData:work.length+exams.length+books.length+attendance.length>0};
+  return {st,work,exams,books,attendance,correct,wrong,blank,net,examNet,hasData:work.length+exams.length+books.length+attendance.length>0};
  });
- const active=students.filter(x=>x.hasData),fmt=n=>Number(n||0).toFixed(2).replace('.',',');
- const totalWork=active.reduce((n,x)=>n+x.work.length,0),totalCorrect=active.reduce((n,x)=>n+x.correct,0),totalWrong=active.reduce((n,x)=>n+x.wrong,0);
- const totalNet=active.reduce((n,x)=>n+x.net,0),totalExams=active.reduce((n,x)=>n+x.exams.length,0),totalExamNet=active.reduce((n,x)=>n+x.examNet,0);
- const groupRows=students.map((x,i)=>'<div class="report-line weekly-group-line"><b>'+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'—')+' · '+x.work.length+' etüt · '+x.exams.length+' deneme</span><strong>'+(x.hasData?'Etüt '+fmt(x.net)+' net':'Veri girişi yok')+'</strong></div>').join('');
- const metric=(label,value)=>'<div class="report-metric"><small>'+label+'</small><b>'+value+'</b></div>';
+ const active=students.filter(x=>x.hasData),fmt=n=>Number(n||0).toFixed(2).replace('.',','),pct=(a,b)=>b?Math.round(a/b*100):0;
+ const totalWork=students.reduce((n,x)=>n+x.work.length,0),totalCorrect=students.reduce((n,x)=>n+x.correct,0),totalWrong=students.reduce((n,x)=>n+x.wrong,0),totalBlank=students.reduce((n,x)=>n+x.blank,0);
+ const totalNet=students.reduce((n,x)=>n+x.net,0),totalExams=students.reduce((n,x)=>n+x.exams.length,0),totalExamNet=students.reduce((n,x)=>n+x.examNet,0);
+ const totalBooks=students.reduce((n,x)=>n+x.books.length,0),totalAttendance=students.reduce((n,x)=>n+x.attendance.length,0);
+ const absent=students.reduce((n,x)=>n+x.attendance.filter(a=>['Tam gün devamsız','Yarım gün devamsız'].includes(a.status)).length,0);
+ const late=students.reduce((n,x)=>n+x.attendance.filter(a=>a.status==='Geç geldi').length,0);
+ const avgNet=totalExams?totalExamNet/totalExams:0;
+ const subjectMap={};students.forEach(x=>x.work.forEach(w=>{const k=w.subject||'Diğer';if(!subjectMap[k])subjectMap[k]={sessions:0,c:0,w:0,b:0,net:0};const z=subjectMap[k];z.sessions++;z.c+=Number(w.correct||0);z.w+=Number(w.wrong||0);z.b+=Number(w.blank||0);z.net+=Number(w.net??(Number(w.correct||0)-Number(w.wrong||0)/3));}));
+ const subjectRows=Object.entries(subjectMap).sort((a,b)=>b[1].net-a[1].net).map(([name,v])=>'<div class="report-line weekly-subject-row"><b>'+safe(name)+'</b><span>'+v.sessions+' etüt · '+v.c+' D / '+v.w+' Y / '+v.b+' B</span><strong>'+fmt(v.net)+' net</strong></div>').join('');
+ const ranked=students.filter(x=>x.work.length).slice().sort((a,b)=>b.net-a.net);
+ const rankMap=new Map(ranked.map((x,i)=>[x.st.id,i+1]));
+ const studentRows=students.slice().sort((a,b)=>String(a.st.full_name).localeCompare(String(b.st.full_name),'tr')).map(x=>'<div class="report-line weekly-student-row"><b>'+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'—')+'</span><span>'+x.work.length+'</span><span>'+x.correct+' D · '+x.wrong+' Y</span><strong>'+(x.work.length?fmt(x.net):'—')+'</strong><span>'+x.exams.length+'</span><span>'+x.books.length+'</span></div>').join('');
+ const bookRows=students.flatMap(x=>x.books.map(b=>({student:x.st.full_name,title:b.title,progress:b.progress,status:b.status,date:b.recorded_on}))).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>'<div class="report-line weekly-book-row"><b>'+safe(x.student)+'</b><span>'+safe(x.title||'Kitap / metin belirtilmedi')+'</span><span>'+safe(x.progress||'—')+'</span><strong>'+safe(x.status||'—')+'</strong></div>').join('');
+ const attendanceRows=students.flatMap(x=>x.attendance.map(a=>({student:x.st.full_name,date:a.attendance_date,status:a.status,note:a.note}))).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>'<div class="report-line weekly-attendance-row"><b>'+safe(x.student)+'</b><span>'+safe(x.date||'—')+'</span><strong>'+safe(x.status||'—')+'</strong><span>'+safe(x.note||'—')+'</span></div>').join('');
+ const metric=(label,value,detail='')=>'<div class="report-metric"><small>'+label+'</small><b>'+value+'</b>'+(detail?'<span class="weekly-metric-detail">'+detail+'</span>':'')+'</div>';
  const section=(title,content)=>'<section class="report-section"><h3>'+title+'</h3>'+content+'</section>';
- const html='<div class="report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">GRUP BAZLI HAFTALIK RAPOR</div><h2>Öğrenci Grubu</h2><p>Rapor dönemi: '+from+' – '+to+' · Kayıtlı öğrenci: '+students.length+'</p></div>'+
- '<div class="report-overview">'+metric('VERİ GİRİŞİ OLAN',active.length)+' '+metric('ETÜT KAYDI',totalWork)+' '+metric('ETÜT NETİ',fmt(totalNet))+' '+metric('DENEME SAYISI',totalExams)+' '+metric('DENEME NETİ',fmt(totalExamNet))+' '+metric('VERİ GİRİŞİ OLMAYAN',students.length-active.length)+'</div>'+
- section('01 · ÖĞRENCİ BAZLI PERFORMANS','<div class="report-table-head"><span>ÖĞRENCİ</span><span>SINIF · ETÜT · DENEME</span><span>ETÜT NETİ</span></div>'+(groupRows||'<p class="report-empty">Kayıtlı öğrenci bulunmuyor.</p>')+'<p class="report-note">Bu dönemde toplam '+totalCorrect+' doğru, '+totalWrong+' yanlış ve '+fmt(totalNet)+' etüt neti kaydedildi. Etüt neti doğru − yanlış / 3 formülüyle hesaplanır.</p>')+
- section('02 · GRUP TAKİP ÖZETİ','<div class="report-line"><b>Kitap okuma kayıtları</b><span>Grup toplamı</span><strong>'+active.reduce((n,x)=>n+x.books.length,0)+'</strong></div><div class="report-line"><b>Devam / devamsızlık kayıtları</b><span>Grup toplamı</span><strong>'+active.reduce((n,x)=>n+x.attendance.length,0)+'</strong></div><div class="report-line"><b>Deneme kayıt ortalaması</b><span>Kaydı bulunan denemeler</span><strong>'+(totalExams?fmt(totalExamNet/totalExams)+' net':'—')+'</strong></div>')+
- '<div class="report-footer"><p>Her öğrencinin gayreti ayrı, gelişim yolculuğu kıymetlidir.</p><div><span>Öğretmen</span><span>Yönetim</span></div><small>Değirmenlikızık Proje · Grup bazlı haftalık değerlendirme</small></div>';
- $('reportout').innerHTML='<div class="report-actions"><span>Grup raporu · '+active.length+' / '+students.length+' öğrenci</span><button type="button" onclick="printParentReport()">Grup Raporunu Yazdır / PDF Kaydet</button></div><div id="parentReport">'+html+'</div>';
+ const dateLabel=d=>{const v=String(d||'').split('-');return v.length===3?v[2]+'.'+v[1]+'.'+v[0]:d};
+ const noData='<p class="report-empty">Seçilen rapor döneminde kayıt bulunmuyor.</p>';
+ const top=ranked[0];
+ const overview='<div class="report-overview weekly-overview">'+metric('KAYITLI ÖĞRENCİ',students.length)+metric('VERİ GİRİŞİ OLAN',active.length,pct(active.length,students.length)+'% katılım')+metric('TEST ETÜDÜ',totalWork)+metric('ETÜT NETİ',fmt(totalNet))+metric('DENEME',totalExams)+metric('DENEME NET ORT.',totalExams?fmt(avgNet):'—')+metric('KİTAP OKUMA',totalBooks)+metric('DEVAMSIZLIK',absent+late,'Geç kalma: '+late)+'</div>';
+ const html='<div class="report-head weekly-report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">HAFTALIK GELİŞİM VE PERFORMANS RAPORU</div><h2>Grup Değerlendirme Raporu</h2><p>Rapor dönemi: '+dateLabel(from)+' – '+dateLabel(to)+' · Hazırlanma tarihi: '+new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date())+'</p></div>'+
+ overview+
+ section('01 · YÖNETİCİ ÖZETİ','<div class="weekly-executive-grid"><div><span>ETÜT ÇALIŞMASI</span><b>'+totalCorrect+' doğru · '+totalWrong+' yanlış · '+totalBlank+' boş</b><small>'+fmt(totalNet)+' toplam net · '+totalWork+' kayıt</small></div><div><span>DENEME PERFORMANSI</span><b>'+totalExams+' deneme sonucu</b><small>'+(totalExams?fmt(avgNet)+' net ortalaması':'Bu dönemde deneme kaydı yok')+'</small></div><div><span>OKUMA ALIŞKANLIĞI</span><b>'+totalBooks+' kitap okuma kaydı</b><small>'+(students.filter(x=>x.books.length).length)+' öğrenci okuma kaydı girdi</small></div><div><span>DEVAM DURUMU</span><b>'+absent+' devamsızlık · '+late+' geç kalma</b><small>'+totalAttendance+' toplam devam kaydı</small></div></div><p class="report-note">'+(top?'Etüt neti kaydı bulunan öğrenciler arasında en yüksek toplam net: <b>'+safe(top.st.full_name)+'</b> · '+fmt(top.net)+' net.':'Bu dönemde etüt performans kaydı bulunmuyor.')+' Bu özet, seçilen tarih aralığındaki kayıtlar üzerinden oluşturulmuştur.</p>')+
+ section('02 · ÖĞRENCİ BAZLI PERFORMANS','<div class="report-table-head weekly-student-head"><span>ÖĞRENCİ</span><span>SINIF</span><span>ETÜT</span><span>DOĞRU · YANLIŞ</span><span>TOPLAM NET</span><span>DENEME</span><span>OKUMA</span></div>'+(studentRows||noData)+'<p class="report-note">Net hesabı doğru − yanlış / 3 formülüne göre yapılır. Veri girişi bulunmayan öğrenciler de takip tablosunda gösterilir.</p>')+
+ section('03 · DERS BAZLI ETÜT ANALİZİ','<div class="report-table-head weekly-subject-head"><span>DERS</span><span>ETÜT · DOĞRU · YANLIŞ · BOŞ</span><span>TOPLAM NET</span></div>'+(subjectRows||noData))+
+ section('04 · HAFTALIK DENEME DEĞERLENDİRMESİ','<div class="weekly-insight-grid"><div><span>TOPLAM DENEME</span><b>'+totalExams+'</b></div><div><span>TOPLAM DENEME NETİ</span><b>'+fmt(totalExamNet)+'</b></div><div><span>DENEME BAŞINA ORTALAMA</span><b>'+(totalExams?fmt(avgNet):'—')+'</b></div></div><p class="report-note">Deneme ortalaması, seçilen tarih aralığındaki kayıtlı deneme sonuçlarının toplam neti üzerinden hesaplanmıştır.</p>')+
+ section('05 · KİTAP OKUMA TAKİBİ','<div class="report-table-head weekly-book-head"><span>ÖĞRENCİ</span><span>KİTAP / METİN</span><span>OKUNAN SAYFA</span><span>DURUM</span></div>'+(bookRows||noData))+
+ section('06 · DEVAM VE KATILIM','<div class="report-table-head weekly-attendance-head"><span>ÖĞRENCİ</span><span>TARİH</span><span>DURUM</span><span>AÇIKLAMA</span></div>'+(attendanceRows||noData)+'<p class="report-note">Devamsızlık toplamı tam gün ve yarım gün devamsızlık kayıtlarını; geç kalma sayısı ise “Geç geldi” kayıtlarını kapsar.</p>')+
+ '<div class="report-footer"><p>Her öğrencinin gelişimi; düzenli takip, emek ve iş birliğiyle güçlenir.</p><div><span>Öğretmen</span><span>Yönetim</span></div><small>Değirmenlikızık Proje · Haftalık grup gelişim raporu</small></div>';
+ $('reportout').innerHTML='<div class="report-actions"><span>Grup raporu · '+active.length+' / '+students.length+' öğrencide veri girişi</span><button type="button" onclick="printParentReport()">Grup Raporunu Yazdır / PDF Kaydet</button></div><div id="parentReport">'+html+'</div>';
 }
 function makeReport(){
  const id=$('rs').value;if(!id){alert('Öğrenci seçin.');return}
