@@ -571,7 +571,31 @@ body>header.top small{font-size:11px;letter-spacing:.09em;text-transform:upperca
 <section id="app" class="hide"><div class="roleline"><div><div class="eyebrow" id="rolelabel">ÖĞRETMEN PANELİ</div><h1 id="hello">Hoş geldiniz</h1></div><button class="secondary" onclick="logout()">Çıkış</button></div>
 <nav class="tabs"><button class="tab on" onclick="show('home',this)">Genel Bakış</button><button class="tab" onclick="show('students',this)">Öğrenciler</button><button class="tab" onclick="show('work',this)">Etüt Takibi</button><button class="tab" onclick="show('exams',this)">Denemeler</button><button class="tab" onclick="show('books',this)">Kitap Okuma</button><button class="tab" onclick="show('attendance',this)">Devamsızlık</button><button class="tab" onclick="show('reports',this)">Haftalık Rapor</button><button class="tab" onclick="show('dailyReports',this)">Günlük Rapor</button></nav>
 <div id="home" class="page on">
-<div class="card"><div class="eyebrow">GÜNLÜK ETÜT PROGRAMI</div><h2 id="todayPlanTitle">Bugünün etüt programı</h2><div id="todayPlan"><p class="muted">Günlük program yükleniyor...</p></div></div></div>
+<section class="dashboard-welcome">
+ <div><div class="eyebrow">DEĞİRMENLİKIZIK PROJE • YÖNETİM MERKEZİ</div><h2>Günün özeti</h2><p>Öğrenci gelişimini, etütleri ve deneme sonuçlarını tek ekrandan takip edin.</p></div>
+ <div class="dashboard-date" id="dashboardDate"></div>
+</section>
+<section class="dashboard-stats" id="teacherStats" aria-label="Genel sistem istatistikleri">
+ <div class="stat"><small>Öğrenci</small><strong>—</strong></div><div class="stat"><small>Etüt kaydı</small><strong>—</strong></div><div class="stat"><small>Deneme</small><strong>—</strong></div><div class="stat"><small>Kitap kaydı</small><strong>—</strong></div><div class="stat"><small>Devamsızlık kaydı</small><strong>—</strong></div><div class="stat"><small>Öğrenci başına son deneme ort.</small><strong>—</strong></div>
+</section>
+<section class="dashboard-grid">
+ <article class="card dashboard-quick"><div class="dashboard-card-head"><div><div class="eyebrow">HIZLI ERİŞİM</div><h3>İşlemler</h3></div><span class="dashboard-icon">✦</span></div>
+  <div class="quick-actions">
+   <button type="button" onclick="openStudentForm()">＋ Öğrenci ekle</button>
+   <button type="button" class="secondary" onclick="openDashboardSection('work')">Etüt girişi</button>
+   <button type="button" class="secondary" onclick="openDashboardSection('exams')">Deneme girişi</button>
+   <button type="button" class="secondary" onclick="openDashboardSection('reports')">Haftalık rapor</button>
+  </div>
+ </article>
+ <article class="card dashboard-plan"><div class="dashboard-card-head"><div><div class="eyebrow">BUGÜNÜN PROGRAMI</div><h3 id="todayPlanTitle">Günlük etüt programı</h3></div><span class="dashboard-icon">◷</span></div>
+  <div id="todayPlan"><p class="muted">Günlük program yükleniyor...</p></div>
+ </article>
+</section>
+<section class="dashboard-grid dashboard-lower">
+ <article class="card"><div class="dashboard-card-head"><div><div class="eyebrow">TAKİP GEREKTİREN</div><h3>Etüt kaydı kontrolü</h3></div><span class="dashboard-icon">◎</span></div><div id="studyAlerts"><p class="muted">Özet hazırlanıyor...</p></div></article>
+ <article class="card"><div class="dashboard-card-head"><div><div class="eyebrow">SON İŞLEMLER</div><h3>Son deneme kayıtları</h3></div><button type="button" class="text-action" onclick="openDashboardSection('exams')">Tümünü gör →</button></div><div id="dashboardRecentExams"><p class="muted">Henüz deneme kaydı yok.</p></div></article>
+</section>
+</div>
 <div id="students" class="page"><div class="roleline"><h2>Öğrenci listesi</h2><div><button onclick="openStudentForm()">+ Öğrenci ekle</button></div></div><div class="card"><div class="grid"><div><label for="studentSearch">Öğrenci ara</label><input id="studentSearch" type="search" placeholder="Ad veya soyad yazın" oninput="renderStudentDirectory()"></div><div><label for="studentGradeFilter">Sınıfa göre filtrele</label><select id="studentGradeFilter" onchange="renderStudentDirectory()"><option value="">Tüm sınıflar</option></select></div></div><p id="studentFilterSummary" class="muted">Tüm öğrenciler listeleniyor.</p></div><div class="card" id="studentlist"><p class="muted">Henüz öğrenci eklenmedi.</p></div></div>
 <div id="studentDetail" class="page"><div class="roleline"><h2 id="studentDetailName">Öğrenci Detayı</h2><button class="secondary" type="button" onclick="show('students',document.querySelector('.tabs .tab:nth-child(2)'))">Öğrenci listesine dön</button></div><div id="studentDetailContent"><p class="muted">Öğrenci seçin.</p></div></div>
 <div id="work" class="page"><h2>Günlük etüt takibi</h2><div class="card"><div class="grid"><div><label for="workdate">Etüt tarihi</label><input id="workdate" type="date" onchange="loadWorkSessions()"></div><div><label for="workSession">Günün etüdü</label><select id="workSession" onchange="renderWorkTable()"><option value="">Önce tarih seçin</option></select></div></div><p class="muted">Seçtiğin etüt için bütün öğrenciler tek tabloda listelenir. Soru sayıları ve sonuçlar gerçekleşen çalışmaya göre girilir.</p><div id="workSessionInfo" class="muted"></div></div><div class="card" id="workTable"><p class="muted">Etüt seçildiğinde öğrenci takip tablosu burada açılacak.</p></div><button class="full" id="saveWorkBatch" type="button" onclick="saveWorkBatch()">Bu etüdün kayıtlarını kaydet</button><div class="card" id="worklist"><h3>Seçili etüdün kayıtları</h3><p class="muted">Henüz kayıt yok.</p></div><div class="card hide" id="saturdayRatingPanel"><div class="eyebrow">CUMARTESİ ÖĞRETMEN DEĞERLENDİRMESİ</div><h2>Ders dinleme ve katılım puanları</h2><p class="muted">Bu puanlama ders programındaki saatlerden bağımsızdır. Her öğrenciye beş ders için ayrı ayrı 10 üzerinden puan ver.</p><div id="saturdayRatingContent"></div><button class="full" id="saveSaturdayRatings" type="button" onclick="saveSaturdayRatings()">Cumartesi puanlarını kaydet</button></div></div>
@@ -876,18 +900,29 @@ ensureSupabaseClient().then(()=>{supabaseClient.auth.onAuthStateChange((_event,s
 function show(id,b){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));$(id).classList.add('on');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on')}
 function row(a,b,c){return '<div class="entry"><b>'+safe(a)+'</b><small>'+safe(b)+' • '+safe(c)+'</small></div>'}
 async function loadTable(table){const {data,error}=await supabaseClient.from(table).select('*').order('created_at',{ascending:false});if(error)throw error;return data||[]}
+function openDashboardSection(id){
+ const button=[...document.querySelectorAll('.tabs .tab')].find(x=>x.getAttribute('onclick')?.includes("show('"+id+"'"));
+ if(button)show(id,button);
+}
 function renderTeacherDashboard(){
  const box=$('teacherStats');if(!box)return;
- const average=cache.exams.length?cache.exams.reduce((sum,x)=>sum+Number(x.net||0),0)/cache.exams.length:0;
+ const latestByStudent=cache.students.map(student=>cache.exams.filter(x=>x.student_id===student.id).sort((a,b)=>String(b.exam_date||'').localeCompare(String(a.exam_date||'')))[0]).filter(Boolean);
+ const average=latestByStudent.length?latestByStudent.reduce((sum,x)=>sum+Number(x.net||0),0)/latestByStudent.length:null;
  const values=[
-  ['Öğrenci',cache.students.length],
+  ['Kayıtlı öğrenci',cache.students.length],
   ['Etüt kaydı',cache.work.length],
-  ['Deneme',cache.exams.length],
+  ['Deneme sonucu',cache.exams.length],
   ['Kitap kaydı',cache.books.length],
-  ['Devamsızlık',cache.attendance.length],
-  ['Ortalama deneme neti',average.toFixed(2).replace('.',',')]
+  ['Devamsızlık kaydı',cache.attendance.length],
+  ['Son deneme ortalaması',average===null?'—':average.toFixed(2).replace('.',',')+' net']
  ];
  box.innerHTML=values.map(([label,value])=>'<div class="stat"><small>'+label+'</small><strong>'+value+'</strong></div>').join('');
+ const date=$('dashboardDate');if(date)date.textContent=new Intl.DateTimeFormat('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+ const recent=$('dashboardRecentExams');
+ if(recent){
+  const rows=[...cache.exams].sort((a,b)=>String(b.exam_date||'').localeCompare(String(a.exam_date||''))).slice(0,5);
+  recent.innerHTML=rows.length?rows.map(x=>row(x.student+' • '+x.name,x.exam_date,(Number(x.net)||0).toFixed(2).replace('.',',')+' net')).join(''):'<p class="muted">Henüz deneme kaydı yok.</p>';
+ }
  renderStudyAlerts();
 }
 function renderStudentDirectory(){
@@ -1317,6 +1352,40 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#8b9fb8;box-sh
 @media(prefers-reduced-motion:reduce){
  *,*:before,*:after{scroll-behavior:auto!important;transition:none!important}
 }
+
+
+/* Dashboard layout */
+.dashboard-welcome{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:9px 3px 18px}
+.dashboard-welcome h2{font-size:clamp(24px,3vw,30px);margin:6px 0;color:#183451}
+.dashboard-welcome p{margin:0;color:#758295;font-size:13px}
+.dashboard-date{flex:0 0 auto;padding:9px 13px;border:1px solid #e3e8ef;background:#fff;border-radius:11px;color:#526174;font-size:12px;font-weight:700;text-transform:capitalize}
+.dashboard-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.dashboard-stats .stat{min-width:0;position:relative;overflow:hidden;padding:17px 18px;border-radius:16px}
+.dashboard-stats .stat:after{content:"";position:absolute;right:-22px;bottom:-38px;width:90px;height:90px;border-radius:50%;background:rgba(135,56,78,.055)}
+.dashboard-stats .stat small{display:block;color:#758295;font-size:11px;font-weight:700}
+.dashboard-stats .stat strong{display:block;font-size:25px;margin-top:7px;color:#183451;overflow-wrap:anywhere}
+.dashboard-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;align-items:stretch}
+.dashboard-lower{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.dashboard-grid .card{margin:0;min-width:0}
+.dashboard-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.dashboard-card-head h3{font-size:17px;margin:5px 0 0;color:#203b59}
+.dashboard-icon{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:12px;background:#f5edf0;color:#87384e;font-size:20px}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.quick-actions button{min-height:46px}
+.text-action{padding:7px 0;min-height:36px;background:transparent;color:#87384e;box-shadow:none!important;font-size:12px}
+.dashboard-plan #todayPlan .entry{padding:11px 2px}
+.dashboard-plan #todayPlan .entry:first-child{padding-top:2px}
+#studyAlerts .entry{padding:10px 2px}
+@media(max-width:760px){
+ .dashboard-welcome{align-items:flex-start;flex-direction:column;gap:10px}
+ .dashboard-date{align-self:flex-start}
+ .dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .dashboard-stats .stat{padding:13px}
+ .dashboard-stats .stat strong{font-size:22px}
+ .dashboard-grid,.dashboard-lower{grid-template-columns:1fr;gap:11px}
+ .quick-actions{grid-template-columns:1fr 1fr}
+}
+@media(max-width:380px){.quick-actions{grid-template-columns:1fr}.dashboard-stats .stat strong{font-size:20px}}
 
 </style></head><body>'+content.innerHTML+'</body></html>');
  win.document.close();win.focus();setTimeout(()=>win.print(),400);
