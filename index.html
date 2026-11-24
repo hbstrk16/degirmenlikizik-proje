@@ -565,13 +565,45 @@ body>header.top small{font-size:11px;letter-spacing:.09em;text-transform:upperca
 #dailyReports .daily-reference-empty{padding:10px 0;color:#8a98a8;font-size:10px}
 #dailyReports .daily-reference-note{margin-top:8px;padding-top:8px;border-top:1px dashed #dce2e8;color:#8190a0;font-size:9px;line-height:1.5}
 #dailyReports .daily-reference-footer{margin-top:30px;padding-top:12px;border-top:1px solid #e8e4dc;text-align:center;color:#9aa5b1;font-size:9px}
-@media(max-width:560px){#dailyReports .daily-reference-page{padding:12px}#dailyReports .daily-reference-header{padding:20px 17px;min-height:175px}#dailyReports .daily-reference-metric{padding:9px 8px;min-height:62px}#dailyReports .daily-reference-metric b{font-size:17px}#dailyReports .daily-reference-tr,#dailyReports .daily-reference-thead{gap:4px;padding-left:6px;padding-right:6px;font-size:8px}}</style></head><body>
+@media(max-width:560px){#dailyReports .daily-reference-page{padding:12px}#dailyReports .daily-reference-header{padding:20px 17px;min-height:175px}#dailyReports .daily-reference-metric{padding:9px 8px;min-height:62px}#dailyReports .daily-reference-metric b{font-size:17px}#dailyReports .daily-reference-tr,#dailyReports .daily-reference-thead{gap:4px;padding-left:6px;padding-right:6px;font-size:8px}}
+.student-card-actions{margin:0 0 12px;background:linear-gradient(90deg,#f5f7fa,#fbfaf7);border-color:#e4e7eb}
+.student-card-actions span{font-size:12px;color:#526174}
+.student-card-actions button{background:#183451}
+#studentDetailContent>.card h3{display:flex;align-items:center;gap:8px}
+#studentDetailContent>.card{border-radius:16px}
+#studentDetailContent>.card h3{display:flex;align-items:center;gap:8px}
+#studentDetailContent>.card{border-radius:16px}
+</style></head><body>
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Sisteme giriş</h2><label>E-posta adresi</label><input id="person" type="email" autocomplete="email" placeholder="E-posta adresiniz"><button id="loginBtn" type="button" class="full" onclick="document.getElementById('authmsg').textContent='Buton çalışıyor; giriş sistemi kontrol ediliyor...';if(typeof login==='function'){login()}else{document.getElementById('authmsg').textContent='Buton çalışıyor ancak giriş kodu yüklenmemiş. Sayfayı yeniden yükleyin veya bağlantı sorununu kontrol edelim.'}">Giriş bağlantısı gönder</button><p id="authmsg" class="muted">E-posta adresinize güvenli giriş bağlantısı gönderilecektir. Bağlantıyı aynı cihazda açın.</p></div></section>
 <section id="app" class="hide"><div class="roleline"><div><div class="eyebrow" id="rolelabel">ÖĞRETMEN PANELİ</div><h1 id="hello">Hoş geldiniz</h1></div><button class="secondary" onclick="logout()">Çıkış</button></div>
 <nav class="tabs"><button class="tab on" onclick="show('home',this)">Genel Bakış</button><button class="tab" onclick="show('students',this)">Öğrenciler</button><button class="tab" onclick="show('work',this)">Etüt Takibi</button><button class="tab" onclick="show('exams',this)">Denemeler</button><button class="tab" onclick="show('books',this)">Kitap Okuma</button><button class="tab" onclick="show('attendance',this)">Devamsızlık</button><button class="tab" onclick="show('reports',this)">Haftalık Rapor</button><button class="tab" onclick="show('dailyReports',this)">Günlük Rapor</button></nav>
 <div id="home" class="page on">
-<div class="card"><div class="eyebrow">GÜNLÜK ETÜT PROGRAMI</div><h2 id="todayPlanTitle">Bugünün etüt programı</h2><div id="todayPlan"><p class="muted">Günlük program yükleniyor...</p></div></div></div>
+<section class="dashboard-welcome">
+ <div><div class="eyebrow">DEĞİRMENLİKIZIK PROJE • YÖNETİM MERKEZİ</div><h2>Günün özeti</h2><p>Öğrenci gelişimini, etütleri ve deneme sonuçlarını tek ekrandan takip edin.</p></div>
+ <div class="dashboard-date" id="dashboardDate"></div>
+</section>
+<section class="dashboard-stats" id="teacherStats" aria-label="Genel sistem istatistikleri">
+ <div class="stat"><small>Öğrenci</small><strong>—</strong></div><div class="stat"><small>Etüt kaydı</small><strong>—</strong></div><div class="stat"><small>Deneme</small><strong>—</strong></div><div class="stat"><small>Kitap kaydı</small><strong>—</strong></div><div class="stat"><small>Devamsızlık kaydı</small><strong>—</strong></div><div class="stat"><small>Öğrenci başına son deneme ort.</small><strong>—</strong></div>
+</section>
+<section class="dashboard-grid">
+ <article class="card dashboard-quick"><div class="dashboard-card-head"><div><div class="eyebrow">HIZLI ERİŞİM</div><h3>İşlemler</h3></div><span class="dashboard-icon">✦</span></div>
+  <div class="quick-actions">
+   <button type="button" onclick="openStudentForm()">＋ Öğrenci ekle</button>
+   <button type="button" class="secondary" onclick="openDashboardSection('work')">Etüt girişi</button>
+   <button type="button" class="secondary" onclick="openDashboardSection('exams')">Deneme girişi</button>
+   <button type="button" class="secondary" onclick="openDashboardSection('reports')">Haftalık rapor</button>
+  </div>
+ </article>
+ <article class="card dashboard-plan"><div class="dashboard-card-head"><div><div class="eyebrow">BUGÜNÜN PROGRAMI</div><h3 id="todayPlanTitle">Günlük etüt programı</h3></div><span class="dashboard-icon">◷</span></div>
+  <div id="todayPlan"><p class="muted">Günlük program yükleniyor...</p></div>
+ </article>
+</section>
+<section class="dashboard-grid dashboard-lower">
+ <article class="card"><div class="dashboard-card-head"><div><div class="eyebrow">TAKİP GEREKTİREN</div><h3>Etüt kaydı kontrolü</h3></div><span class="dashboard-icon">◎</span></div><div id="studyAlerts"><p class="muted">Özet hazırlanıyor...</p></div></article>
+ <article class="card"><div class="dashboard-card-head"><div><div class="eyebrow">SON İŞLEMLER</div><h3>Son deneme kayıtları</h3></div><button type="button" class="text-action" onclick="openDashboardSection('exams')">Tümünü gör →</button></div><div id="dashboardRecentExams"><p class="muted">Henüz deneme kaydı yok.</p></div></article>
+</section>
+</div>
 <div id="students" class="page"><div class="roleline"><h2>Öğrenci listesi</h2><div><button onclick="openStudentForm()">+ Öğrenci ekle</button></div></div><div class="card"><div class="grid"><div><label for="studentSearch">Öğrenci ara</label><input id="studentSearch" type="search" placeholder="Ad veya soyad yazın" oninput="renderStudentDirectory()"></div><div><label for="studentGradeFilter">Sınıfa göre filtrele</label><select id="studentGradeFilter" onchange="renderStudentDirectory()"><option value="">Tüm sınıflar</option></select></div></div><p id="studentFilterSummary" class="muted">Tüm öğrenciler listeleniyor.</p></div><div class="card" id="studentlist"><p class="muted">Henüz öğrenci eklenmedi.</p></div></div>
 <div id="studentDetail" class="page"><div class="roleline"><h2 id="studentDetailName">Öğrenci Detayı</h2><button class="secondary" type="button" onclick="show('students',document.querySelector('.tabs .tab:nth-child(2)'))">Öğrenci listesine dön</button></div><div id="studentDetailContent"><p class="muted">Öğrenci seçin.</p></div></div>
 <div id="work" class="page"><h2>Günlük etüt takibi</h2><div class="card"><div class="grid"><div><label for="workdate">Etüt tarihi</label><input id="workdate" type="date" onchange="loadWorkSessions()"></div><div><label for="workSession">Günün etüdü</label><select id="workSession" onchange="renderWorkTable()"><option value="">Önce tarih seçin</option></select></div></div><p class="muted">Seçtiğin etüt için bütün öğrenciler tek tabloda listelenir. Soru sayıları ve sonuçlar gerçekleşen çalışmaya göre girilir.</p><div id="workSessionInfo" class="muted"></div></div><div class="card" id="workTable"><p class="muted">Etüt seçildiğinde öğrenci takip tablosu burada açılacak.</p></div><button class="full" id="saveWorkBatch" type="button" onclick="saveWorkBatch()">Bu etüdün kayıtlarını kaydet</button><div class="card" id="worklist"><h3>Seçili etüdün kayıtları</h3><p class="muted">Henüz kayıt yok.</p></div><div class="card hide" id="saturdayRatingPanel"><div class="eyebrow">CUMARTESİ ÖĞRETMEN DEĞERLENDİRMESİ</div><h2>Ders dinleme ve katılım puanları</h2><p class="muted">Bu puanlama ders programındaki saatlerden bağımsızdır. Her öğrenciye beş ders için ayrı ayrı 10 üzerinden puan ver.</p><div id="saturdayRatingContent"></div><button class="full" id="saveSaturdayRatings" type="button" onclick="saveSaturdayRatings()">Cumartesi puanlarını kaydet</button></div></div>
@@ -583,9 +615,44 @@ body>header.top small{font-size:11px;letter-spacing:.09em;text-transform:upperca
 <div class="card"><h3>Toplu Hedef – Netice Kıyaslama</h3><p class="muted">Seçtiğin denemede hedefi ve gerçekleşen sonucu bulunan tüm öğrencileri tek tabloda görüntüle.</p>
 <div class="grid"><div><label for="bulkCompareExam">Deneme</label><select id="bulkCompareExam" onchange="renderBulkExamTargetComparison()"><option value="">Deneme seçin</option></select></div></div>
 <div id="bulkCompareSummary" class="stats"></div><div id="bulkExamTargetComparison"><p class="muted">Karşılaştırmak için deneme seçin.</p></div></div>
+<div class="card">
+<h3>Öğrenci Grubu Oluştur ve Karşılaştır</h3>
+<p class="muted">Öğrencileri seç, grubu kaydet ve aynı denemedeki netlerini ders ders karşılaştır.</p>
+<div class="grid">
+<div><label for="examGroupName">Grup adı</label><input id="examGroupName" placeholder="Örn. 500 Puan Özel Grubu"></div>
+<div><label for="savedExamGroups">Kayıtlı gruplarım</label><select id="savedExamGroups" onchange="applySavedExamComparisonGroup()"><option value="">Kayıtlı grup seçin</option></select></div>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
+<button type="button" class="secondary" onclick="selectAllExamGroupStudents(true)">Tümünü seç</button>
+<button type="button" class="secondary" onclick="selectAllExamGroupStudents(false)">Seçimi temizle</button>
+<button type="button" onclick="saveExamComparisonGroup()">Grubu kaydet</button>
+</div>
+<div id="examGroupStudentPicker" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;padding:10px;border:1px solid #e5e9ee;border-radius:10px;max-height:230px;overflow:auto"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+<button type="button" onclick="renderSavedExamGroupComparison()">Seçili grubu karşılaştır</button>
+<button type="button" class="secondary" onclick="exportExamGroupComparisonCsv()">Excel / CSV indir</button>
+<button type="button" class="secondary" onclick="printExamGroupComparison()">PDF / Yazdır</button>
+</div>
+<div id="savedExamGroupSummary" class="stats"></div>
+<div id="savedExamGroupComparison"><p class="muted">Karşılaştırmak için bir deneme seçip en az iki öğrenci işaretleyin.</p></div>
+</div>
 <div class="card"><h3>Bireysel Hedef – Netice Kıyaslama</h3><label for="compareStudent">Öğrenci</label><select id="compareStudent" onchange="renderExamTargetComparison()"><option value="">Öğrenci seçin</option></select><div id="examTargetComparison"><p class="muted">Kıyaslama için öğrenci seçin.</p></div></div></section></div>
 
-<div id="reports" class="page"><h2>Haftalık rapor</h2><div class="card"><div class="grid"><div><label>Öğrenci</label><select id="rs"><option value="">Öğrenci seçin</option></select></div><div><label>Başlangıç tarihi</label><input id="reportFrom" type="date"></div><div><label>Bitiş tarihi</label><input id="reportTo" type="date"></div></div><p class="muted">Varsayılan olarak içinde bulunulan haftanın Pazartesi–Pazar tarihleri seçilir. İstersen tarih aralığını değiştirebilirsin.</p><button class="full" onclick="makeReport()">Raporu oluştur</button></div><div class="card" id="reportout"><p class="muted">Öğrenci ve tarih aralığı seçerek rapor oluşturun.</p></div></div>
+<div id="reports" class="page weekly-report-hub">
+ <div class="weekly-report-hero"><div><div class="eyebrow">PERFORMANS VE GELİŞİM MERKEZİ</div><h2>Haftalık Raporlama</h2><p>Grubun genel ilerlemesini veya seçilen öğrencinin ayrıntılı gelişim karnesini inceleyin.</p></div><div class="weekly-report-seal">HAFTALIK<br><b>RAPOR</b></div></div>
+ <div class="weekly-report-controls card">
+  <div class="weekly-report-control-title"><span class="dashboard-icon">▤</span><div><b>Rapor kapsamını belirle</b><small>Grup veya öğrenci bazlı rapor hazırlayın</small></div></div>
+  <div class="grid">
+   <div><label for="reportScope">RAPOR TÜRÜ</label><select id="reportScope" onchange="toggleWeeklyReportScope()"><option value="group">Grup raporu</option><option value="student">Öğrenci raporu</option></select></div>
+   <div id="weeklyStudentPicker" class="hide"><label for="rs">ÖĞRENCİ</label><select id="rs"><option value="">Öğrenci seçin</option></select></div>
+   <div><label for="reportFrom">BAŞLANGIÇ TARİHİ</label><input id="reportFrom" type="date"></div>
+   <div><label for="reportTo">BİTİŞ TARİHİ</label><input id="reportTo" type="date"></div>
+  </div>
+  <div class="weekly-report-hint">Varsayılan tarih aralığı içinde bulunulan haftadır. İhtiyacınıza göre tarihleri değiştirebilirsiniz.</div>
+  <button class="full" type="button" onclick="createWeeklyReport()">Raporu oluştur</button>
+ </div>
+ <div class="weekly-report-output" id="reportout"><div class="weekly-empty-state"><span>✦</span><b>Raporunuz burada hazırlanacak</b><p>Rapor türünü ve tarih aralığını seçerek başlayın.</p></div></div>
+</div>
 <div id="dailyReports" class="page daily-report-hub"><div class="daily-hub-hero"><div class="daily-hub-brand"><span class="daily-hub-emblem">✦</span><div><strong>DEĞİRMENLİKIZIK PROJE</strong><small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div></div><div class="daily-hub-title"><div><span class="daily-kicker">PERFORMANS MERKEZİ</span><h2>Günlük Raporlama</h2><p>Grubun genel gelişimini inceleyin veya tek bir öğrencinin günlük performansını ayrıntılı görüntüleyin.</p></div><div class="daily-hub-mark">RAPOR<br><b>01</b></div></div></div><div class="daily-workspace"><div class="daily-control-panel"><div class="daily-control-heading"><span class="daily-step">01</span><div><b>Rapor tarihini belirle</b><small>Raporlanacak günü seçin</small></div></div><label for="dailyReportDate">RAPOR TARİHİ</label><input id="dailyReportDate" type="date" onchange="clearDailyReports()"><div class="daily-date-hint">Seçilen tarihteki kayıtlar otomatik olarak hesaplanır.</div></div><div class="daily-report-choice"><article class="daily-choice-card daily-group-choice"><div class="daily-choice-icon">▦</div><span class="daily-choice-overline">TOPLU DEĞERLENDİRME</span><h3>Grup Raporu</h3><p>Öğrencilerin günlük etüt verilerini, toplam sonuçları ve grup içi performans dağılımını tek raporda inceleyin.</p><button type="button" onclick="makeDailyReport()">Grup raporunu oluştur <span>→</span></button></article><article class="daily-choice-card daily-student-choice"><div class="daily-choice-icon">♙</div><span class="daily-choice-overline">KİŞİYE ÖZEL DEĞERLENDİRME</span><h3>Öğrenci Raporu</h3><p>Bir öğrenci seçin; yalnızca o öğrenciye ait etüt, ders performansı ve devam bilgilerini görüntüleyin.</p><label for="dailyReportStudent">ÖĞRENCİ SEÇİN</label><select id="dailyReportStudent"><option value="">Öğrenci seçin</option></select><button type="button" onclick="makeIndividualDailyReport()">Bireysel raporu oluştur <span>→</span></button></article></div></div><div class="daily-output-heading"><span>RAPOR ÇIKTILARI</span><small>Oluşturduğunuz raporlar burada görüntülenir.</small></div><div id="dailyGroupReportOutput"></div><div id="dailyIndividualReportOutput"></div></div>
 <div id="studentModal" class="modal-backdrop hide" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
  <form class="modal" onsubmit="saveStudent(event)">
@@ -619,6 +686,10 @@ async function ensureSupabaseClient(){
 let currentProfile=null, editingStudentId=null, cache={students:[],work:[],exams:[],books:[],values:[],targets:[],attendance:[],saturdayRatings:[]};
 let parentChildren=[];
 let dailyReportHasBeenGenerated=false;
+let savedExamComparisonGroups=[];
+let selectedExamGroupIds=[];
+let currentExamGroupComparison=[];
+let currentExamGroupExamLabel='';
 
 
 function renderExamAnalysis(){
@@ -876,18 +947,29 @@ ensureSupabaseClient().then(()=>{supabaseClient.auth.onAuthStateChange((_event,s
 function show(id,b){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));$(id).classList.add('on');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on')}
 function row(a,b,c){return '<div class="entry"><b>'+safe(a)+'</b><small>'+safe(b)+' • '+safe(c)+'</small></div>'}
 async function loadTable(table){const {data,error}=await supabaseClient.from(table).select('*').order('created_at',{ascending:false});if(error)throw error;return data||[]}
+function openDashboardSection(id){
+ const button=[...document.querySelectorAll('.tabs .tab')].find(x=>x.getAttribute('onclick')?.includes("show('"+id+"'"));
+ if(button)show(id,button);
+}
 function renderTeacherDashboard(){
  const box=$('teacherStats');if(!box)return;
- const average=cache.exams.length?cache.exams.reduce((sum,x)=>sum+Number(x.net||0),0)/cache.exams.length:0;
+ const latestByStudent=cache.students.map(student=>cache.exams.filter(x=>x.student_id===student.id).sort((a,b)=>String(b.exam_date||'').localeCompare(String(a.exam_date||'')))[0]).filter(Boolean);
+ const average=latestByStudent.length?latestByStudent.reduce((sum,x)=>sum+Number(x.net||0),0)/latestByStudent.length:null;
  const values=[
-  ['Öğrenci',cache.students.length],
+  ['Kayıtlı öğrenci',cache.students.length],
   ['Etüt kaydı',cache.work.length],
-  ['Deneme',cache.exams.length],
+  ['Deneme sonucu',cache.exams.length],
   ['Kitap kaydı',cache.books.length],
-  ['Devamsızlık',cache.attendance.length],
-  ['Ortalama deneme neti',average.toFixed(2).replace('.',',')]
+  ['Devamsızlık kaydı',cache.attendance.length],
+  ['Son deneme ortalaması',average===null?'—':average.toFixed(2).replace('.',',')+' net']
  ];
  box.innerHTML=values.map(([label,value])=>'<div class="stat"><small>'+label+'</small><strong>'+value+'</strong></div>').join('');
+ const date=$('dashboardDate');if(date)date.textContent=new Intl.DateTimeFormat('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+ const recent=$('dashboardRecentExams');
+ if(recent){
+  const rows=[...cache.exams].sort((a,b)=>String(b.exam_date||'').localeCompare(String(a.exam_date||''))).slice(0,5);
+  recent.innerHTML=rows.length?rows.map(x=>row(x.student+' • '+x.name,x.exam_date,(Number(x.net)||0).toFixed(2).replace('.',',')+' net')).join(''):'<p class="muted">Henüz deneme kaydı yok.</p>';
+ }
  renderStudyAlerts();
 }
 function renderStudentDirectory(){
@@ -914,7 +996,7 @@ function renderStudentGradeOptions(){
 }
 async function render(){try{let ratingLoadError=null;const [s,w,e,b,v,t,a,sr]=await Promise.all(['students','study_records','exam_results','reading_records','values_records','exam_targets','attendance_records'].map(loadTable).concat([loadTable('saturday_lesson_ratings').catch(err=>{ratingLoadError=err.message;return []})]));cache.saturdayRatings=sr;cache.saturdayRatingLoadError=ratingLoadError;cache.students=s;cache.targets=t;cache.attendance=a.map(x=>({...x,student:s.find(z=>z.id===x.student_id)?.full_name||'Silinmiş öğrenci'}));populateStudentSelect();populateAllStudentSelects();populateExamModuleSelects();const name=id=>s.find(x=>x.id===id)?.full_name||'Silinmiş öğrenci';cache.work=w.map(x=>({...x,student:name(x.student_id)}));cache.exams=e.map(x=>({...x,student:name(x.student_id),name:x.exam_name,net:x.total_net}));cache.books=b.map(x=>({...x,student:name(x.student_id),title:x.title,progress:x.progress}));cache.values=v.map(x=>({...x,student:name(x.student_id),title:x.value_title,note:x.teacher_note}));renderTeacherDashboard();renderBookRecords();renderAttendanceRecords();if($('attDate')&&!$('attDate').value)$('attDate').value=today();renderTodayPlan();setDefaultReportDates();setDailyReportDefaults();if(dailyReportHasBeenGenerated)makeDailyReport();renderStudentGradeOptions();renderStudentDirectory();$('worklist').innerHTML=cache.work.length?cache.work.map(x=>row(x.student+' • '+x.subject,x.recorded_on,Number(x.net).toFixed(2)+' net / '+x.status)).join(''):'<p class="muted">Henüz kayıt yok.</p>';$('examlist').innerHTML=cache.exams.length?cache.exams.map(x=>row(x.student+' • '+x.name,x.exam_date,x.net+' net')).join(''):'<p class="muted">Henüz sonuç yok.</p>';renderExamModule();if($('workdate')){if(!$('workdate').value)$('workdate').value=localDateValue();loadWorkSessions();renderSaturdayRatings();}}catch(e){alert('Veriler yüklenemedi: '+e.message)}}
 async function studentIdByName(name){const s=cache.students.find(x=>x.full_name.trim().toLocaleLowerCase('tr-TR')===name.trim().toLocaleLowerCase('tr-TR'));if(!s)throw new Error('Öğrenci bulunamadı. Önce Öğrenciler sekmesinden ekleyin.');return s.id}
-async function ensureTeacherSession(){const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();if(sessionError||!session)throw new Error('Öğretmen oturumu bulunamadı veya süresi dolmuş. Lütfen çıkış yapıp yeniden giriş bağlantısıyla oturum açın.');const {data:refreshed,error:refreshError}=await supabaseClient.auth.refreshSession();if(refreshError||!refreshed?.session?.access_token)throw new Error('Güvenli oturum yenilenemedi. Lütfen çıkış yapıp yeniden giriş yapın.');const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',refreshed.session.user.id).maybeSingle();if(profileError)throw profileError;if(profile?.role!=='teacher')throw new Error('Bu işlem yalnızca öğretmen hesabıyla yapılabilir.');currentProfile={...currentProfile,role:profile.role};return refreshed.session}
+async function ensureTeacherSession(){const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();if(sessionError||!session)throw new Error('Öğretmen oturumu bulunamadı veya süresi dolmuş. Lütfen çıkış yapıp yeniden giriş bağlantısıyla oturum açın.');const {data:refreshed,error:refreshError}=await supabaseClient.auth.refreshSession();if(refreshError||!refreshed?.session?.access_token)throw new Error('Güvenli oturum yenilenemedi. Lütfen çıkış yapıp yeniden giriş yapın.');const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',refreshed.session.user.id).maybeSingle();if(profileError)throw profileError;if(profile?.role!=='teacher')throw new Error('Bu işlem yalnızca öğretmen hesabıyla yapılabilir.');currentProfile={...currentProfile,id:refreshed.session.user.id,role:profile.role};return refreshed.session}
 async function saveRow(table,payload){await ensureTeacherSession();const {error}=await supabaseClient.from(table).insert(payload);if(error)throw error;await render();alert('Kayıt veritabanına kaydedildi.')}
 async function bulkAddLgsGroup(){
  const names=['İlyas Ömer Narin','Eren Semiz','Selim Topaloğlu','Furkan Malgir','Ali Recep','Utku Bektaş','Hamza Hız','Eymen Ali Toraman','Ahmet Eren Yakupoğlu','Utku Satı'];
@@ -1073,7 +1155,7 @@ async function saveWorkBatch(){
 async function addWork(){try{const id=$('ws').value,t=Number($('total').value),c=Number($('correct').value),w=Number($('wrong').value),b=Number($('blank').value),target=Number($('targetq').value||0);if(!id){alert('Lütfen listeden öğrenci seçin.');return}if(![t,c,w,b,target].every(Number.isFinite)||![t,c,w,b,target].every(Number.isInteger)||[t,c,w,b,target].some(x=>x<0)){alert('Soru ve hedef değerleri sıfır veya pozitif tam sayı olmalıdır.');return}if(t<1){alert('Toplam soru sayısı en az 1 olmalıdır.');return}if(c+w+b!==t){alert('Toplam soru sayısı, doğru + yanlış + boş toplamına eşit olmalıdır.');return}await saveRow('study_records',{student_id:id,subject:$('subject').value,total_questions:t,correct:c,wrong:w,blank:b,teacher_note:$('worknote').value.trim()||null,recorded_on:$('workdate').value||today(),status:$('status').value})}catch(e){alert(e.message)}}
 const examSubjects=[{name:'Türkçe',key:'turkish',limit:20},{name:'Matematik',key:'math',limit:20},{name:'Fen Bilimleri',key:'science',limit:20},{name:'İnkılap',key:'revolution',limit:10},{name:'Din Kültürü',key:'religion',limit:10},{name:'İngilizce',key:'english',limit:10}];
 function renderExamTargetMatrix(){const body=$('examTargetMatrix');if(!body)return;const sorted=[...cache.students].sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr'));body.innerHTML=sorted.map(student=>{const t=cache.targets.find(x=>x.student_id===student.id);let sum=0,complete=!!t;const cells=examSubjects.map(s=>{const c=t?.[s.key+'_correct_target'],w=t?.[s.key+'_wrong_target'],n=t?.[s.key+'_net_target'];if(c===null||c===undefined||w===null||w===undefined||n===null||n===undefined||c===''||w===''||n===''){complete=false;return '<td>—</td>'}sum+=Number(n);return '<td><b>'+Number(n).toFixed(2).replace('.',',')+'</b><small style="display:block">D: '+c+' • Y: '+w+'</small></td>'}).join('');return '<tr><td class="work-name">'+safe(student.full_name)+'</td>'+cells+'<td><b>'+(complete?sum.toFixed(2).replace('.',','):'—')+'</b></td></tr>'}).join('')||'<tr><td colspan="8">Henüz öğrenci eklenmedi.</td></tr>'}
-function renderExamModule(){populateExamModuleSelects();populateBulkComparisonExams();renderBulkExamTargetComparison();renderExamTargetMatrix();if($('targetStudent')?.value)loadExamTargetForm();if($('es')?.value)renderExamTargetComparison();if($('examlist'))$('examlist').innerHTML='<h3>Deneme geçmişi</h3>'+(cache.exams.length?[...cache.exams].sort((a,b)=>new Date(b.exam_date||b.created_at||0)-new Date(a.exam_date||a.created_at||0)).map(e=>row(e.student+' • '+e.name,(e.exam_date||'Tarih yok')+' • '+Number(e.net||0).toFixed(2).replace('.',',')+' net','Doğru: '+examSubjects.reduce((n,s)=>n+Number(e[s.key+'_correct']||0),0)+' • Yanlış: '+examSubjects.reduce((n,s)=>n+Number(e[s.key+'_wrong']||0),0))).join(''):'<p class="muted">Henüz sonuç yok.</p>');}
+function renderExamModule(){populateExamModuleSelects();populateBulkComparisonExams();renderBulkExamTargetComparison();renderExamGroupStudentPicker();loadSavedExamComparisonGroups().catch(e=>console.warn('Kayıtlı karşılaştırma grupları yüklenemedi:',e));renderExamTargetMatrix();if($('targetStudent')?.value)loadExamTargetForm();if($('es')?.value)renderExamTargetComparison();if($('examlist'))$('examlist').innerHTML='<h3>Deneme geçmişi</h3>'+(cache.exams.length?[...cache.exams].sort((a,b)=>new Date(b.exam_date||b.created_at||0)-new Date(a.exam_date||a.created_at||0)).map(e=>row(e.student+' • '+e.name,(e.exam_date||'Tarih yok')+' • '+Number(e.net||0).toFixed(2).replace('.',',')+' net','Doğru: '+examSubjects.reduce((n,s)=>n+Number(e[s.key+'_correct']||0),0)+' • Yanlış: '+examSubjects.reduce((n,s)=>n+Number(e[s.key+'_wrong']||0),0))).join(''):'<p class="muted">Henüz sonuç yok.</p>');}
 function showExamPanel(id,b){document.querySelectorAll('.exam-panel').forEach(x=>x.classList.add('hide'));$(id).classList.remove('hide');document.querySelectorAll('.exam-tabs .tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');if(id==='examCompare')renderExamTargetComparison()}
 function populateExamModuleSelects(){['targetStudent','es','compareStudent'].forEach(id=>{const el=$(id);if(!el)return;const val=el.value;el.innerHTML='<option value="">Öğrenci seçin</option>'+cache.students.map(s=>'<option value="'+safe(s.id)+'">'+safe(s.full_name)+'</option>').join('');if(cache.students.some(s=>s.id===val))el.value=val});if($('examDate')&&!$('examDate').value)$('examDate').value=localDateValue();if($('examInputRows')&&!$('examInputRows').children.length){$('examInputRows').innerHTML=examSubjects.map(s=>'<tr data-subject="'+s.key+'" data-limit="'+s.limit+'"><td class="work-name">'+s.name+'</td><td><input class="ex-correct" type="number" min="0" max="'+s.limit+'" step="1" value="0"></td><td><input class="ex-wrong" type="number" min="0" max="'+s.limit+'" step="1" value="0"></td><td class="ex-net">0,00</td></tr>').join('');$('examInputRows').querySelectorAll('input').forEach(el=>el.addEventListener('input',updateExamPreview));updateExamPreview()}}
 function updateExamPreview(){let total=0,correct=0,wrong=0;document.querySelectorAll('#examInputRows tr').forEach(tr=>{const c=Number(tr.querySelector('.ex-correct').value)||0,w=Number(tr.querySelector('.ex-wrong').value)||0,lim=Number(tr.dataset.limit),valid=c>=0&&w>=0&&c+w<=lim,net=valid?c-w/3:0;tr.querySelector('.ex-net').textContent=valid?net.toFixed(2).replace('.',','):'—';correct+=c;wrong+=w;total+=net});$('examTotalCorrect').textContent=correct;$('examTotalWrong').textContent=wrong;$('examTotalNet').textContent=total.toFixed(2).replace('.',',')}
@@ -1101,6 +1183,84 @@ function renderBulkExamTargetComparison(){
  const heads=examSubjects.map(s=>'<th>'+safe(s.name)+'<br>Hedef / Netice</th>').join('');
  const body=rows.map(r=>'<tr><td class="work-name">'+safe(r.student.full_name)+'</td><td>'+safe(r.student.grade||'—')+'</td>'+r.subjects.map(s=>'<td><small>H: '+s.target.toFixed(2).replace('.',',')+'<br>N: '+s.actual.toFixed(2).replace('.',',')+'</small></td>').join('')+'<td><b>'+r.targetNet.toFixed(2).replace('.',',')+'</b></td><td><b>'+r.actualNet.toFixed(2).replace('.',',')+'</b></td><td><span class="exam-compare-status '+(r.diff>=0?'is-good':'is-low')+'">'+(r.diff>=0?'+':'')+r.diff.toFixed(2).replace('.',',')+'</span></td></tr>').join('');
  box.innerHTML='<p class="muted">'+safe(examName)+' • '+safe(examDate||'Tarih yok')+' • Hedefi ve sonucu bulunan öğrenciler</p><div class="work-table-wrap"><table class="work-table"><thead><tr><th>Öğrenci</th><th>Sınıf</th>'+heads+'<th>Toplam Hedef</th><th>Toplam Netice</th><th>Fark</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+}
+
+// Öğrenci karşılaştırma grupları
+function renderExamGroupStudentPicker(){
+ const box=$('examGroupStudentPicker');if(!box)return;
+ const valid=new Set(cache.students.map(x=>x.id));selectedExamGroupIds=selectedExamGroupIds.filter(id=>valid.has(id));
+ box.innerHTML=[...cache.students].sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr')).map(st=>'<label style="display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid #e8edf2;border-radius:8px;background:#fff"><input type="checkbox" value="'+safe(st.id)+'" '+(selectedExamGroupIds.includes(st.id)?'checked':'')+' onchange="toggleExamGroupStudent(this.value,this.checked)"><span>'+safe(st.full_name)+' <small class="muted">• '+safe(st.grade||'')+'</small></span></label>').join('')||'<p class="muted">Henüz öğrenci kaydı yok.</p>';
+}
+function toggleExamGroupStudent(id,checked){if(checked&&!selectedExamGroupIds.includes(id))selectedExamGroupIds.push(id);if(!checked)selectedExamGroupIds=selectedExamGroupIds.filter(x=>x!==id)}
+function selectAllExamGroupStudents(checked){selectedExamGroupIds=checked?cache.students.map(x=>x.id):[];renderExamGroupStudentPicker()}
+async function loadSavedExamComparisonGroups(){
+ const el=$('savedExamGroups');if(!el)return;
+ const session=await ensureTeacherSession();
+ const {data,error}=await supabaseClient.from('exam_comparison_groups').select('id,name,student_ids,created_at').eq('user_id',session.user.id).order('created_at',{ascending:false});
+ if(error)throw error;
+ savedExamComparisonGroups=data||[];
+ const prior=el.value;
+ el.innerHTML='<option value="">Kayıtlı grup seçin</option>'+savedExamComparisonGroups.map(g=>'<option value="'+safe(g.id)+'">'+safe(g.name)+'</option>').join('');
+ if(savedExamComparisonGroups.some(g=>g.id===prior))el.value=prior;
+}
+function applySavedExamComparisonGroup(){
+ const group=savedExamComparisonGroups.find(g=>g.id===$('savedExamGroups')?.value);if(!group)return;
+ selectedExamGroupIds=Array.isArray(group.student_ids)?group.student_ids.filter(id=>cache.students.some(s=>s.id===id)):[];
+ $('examGroupName').value=group.name||'';
+ renderExamGroupStudentPicker();
+}
+async function saveExamComparisonGroup(){
+ const name=$('examGroupName')?.value.trim();
+ if(!name){alert('Lütfen gruba bir ad verin.');return}
+ if(selectedExamGroupIds.length<2){alert('Karşılaştırma grubu için en az iki öğrenci seçin.');return}
+ try{
+  const session=await ensureTeacherSession();
+  const {error}=await supabaseClient.from('exam_comparison_groups').insert({user_id:session.user.id,name,student_ids:selectedExamGroupIds});
+  if(error)throw error;
+  await loadSavedExamComparisonGroups();
+  alert('Öğrenci karşılaştırma grubu kaydedildi.');
+ }catch(e){alert('Grup kaydedilemedi: '+(e.message||e))}
+}
+function getExamGroupComparisonRows(){
+ const key=$('bulkCompareExam')?.value;
+ if(!key)return {label:'',rows:[]};
+ const [examName,examDate]=key.split('||');
+ const rows=selectedExamGroupIds.map(id=>{
+  const student=cache.students.find(x=>x.id===id);
+  const exam=cache.exams.find(e=>e.student_id===id&&String(e.exam_name||e.name||'Deneme')===examName&&String(e.exam_date||'')===examDate);
+  if(!student||!exam)return null;
+  const subjects=examSubjects.map(sub=>({name:sub.name,net:Number(exam[sub.key+'_net']??(Number(exam[sub.key+'_correct']||0)-Number(exam[sub.key+'_wrong']||0)/3))}));
+  return {student,exam,subjects,total:Number(exam.net??exam.total_net??subjects.reduce((n,x)=>n+x.net,0))};
+ }).filter(Boolean).sort((a,b)=>b.total-a.total);
+ return {label:examName+' • '+(examDate||'Tarih yok'),rows};
+}
+function renderSavedExamGroupComparison(){
+ const box=$('savedExamGroupComparison'),summary=$('savedExamGroupSummary');if(!box||!summary)return;
+ if(selectedExamGroupIds.length<2){summary.innerHTML='';box.innerHTML='<p class="muted">En az iki öğrenci seçin.</p>';return}
+ const result=getExamGroupComparisonRows(),rows=result.rows;currentExamGroupComparison=rows;currentExamGroupExamLabel=result.label;
+ if(!result.label){summary.innerHTML='';box.innerHTML='<p class="muted">Önce yukarıdaki deneme listesinden bir deneme seçin.</p>';return}
+ const missing=selectedExamGroupIds.length-rows.length;
+ summary.innerHTML='<div class="stat"><small>Seçilen öğrenci</small><strong>'+selectedExamGroupIds.length+'</strong></div><div class="stat"><small>Sonucu bulunan</small><strong>'+rows.length+'</strong></div><div class="stat"><small>Sonuç beklenen</small><strong>'+missing+'</strong></div><div class="stat"><small>Grup ortalaması</small><strong>'+(rows.length?(rows.reduce((n,x)=>n+x.total,0)/rows.length).toFixed(2).replace('.',','):'—')+'</strong></div>';
+ if(!rows.length){box.innerHTML='<p class="muted">Seçili grupta bu denemeye ait sonuç bulunamadı.</p>';return}
+ const heads=examSubjects.map(x=>'<th>'+safe(x.name)+'</th>').join('');
+ const body=rows.map((r,i)=>'<tr><td class="work-name">'+(i+1)+'. '+safe(r.student.full_name)+'</td><td>'+safe(r.student.grade||'—')+'</td>'+r.subjects.map(x=>'<td>'+x.net.toFixed(2).replace('.',',')+'</td>').join('')+'<td><b>'+r.total.toFixed(2).replace('.',',')+'</b></td></tr>').join('');
+ box.innerHTML='<p class="muted">'+safe(result.label)+' • Net sıralaması</p><div class="work-table-wrap"><table class="work-table"><thead><tr><th>Öğrenci</th><th>Sınıf</th>'+heads+'<th>Toplam Net</th></tr></thead><tbody>'+body+'</tbody></table></div>'+(missing?'<p class="muted">'+missing+' öğrencinin bu denemede kayıtlı sonucu bulunmuyor; dışa aktarıma da yalnızca kayıtlı sonuçlar alınır.</p>':'');
+}
+function exportExamGroupComparisonCsv(){
+ if(!currentExamGroupComparison.length){renderSavedExamGroupComparison();if(!currentExamGroupComparison.length)return}
+ const headers=['Sıra','Öğrenci','Sınıf',...examSubjects.map(x=>x.name),'Toplam Net'];
+ const lines=[headers,...currentExamGroupComparison.map((r,i)=>[i+1,r.student.full_name,r.student.grade||'',...r.subjects.map(x=>x.net.toFixed(2).replace('.',',')),r.total.toFixed(2).replace('.',',')])];
+ const csv='\uFEFF'+lines.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='ogrenci-grup-karsilastirma.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function printExamGroupComparison(){
+ if(!currentExamGroupComparison.length){renderSavedExamGroupComparison();if(!currentExamGroupComparison.length)return}
+ const headers=['Öğrenci','Sınıf',...examSubjects.map(x=>x.name),'Toplam Net'];
+ const rows=currentExamGroupComparison.map(r=>'<tr><td>'+safe(r.student.full_name)+'</td><td>'+safe(r.student.grade||'—')+'</td>'+r.subjects.map(x=>'<td>'+x.net.toFixed(2).replace('.',',')+'</td>').join('')+'<td><b>'+r.total.toFixed(2).replace('.',',')+'</b></td></tr>').join('');
+ const w=window.open('','_blank');if(!w){alert('Yazdırma penceresi açılamadı. Tarayıcı açılır pencere iznini kontrol edin.');return}
+ w.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Öğrenci Grup Karşılaştırması</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#20334a}h1{font-size:20px}p{color:#66758a}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #dce2e9;padding:8px;text-align:center}th{background:#f1f4f7}td:first-child{text-align:left}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>Değirmenlikızık Proje · Öğrenci Grup Karşılaştırması</h1><p>'+safe(currentExamGroupExamLabel)+'</p><table><thead><tr>'+headers.map(x=>'<th>'+safe(x)+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>');
+ w.document.close();
 }
 function renderExamTargetComparison(){const id=$('compareStudent')?.value;if(!id){$('examTargetComparison').innerHTML='<p class="muted">Kıyaslama için öğrenci seçin.</p>';return}const t=cache.targets.find(x=>x.student_id===id),e=cache.exams.filter(x=>x.student_id===id).sort((a,b)=>new Date(b.exam_date||b.created_at)-new Date(a.exam_date||a.created_at))[0];if(!t){$('examTargetComparison').innerHTML='<p class="muted">Bu öğrenci için hedef kaydı bulunamadı. Önce 1. Öğrenci Hedefleri bölümünden hedefleri kaydedin.</p>';return}if(!e){$('examTargetComparison').innerHTML='<p class="muted">Hedefler kayıtlı. Kıyaslama için önce 2. Deneme Neticesi bölümünden sonuç girin.</p>';return}let goalC=0,goalW=0,actualC=0,actualW=0,goalN=0,actualN=0;const rows=examSubjects.map(s=>{const gc=Number(t[s.key+'_correct_target']||0),gw=Number(t[s.key+'_wrong_target']||0),gn=Number(t[s.key+'_net_target']||0),c=Number(e[s.key+'_correct']||0),w=Number(e[s.key+'_wrong']||0),n=Number(e[s.key+'_net']??c-w/3),ok=n>=gn;goalC+=gc;goalW+=gw;goalN+=gn;actualC+=c;actualW+=w;actualN+=n;return '<tr><td class="work-name">'+s.name+'</td><td><small>Doğru '+gc+' • Yanlış '+gw+'<br><b>Net '+gn.toFixed(2).replace('.',',')+'</b></small></td><td><small>Doğru '+c+' • Yanlış '+w+'<br><b>Net '+n.toFixed(2).replace('.',',')+'</b></small></td><td><span class="exam-compare-status '+(ok?'is-good':'is-low')+'">'+(ok?'Hedefe ulaştı':'Hedef altında')+'</span></td></tr>'}).join('');$('examTargetComparison').innerHTML='<p><b>'+safe(e.name)+'</b> • '+safe(e.exam_date||'Tarih yok')+'</p><div class="work-table-wrap"><table class="work-table exam-compare-table"><thead><tr><th>Ders</th><th>Hedef</th><th>Netice</th><th>Kıyaslama</th></tr></thead><tbody>'+rows+'<tr class="exam-total-row"><td><b>TOPLAM</b></td><td><b>Doğru '+goalC+' • Yanlış '+goalW+'<br>Net '+goalN.toFixed(2).replace('.',',')+'</b></td><td><b>Doğru '+actualC+' • Yanlış '+actualW+'<br>Net '+actualN.toFixed(2).replace('.',',')+'</b></td><td><span class="exam-compare-status '+(actualN>=goalN?'is-good':'is-low')+'">'+(actualN>=goalN?'Hedefe ulaştı':'Hedef altında')+'</span></td></tr></tbody></table></div>'}
 async function addExam(){try{await ensureTeacherSession();if(!$('es').value||!$('en').value.trim()){alert('Öğrenci ve deneme adı girin.');return}const p={student_id:$('es').value,exam_name:$('en').value.trim(),exam_date:$('examDate').value||localDateValue()};let net=0;for(const tr of document.querySelectorAll('#examInputRows tr')){const k=tr.dataset.subject,c=Number(tr.querySelector('.ex-correct').value||0),w=Number(tr.querySelector('.ex-wrong').value||0),l=Number(tr.dataset.limit);if(!Number.isInteger(c)||!Number.isInteger(w)||c<0||w<0||c+w>l){alert(safe(tr.querySelector('.work-name').textContent)+' için doğru ve yanlış toplamı '+l+' soruyu aşamaz.');return}p[k+'_correct']=c;p[k+'_wrong']=w;p[k+'_net']=c-w/3;net+=c-w/3}p.total_net=net;const {error}=await supabaseClient.from('exam_results').insert(p);if(error)throw error;alert('Deneme neticesi kaydedildi.');$('en').value='';document.querySelectorAll('#examInputRows tr').forEach(tr=>{tr.querySelector('.ex-correct').value=0;tr.querySelector('.ex-wrong').value=0});updateExamPreview();await render();$('es').value=p.student_id;renderExamTargetComparison()}catch(e){alert('Deneme neticesi kaydedilemedi: '+e.message)}}
@@ -1207,6 +1367,41 @@ function printDailyReport(elementId){
 @media(max-width:560px){.daily-reference-page{padding:12px}.daily-reference-header{padding:20px 17px;min-height:175px}.daily-reference-metric{padding:9px 8px;min-height:62px}.daily-reference-metric b{font-size:17px}.daily-reference-tr,.daily-reference-thead{gap:4px;padding-left:6px;padding-right:6px;font-size:8px}}`;
  win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Günlük Rapor</title><style>'+styles+'</style></head><body>'+content.innerHTML+'</body></html>');win.document.close();win.focus();setTimeout(()=>win.print(),350);
 }
+function toggleWeeklyReportScope(){
+ const scope=$('reportScope')?.value||'group';
+ const picker=$('weeklyStudentPicker');if(picker)picker.classList.toggle('hide',scope!=='student');
+}
+function createWeeklyReport(){
+ if(($('reportScope')?.value||'group')==='student')makeReport();
+ else makeWeeklyGroupReport();
+}
+function makeWeeklyGroupReport(){
+ const from=$('reportFrom').value,to=$('reportTo').value;
+ if(!from||!to||from>to){alert('Geçerli bir başlangıç ve bitiş tarihi seçin.');return}
+ const inRange=d=>{const day=String(d||'').slice(0,10);return day>=from&&day<=to};
+ const students=cache.students.map(st=>{
+  const work=cache.work.filter(x=>x.student_id===st.id&&inRange(x.recorded_on)&&hasStudyData(x)&&x.session_label&&!String(x.session_label).toLocaleLowerCase('tr-TR').includes('serbest'));
+  const exams=cache.exams.filter(x=>x.student_id===st.id&&inRange(x.exam_date||x.created_at));
+  const books=cache.books.filter(x=>x.student_id===st.id&&inRange(x.recorded_on||x.created_at));
+  const attendance=cache.attendance.filter(x=>x.student_id===st.id&&inRange(x.attendance_date));
+  const correct=work.reduce((n,x)=>n+Number(x.correct||0),0),wrong=work.reduce((n,x)=>n+Number(x.wrong||0),0);
+  const net=work.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
+  const examNet=exams.reduce((n,x)=>n+Number(x.net||0),0);
+  return {st,work,exams,books,attendance,correct,wrong,net,examNet,hasData:work.length+exams.length+books.length+attendance.length>0};
+ });
+ const active=students.filter(x=>x.hasData),fmt=n=>Number(n||0).toFixed(2).replace('.',',');
+ const totalWork=active.reduce((n,x)=>n+x.work.length,0),totalCorrect=active.reduce((n,x)=>n+x.correct,0),totalWrong=active.reduce((n,x)=>n+x.wrong,0);
+ const totalNet=active.reduce((n,x)=>n+x.net,0),totalExams=active.reduce((n,x)=>n+x.exams.length,0),totalExamNet=active.reduce((n,x)=>n+x.examNet,0);
+ const groupRows=students.map((x,i)=>'<div class="report-line weekly-group-line"><b>'+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'—')+' · '+x.work.length+' etüt · '+x.exams.length+' deneme</span><strong>'+(x.hasData?'Etüt '+fmt(x.net)+' net':'Veri girişi yok')+'</strong></div>').join('');
+ const metric=(label,value)=>'<div class="report-metric"><small>'+label+'</small><b>'+value+'</b></div>';
+ const section=(title,content)=>'<section class="report-section"><h3>'+title+'</h3>'+content+'</section>';
+ const html='<div class="report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">GRUP BAZLI HAFTALIK RAPOR</div><h2>Öğrenci Grubu</h2><p>Rapor dönemi: '+from+' – '+to+' · Kayıtlı öğrenci: '+students.length+'</p></div>'+
+ '<div class="report-overview">'+metric('VERİ GİRİŞİ OLAN',active.length)+' '+metric('ETÜT KAYDI',totalWork)+' '+metric('ETÜT NETİ',fmt(totalNet))+' '+metric('DENEME SAYISI',totalExams)+' '+metric('DENEME NETİ',fmt(totalExamNet))+' '+metric('VERİ GİRİŞİ OLMAYAN',students.length-active.length)+'</div>'+
+ section('01 · ÖĞRENCİ BAZLI PERFORMANS','<div class="report-table-head"><span>ÖĞRENCİ</span><span>SINIF · ETÜT · DENEME</span><span>ETÜT NETİ</span></div>'+(groupRows||'<p class="report-empty">Kayıtlı öğrenci bulunmuyor.</p>')+'<p class="report-note">Bu dönemde toplam '+totalCorrect+' doğru, '+totalWrong+' yanlış ve '+fmt(totalNet)+' etüt neti kaydedildi. Etüt neti doğru − yanlış / 3 formülüyle hesaplanır.</p>')+
+ section('02 · GRUP TAKİP ÖZETİ','<div class="report-line"><b>Kitap okuma kayıtları</b><span>Grup toplamı</span><strong>'+active.reduce((n,x)=>n+x.books.length,0)+'</strong></div><div class="report-line"><b>Devam / devamsızlık kayıtları</b><span>Grup toplamı</span><strong>'+active.reduce((n,x)=>n+x.attendance.length,0)+'</strong></div><div class="report-line"><b>Deneme kayıt ortalaması</b><span>Kaydı bulunan denemeler</span><strong>'+(totalExams?fmt(totalExamNet/totalExams)+' net':'—')+'</strong></div>')+
+ '<div class="report-footer"><p>Her öğrencinin gayreti ayrı, gelişim yolculuğu kıymetlidir.</p><div><span>Öğretmen</span><span>Yönetim</span></div><small>Değirmenlikızık Proje · Grup bazlı haftalık değerlendirme</small></div>';
+ $('reportout').innerHTML='<div class="report-actions"><span>Grup raporu · '+active.length+' / '+students.length+' öğrenci</span><button type="button" onclick="printParentReport()">Grup Raporunu Yazdır / PDF Kaydet</button></div><div id="parentReport">'+html+'</div>';
+}
 function makeReport(){
  const id=$('rs').value;if(!id){alert('Öğrenci seçin.');return}
  const from=$('reportFrom').value,to=$('reportTo').value;if(!from||!to||from>to){alert('Geçerli bir başlangıç ve bitiş tarihi seçin.');return}
@@ -1251,7 +1446,137 @@ function makeReport(){
 function printParentReport(){
  const content=$('parentReport');if(!content){alert('Önce raporu oluşturun.');return}
  const win=window.open('','_blank');if(!win){alert('Yazdırma penceresi açılamadı. Tarayıcı açılır pencere iznini kontrol edin.');return}
- win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Öğrenci Gelişim Karnesi</title><style>*{box-sizing:border-box} :root{color-scheme:light} body{font-family:Arial,"Helvetica Neue",sans-serif;color:#253449;margin:0;padding:24px;background:#f5f6f8;font-size:12px;line-height:1.5} #parentReport{max-width:900px;margin:0 auto;background:#fff;padding:22px;border:1px solid #e6e8ec;box-shadow:0 12px 40px rgba(22,39,60,.08)} .report-head{position:relative;overflow:hidden;background:linear-gradient(135deg,#172b45 0%,#263e5b 58%,#344b63 100%);color:#fff;padding:32px 34px 28px;border:1px solid #354b63;border-radius:15px;border-bottom:5px solid #c6ad83;box-shadow:0 8px 20px rgba(20,39,62,.12)} .report-head:after{content:"";position:absolute;width:230px;height:230px;border:1px solid rgba(220,199,163,.22);border-radius:50%;right:-72px;top:-108px;box-shadow:0 0 0 18px rgba(220,199,163,.04),0 0 0 38px rgba(220,199,163,.035)} .report-brand{position:relative;z-index:1;font-size:13px;font-weight:800;letter-spacing:2px;color:#fff} .report-brand small{display:block;font-size:9px;letter-spacing:1.7px;margin-top:6px;color:#d8e0e8;font-weight:500} .report-tag{position:relative;z-index:1;display:inline-block;font-size:9px;letter-spacing:2.2px;color:#e5d2ad;margin-top:28px;padding:6px 10px;border:1px solid rgba(229,210,173,.38);border-radius:20px} .report-head h2{position:relative;z-index:1;font-family:Georgia,serif;font-weight:600;font-size:30px;letter-spacing:.2px;margin:12px 0 5px;color:#fff} .report-head p{position:relative;z-index:1;font-size:11px;color:#dce4ec;margin:0;letter-spacing:.3px} .report-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0} .report-metric{background:linear-gradient(180deg,#fff 0%,#fbfaf7 100%);border:1px solid #e8e5df;border-top:3px solid #bda77f;border-radius:10px;padding:13px 14px;box-shadow:0 2px 7px rgba(35,48,65,.035)} .report-metric small{display:block;color:#778294;font-size:10px;letter-spacing:.25px} .report-metric b{display:block;color:#1d3551;font-size:22px;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums} .report-section{background:#fff;border:1px solid #e4e8ed;border-radius:11px;padding:16px 17px;margin:13px 0;break-inside:avoid;box-shadow:0 3px 10px rgba(25,44,65,.035)} .report-section h3{font-family:Georgia,serif;font-size:15px;color:#1c3551;margin:0 0 12px;border-bottom:1px solid #e9e4da;padding-bottom:9px;letter-spacing:.15px} .report-table-head,.report-line{display:grid;grid-template-columns:1.1fr 2fr .8fr;gap:10px;align-items:center} .report-table-head{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#8a795e;font-weight:700;padding:8px 10px;background:#f7f5f0;border-radius:6px} .report-line{font-size:11px;line-height:1.5;padding:9px 10px;border-bottom:1px solid #edf0f3} .report-line:last-child{border-bottom:0} .report-exam-card{border:1px solid #e4e8ed;border-left:3px solid #c1aa80;border-radius:9px;padding:10px 11px;margin:9px 0;background:#fdfdfc;break-inside:avoid} .report-exam-comparison{padding-left:7px} .report-exam-comparison .report-line{grid-template-columns:.9fr 1.3fr 1.8fr;font-size:10px;padding:7px} .report-exam-comparison .report-line strong{font-size:10px} .report-exam-comparison .exam-compare-status{display:inline-block;margin-left:4px;font-size:9px} .report-exam-card>.report-note{margin-top:6px} .report-line span{color:#687588} .report-line strong{text-align:right;color:#213c59;font-variant-numeric:tabular-nums} .report-empty,.report-note{font-size:10px;line-height:1.6;color:#718096} .report-note{margin:11px 0 0;padding-top:9px;border-top:1px dashed #d9dfe6} .lesson-rating-card{border:1px solid #e4e8ed;border-radius:10px;padding:13px;margin:10px 0;background:#fcfcfb;break-inside:avoid} .lesson-rating-date{display:flex;justify-content:space-between;align-items:center;color:#213c59;padding-bottom:9px;border-bottom:1px solid #e8e4dc} .lesson-rating-date span,.lesson-rating-subject-title{font-size:9px;letter-spacing:1px;color:#927d5c;font-weight:700} .lesson-rating-average{display:flex;justify-content:space-between;align-items:center;padding:10px 0;color:#667487;font-size:10px} .lesson-rating-average strong{font-size:21px;color:#1d3551} .lesson-rating-subject{display:flex;justify-content:space-between;padding:6px 2px;border-bottom:1px solid #edf0f3;font-size:10px} .lesson-rating-subject b{color:#263f5b} .lesson-rating-teacher-note{font-size:10px;color:#5e6b7c;padding:7px 9px;background:#f5f3ee;border-left:2px solid #c1aa80} .report-footer{margin-top:24px;padding:14px 18px 6px;text-align:center;color:#526174;font-size:11px;line-height:1.6;border-top:1px solid #e8e4dc} .report-footer>div{display:flex;justify-content:space-between;margin:28px 15px 18px;color:#1d3551} .report-footer>div span{width:34%;border-top:1px solid #b8aa91;padding-top:8px} .report-footer small{font-size:9px;color:#8792a0;letter-spacing:.2px} @page{size:A4 portrait;margin:8mm} @media print{html,body{width:100%;height:auto;margin:0;padding:0;background:#fff}#parentReport{max-width:none;margin:0;padding:0;border:0;box-shadow:none}body{font-size:10.5px}.report-head{padding:20px 23px;border-radius:10px;border-bottom-width:4px}.report-head:after{width:170px;height:170px;right:-60px;top:-90px}.report-tag{margin-top:17px}.report-head h2{font-size:24px;margin:8px 0 4px}.report-overview{gap:7px;margin:10px 0}.report-metric{padding:8px 10px;border-radius:7px}.report-metric small{font-size:8.5px}.report-metric b{font-size:18px;margin-top:3px}.report-section{padding:10px 12px;margin:8px 0;border-radius:8px}.report-section h3{font-size:12px;margin-bottom:7px;padding-bottom:6px}.report-table-head{font-size:8px;padding:5px 7px}.report-line{font-size:9.5px;line-height:1.3;padding:6px 7px}.report-exam-card{padding:6px 8px;margin:5px 0}.report-exam-comparison .report-line{font-size:8px;padding:4px}.report-exam-comparison .report-line strong{font-size:8px}.report-empty,.report-note{font-size:8.5px;line-height:1.35}.report-note{margin-top:6px;padding-top:5px}.lesson-rating-card{padding:8px;margin:6px 0}.lesson-rating-average{padding:6px 0}.lesson-rating-average strong{font-size:17px}.lesson-rating-subject{padding:4px 2px;font-size:9px}.lesson-rating-teacher-note{font-size:8.5px;padding:5px 7px}.report-footer{margin-top:12px;font-size:9px;padding:9px 12px 4px}.report-footer>div{margin:16px 10px 10px}.report-footer small{font-size:8px}.report-head,.report-section,.report-metric,.report-exam-card,.lesson-rating-card,.report-line{break-inside:avoid;page-break-inside:avoid}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+content.innerHTML+'</body></html>');
+ win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Öğrenci Gelişim Karnesi</title><style>*{box-sizing:border-box} :root{color-scheme:light} body{font-family:Arial,"Helvetica Neue",sans-serif;color:#253449;margin:0;padding:24px;background:#f5f6f8;font-size:12px;line-height:1.5} #parentReport{max-width:900px;margin:0 auto;background:#fff;padding:22px;border:1px solid #e6e8ec;box-shadow:0 12px 40px rgba(22,39,60,.08)} .report-head{position:relative;overflow:hidden;background:linear-gradient(135deg,#172b45 0%,#263e5b 58%,#344b63 100%);color:#fff;padding:32px 34px 28px;border:1px solid #354b63;border-radius:15px;border-bottom:5px solid #c6ad83;box-shadow:0 8px 20px rgba(20,39,62,.12)} .report-head:after{content:"";position:absolute;width:230px;height:230px;border:1px solid rgba(220,199,163,.22);border-radius:50%;right:-72px;top:-108px;box-shadow:0 0 0 18px rgba(220,199,163,.04),0 0 0 38px rgba(220,199,163,.035)} .report-brand{position:relative;z-index:1;font-size:13px;font-weight:800;letter-spacing:2px;color:#fff} .report-brand small{display:block;font-size:9px;letter-spacing:1.7px;margin-top:6px;color:#d8e0e8;font-weight:500} .report-tag{position:relative;z-index:1;display:inline-block;font-size:9px;letter-spacing:2.2px;color:#e5d2ad;margin-top:28px;padding:6px 10px;border:1px solid rgba(229,210,173,.38);border-radius:20px} .report-head h2{position:relative;z-index:1;font-family:Georgia,serif;font-weight:600;font-size:30px;letter-spacing:.2px;margin:12px 0 5px;color:#fff} .report-head p{position:relative;z-index:1;font-size:11px;color:#dce4ec;margin:0;letter-spacing:.3px} .report-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0} .report-metric{background:linear-gradient(180deg,#fff 0%,#fbfaf7 100%);border:1px solid #e8e5df;border-top:3px solid #bda77f;border-radius:10px;padding:13px 14px;box-shadow:0 2px 7px rgba(35,48,65,.035)} .report-metric small{display:block;color:#778294;font-size:10px;letter-spacing:.25px} .report-metric b{display:block;color:#1d3551;font-size:22px;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums} .report-section{background:#fff;border:1px solid #e4e8ed;border-radius:11px;padding:16px 17px;margin:13px 0;break-inside:avoid;box-shadow:0 3px 10px rgba(25,44,65,.035)} .report-section h3{font-family:Georgia,serif;font-size:15px;color:#1c3551;margin:0 0 12px;border-bottom:1px solid #e9e4da;padding-bottom:9px;letter-spacing:.15px} .report-table-head,.report-line{display:grid;grid-template-columns:1.1fr 2fr .8fr;gap:10px;align-items:center} .report-table-head{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#8a795e;font-weight:700;padding:8px 10px;background:#f7f5f0;border-radius:6px} .report-line{font-size:11px;line-height:1.5;padding:9px 10px;border-bottom:1px solid #edf0f3} .report-line:last-child{border-bottom:0} .report-exam-card{border:1px solid #e4e8ed;border-left:3px solid #c1aa80;border-radius:9px;padding:10px 11px;margin:9px 0;background:#fdfdfc;break-inside:avoid} .report-exam-comparison{padding-left:7px} .report-exam-comparison .report-line{grid-template-columns:.9fr 1.3fr 1.8fr;font-size:10px;padding:7px} .report-exam-comparison .report-line strong{font-size:10px} .report-exam-comparison .exam-compare-status{display:inline-block;margin-left:4px;font-size:9px} .report-exam-card>.report-note{margin-top:6px} .report-line span{color:#687588} .report-line strong{text-align:right;color:#213c59;font-variant-numeric:tabular-nums} .report-empty,.report-note{font-size:10px;line-height:1.6;color:#718096} .report-note{margin:11px 0 0;padding-top:9px;border-top:1px dashed #d9dfe6} .lesson-rating-card{border:1px solid #e4e8ed;border-radius:10px;padding:13px;margin:10px 0;background:#fcfcfb;break-inside:avoid} .lesson-rating-date{display:flex;justify-content:space-between;align-items:center;color:#213c59;padding-bottom:9px;border-bottom:1px solid #e8e4dc} .lesson-rating-date span,.lesson-rating-subject-title{font-size:9px;letter-spacing:1px;color:#927d5c;font-weight:700} .lesson-rating-average{display:flex;justify-content:space-between;align-items:center;padding:10px 0;color:#667487;font-size:10px} .lesson-rating-average strong{font-size:21px;color:#1d3551} .lesson-rating-subject{display:flex;justify-content:space-between;padding:6px 2px;border-bottom:1px solid #edf0f3;font-size:10px} .lesson-rating-subject b{color:#263f5b} .lesson-rating-teacher-note{font-size:10px;color:#5e6b7c;padding:7px 9px;background:#f5f3ee;border-left:2px solid #c1aa80} .report-footer{margin-top:24px;padding:14px 18px 6px;text-align:center;color:#526174;font-size:11px;line-height:1.6;border-top:1px solid #e8e4dc} .report-footer>div{display:flex;justify-content:space-between;margin:28px 15px 18px;color:#1d3551} .report-footer>div span{width:34%;border-top:1px solid #b8aa91;padding-top:8px} .report-footer small{font-size:9px;color:#8792a0;letter-spacing:.2px} @page{size:A4 portrait;margin:8mm} @media print{html,body{width:100%;height:auto;margin:0;padding:0;background:#fff}#parentReport{max-width:none;margin:0;padding:0;border:0;box-shadow:none}body{font-size:10.5px}.report-head{padding:20px 23px;border-radius:10px;border-bottom-width:4px}.report-head:after{width:170px;height:170px;right:-60px;top:-90px}.report-tag{margin-top:17px}.report-head h2{font-size:24px;margin:8px 0 4px}.report-overview{gap:7px;margin:10px 0}.report-metric{padding:8px 10px;border-radius:7px}.report-metric small{font-size:8.5px}.report-metric b{font-size:18px;margin-top:3px}.report-section{padding:10px 12px;margin:8px 0;border-radius:8px}.report-section h3{font-size:12px;margin-bottom:7px;padding-bottom:6px}.report-table-head{font-size:8px;padding:5px 7px}.report-line{font-size:9.5px;line-height:1.3;padding:6px 7px}.report-exam-card{padding:6px 8px;margin:5px 0}.report-exam-comparison .report-line{font-size:8px;padding:4px}.report-exam-comparison .report-line strong{font-size:8px}.report-empty,.report-note{font-size:8.5px;line-height:1.35}.report-note{margin-top:6px;padding-top:5px}.lesson-rating-card{padding:8px;margin:6px 0}.lesson-rating-average{padding:6px 0}.lesson-rating-average strong{font-size:17px}.lesson-rating-subject{padding:4px 2px;font-size:9px}.lesson-rating-teacher-note{font-size:8.5px;padding:5px 7px}.report-footer{margin-top:12px;font-size:9px;padding:9px 12px 4px}.report-footer>div{margin:16px 10px 10px}.report-footer small{font-size:8px}.report-head,.report-section,.report-metric,.report-exam-card,.lesson-rating-card,.report-line{break-inside:avoid;page-break-inside:avoid}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* Değirmenlikızık Proje — premium visual refresh (presentation-only layer) */
+:root{
+ --navy:#183451;--burgundy:#87384e;--bg:#f7f8fa;--ink:#202c3b;
+ --muted:#758295;--line:#e7eaf0;--paper:#fff;
+ --shadow-soft:0 10px 30px rgba(24,52,81,.055);
+ --shadow-hover:0 16px 38px rgba(24,52,81,.10);
+}
+html{scroll-behavior:smooth}
+body{
+ background:linear-gradient(180deg,#fbfcfd 0%,#f3f5f8 100%);
+ color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+}
+body:before{
+ content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+ background:url("dorm.jpg") center 42%/min(760px,82vw) auto no-repeat;
+ opacity:.025;
+}
+.top{
+ position:relative;isolation:isolate;overflow:hidden;
+ background:linear-gradient(105deg,rgba(20,45,78,.97),rgba(35,60,88,.91)),url("dorm.jpg") center 42%/cover;
+ padding:20px clamp(16px,3vw,34px);box-shadow:0 8px 28px rgba(20,45,78,.14);
+}
+.top:after{
+ content:"";position:absolute;right:-55px;top:-110px;width:300px;height:300px;
+ border:1px solid rgba(255,255,255,.13);border-radius:50%;z-index:-1;
+ box-shadow:0 0 0 28px rgba(255,255,255,.025),0 0 0 58px rgba(255,255,255,.02);
+}
+.mark{background:linear-gradient(145deg,#91445b,#6e263d);border:1px solid rgba(255,255,255,.16);box-shadow:0 5px 16px #0002;letter-spacing:.2px}
+main{max-width:1180px;padding:clamp(16px,2.5vw,30px)}
+.card,.stat{
+ border:1px solid rgba(222,228,236,.9);border-radius:18px;
+ box-shadow:var(--shadow-soft);transition:box-shadow .18s ease,border-color .18s ease,transform .18s ease;
+}
+.card{padding:clamp(16px,2vw,22px);margin:15px 0}
+.card:hover,.stat:hover{box-shadow:var(--shadow-hover);border-color:#d7dee8}
+h1{font-size:clamp(25px,3vw,32px);letter-spacing:-.65px;color:#172f4b}
+h2{font-size:clamp(18px,2vw,21px);letter-spacing:-.25px;color:#203b59}
+h3{color:#203b59}
+.eyebrow{letter-spacing:1.8px;color:var(--burgundy)}
+.tabs{gap:8px;padding:7px 0 14px;scrollbar-width:thin}
+.tab{border-radius:12px!important;padding:11px 15px!important;font-weight:700;transition:all .16s ease}
+.tab:not(.on):hover{background:#f4f6f9;border-color:#d6deea;color:var(--navy)}
+.tab.on{background:linear-gradient(135deg,#183451,#294c70);box-shadow:0 5px 14px rgba(24,52,81,.16)}
+button{border-radius:11px;transition:filter .15s ease,transform .15s ease,box-shadow .15s ease}
+button:not(:disabled):hover{filter:brightness(1.045);box-shadow:0 5px 13px rgba(24,52,81,.12)}
+button:not(:disabled):active{transform:translateY(1px)}
+input,select,textarea{border:1px solid #dce3ec;border-radius:11px;transition:border-color .15s ease,box-shadow .15s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#8b9fb8;box-shadow:0 0 0 3px rgba(24,52,81,.08)}
+.stat{background:linear-gradient(160deg,#fff,#fbfcfe);padding:16px}
+.stat strong{letter-spacing:-.7px;color:var(--navy)}
+.entry{padding:14px 2px}
+.modal{border:1px solid #e7ebf1;box-shadow:0 24px 80px rgba(15,31,49,.22)}
+.secondary{background:#edf2f7;color:#24415f}
+.muted,small{line-height:1.55}
+@media(max-width:700px){
+ .top{padding:16px}
+ main{padding:14px 12px}
+ .tabs{margin-left:-2px;margin-right:-2px}
+ .tab{font-size:12px;padding:9px 11px!important}
+ .card{border-radius:15px;padding:15px;margin:11px 0}
+ .stat{border-radius:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{scroll-behavior:auto!important;transition:none!important}
+}
+
+
+/* Dashboard layout */
+.dashboard-welcome{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:9px 3px 18px}
+.dashboard-welcome h2{font-size:clamp(24px,3vw,30px);margin:6px 0;color:#183451}
+.dashboard-welcome p{margin:0;color:#758295;font-size:13px}
+.dashboard-date{flex:0 0 auto;padding:9px 13px;border:1px solid #e3e8ef;background:#fff;border-radius:11px;color:#526174;font-size:12px;font-weight:700;text-transform:capitalize}
+.dashboard-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.dashboard-stats .stat{min-width:0;position:relative;overflow:hidden;padding:17px 18px;border-radius:16px}
+.dashboard-stats .stat:after{content:"";position:absolute;right:-22px;bottom:-38px;width:90px;height:90px;border-radius:50%;background:rgba(135,56,78,.055)}
+.dashboard-stats .stat small{display:block;color:#758295;font-size:11px;font-weight:700}
+.dashboard-stats .stat strong{display:block;font-size:25px;margin-top:7px;color:#183451;overflow-wrap:anywhere}
+.dashboard-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;align-items:stretch}
+.dashboard-lower{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.dashboard-grid .card{margin:0;min-width:0}
+.dashboard-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.dashboard-card-head h3{font-size:17px;margin:5px 0 0;color:#203b59}
+.dashboard-icon{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:12px;background:#f5edf0;color:#87384e;font-size:20px}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.quick-actions button{min-height:46px}
+.text-action{padding:7px 0;min-height:36px;background:transparent;color:#87384e;box-shadow:none!important;font-size:12px}
+.dashboard-plan #todayPlan .entry{padding:11px 2px}
+.dashboard-plan #todayPlan .entry:first-child{padding-top:2px}
+#studyAlerts .entry{padding:10px 2px}
+@media(max-width:760px){
+ .dashboard-welcome{align-items:flex-start;flex-direction:column;gap:10px}
+ .dashboard-date{align-self:flex-start}
+ .dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .dashboard-stats .stat{padding:13px}
+ .dashboard-stats .stat strong{font-size:22px}
+ .dashboard-grid,.dashboard-lower{grid-template-columns:1fr;gap:11px}
+ .quick-actions{grid-template-columns:1fr 1fr}
+}
+@media(max-width:380px){.quick-actions{grid-template-columns:1fr}.dashboard-stats .stat strong{font-size:20px}}
+
+
+/* Weekly reporting workspace */
+.weekly-report-hero{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 25px;margin:2px 0 14px;border-radius:19px;background:linear-gradient(112deg,#172f4b,#2d4d6c);color:#fff;position:relative;overflow:hidden}
+.weekly-report-hero:after{content:"";position:absolute;right:-60px;top:-110px;width:250px;height:250px;border:1px solid #ffffff24;border-radius:50%;box-shadow:0 0 0 25px #ffffff08,0 0 0 50px #ffffff06}
+.weekly-report-hero .eyebrow{color:#e2c9a4}
+.weekly-report-hero h2{color:#fff;font-family:Georgia,serif;font-size:27px;margin:8px 0}
+.weekly-report-hero p{color:#e0e7ef;font-size:13px;margin:0;max-width:600px}
+.weekly-report-seal{flex:0 0 88px;width:88px;height:88px;display:grid;place-content:center;text-align:center;border:1px solid #d7bb83;border-radius:50%;color:#f0d7a5;font-size:9px;letter-spacing:1.5px;line-height:1.7;z-index:1}
+.weekly-report-seal b{font-family:Georgia,serif;font-size:15px}
+.weekly-report-controls{margin:0 0 15px}
+.weekly-report-control-title{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.weekly-report-control-title b,.weekly-report-control-title small{display:block}
+.weekly-report-control-title b{font-size:14px;color:#203b59}
+.weekly-report-control-title small{font-size:11px;color:#758295;margin-top:3px}
+.weekly-report-hint{font-size:11px;color:#758295;margin:12px 0 2px;padding:10px 12px;background:#f7f8fa;border-radius:9px}
+.weekly-report-output{min-width:0}
+.weekly-empty-state{display:grid;justify-items:center;text-align:center;gap:7px;padding:38px 15px;border:1px dashed #d9e0e8;border-radius:16px;background:#fff;color:#526174}
+.weekly-empty-state>span{font-size:28px;color:#87384e}
+.weekly-empty-state b{color:#203b59;font-size:14px}
+.weekly-empty-state p{margin:0;font-size:12px;color:#758295}
+.weekly-group-line{grid-template-columns:1.2fr 1.6fr .9fr}
+@media(max-width:650px){
+ .weekly-report-hero{padding:19px;align-items:flex-start}
+ .weekly-report-hero h2{font-size:23px}
+ .weekly-report-seal{width:68px;height:68px;flex-basis:68px;font-size:8px}
+ .weekly-group-line{grid-template-columns:1fr 1fr}
+ .weekly-group-line strong{grid-column:1/-1;text-align:left!important}
+}
+
+</style></head><body>'+content.innerHTML+'</body></html>');
  win.document.close();win.focus();setTimeout(()=>win.print(),400);
 }
 
@@ -1263,7 +1588,7 @@ function openStudentDetail(id){
  const exams=cache.exams.filter(x=>x.student_id===id).sort((a,b)=>String(b.exam_date||b.created_at||'').localeCompare(String(a.exam_date||a.created_at||'')));
  const target=cache.targets.find(x=>x.student_id===id);
  const subjects=[['Türkçe','turkish',20],['Matematik','math',20],['Fen Bilimleri','science',20],['İnkılap','revolution',10],['Din Kültürü','religion',10],['İngilizce','english',10]];
- const q=work.reduce((n,x)=>n+Number(x.total_questions||0),0),c=work.reduce((n,x)=>n+Number(x.correct||0),0),w=work.reduce((n,x)=>n+Number(x.wrong||0),0);
+ const c=work.reduce((n,x)=>n+Number(x.correct||0),0),w=work.reduce((n,x)=>n+Number(x.wrong||0),0),workNet=work.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
  const workHtml=work.length?work.map(x=>row(x.subject||'Etüt',String(x.recorded_on||''),Number(x.correct||0)+' doğru • '+Number(x.wrong||0)+' yanlış • '+Number(x.net||0).toFixed(2)+' net')).join(''):'<p class="muted">Henüz etüt kaydı yok.</p>';
  const examHtml=exams.length?exams.map(e=>row(e.name||'Deneme',e.exam_date||'Tarih yok',Number(e.net||0).toFixed(2)+' net')).join(''):'<p class="muted">Henüz deneme kaydı yok.</p>';
  const targetHtml=target?subjects.map(([n,k])=>row(n,'Doğru hedefi: '+Number(target[k+'_correct_target']||0)+' • Yanlış hedefi: '+Number(target[k+'_wrong_target']||0),'Net hedefi: '+Number(target[k+'_net_target']||0).toFixed(2))).join(''):'<p class="muted">Henüz öğrenci hedefi belirlenmedi.</p>';
@@ -1293,8 +1618,19 @@ function openStudentDetail(id){
   const evaluation='<p><b>Öğretmen değerlendirmesi:</b> Son deneme toplamı '+total.toFixed(2).replace('.',',')+' net. '+(strong.length?'Güçlü dersler: '+strong.map(x=>x.name).join(', ')+'. ':'')+(weak.length?'Öncelikli gelişim alanları: '+weak.map(x=>x.name).join(', ')+'. ':'')+'Öneri: '+advice+'. Sonraki denemede bu derslerin net değişimi yeniden kontrol edilmeli.</p>';
   return '<div class="card"><h3>Güçlü yönler</h3>'+strongHtml+'</div><div class="card"><h3>Geliştirilmesi gereken dersler</h3>'+weakHtml+'</div><div class="card"><h3>Öğretmen değerlendirmesi ve öneri</h3>'+evaluation+'<p class="muted">Otomatik değerlendirme son deneme netleri ve önceki denemeyle karşılaştırma üzerinden oluşturulur; öğretmenin bireysel gözleminin yerine geçmez.</p></div>';
  })():'<div class="card"><h3>Güçlü yönler ve öğretmen değerlendirmesi</h3><p class="muted">Bu değerlendirme için önce en az bir deneme sonucu girilmelidir.</p></div>';
- $('studentDetailContent').innerHTML='<div class="card"><h3>Öğrenci bilgileri</h3>'+row('Ad Soyad',s.full_name,'Sınıf: '+s.grade)+'</div><div class="card"><h3>Etüt Takibi özeti</h3><div class="stats"><div class="stat"><small>Etüt kaydı</small><strong>'+work.length+'</strong></div><div class="stat"><small>Çözülen soru</small><strong>'+q+'</strong></div><div class="stat"><small>Doğru / Yanlış</small><strong>'+c+' / '+w+'</strong></div></div>'+workHtml+'</div><div class="card"><h3>Ders ders başarı ve net gelişimi</h3>'+performanceHtml+'</div>'+insightHtml+'<div class="card"><h3>Deneme sonuçları</h3>'+examHtml+'</div><div class="card"><h3>Öğrenci hedefleri</h3>'+targetHtml+'</div><div class="card"><h3>Haftalık rapor</h3><p class="muted">Bu öğrenci için tarih aralığı seçerek haftalık rapor oluşturabilirsin.</p><button type="button" class="full" onclick="openStudentWeeklyReport(\''+id+'\')">Bu öğrencinin raporunu aç</button></div>';
+ $('studentDetailContent').innerHTML='<div class="report-actions student-card-actions"><span>Veliyle paylaşılabilir gelişim karnesi</span><button type="button" data-student-id="'+safe(id)+'" onclick="printStudentProgressCard(this.dataset.studentId)">Karnesini PDF hazırla</button></div><div class="card"><h3>Öğrenci bilgileri</h3>'+row('Ad Soyad',s.full_name,'Sınıf: '+s.grade)+'</div><div class="card"><h3>Etüt Takibi özeti</h3><div class="stats"><div class="stat"><small>Toplam doğru</small><strong>'+c+'</strong></div><div class="stat"><small>Toplam yanlış</small><strong>'+w+'</strong></div><div class="stat"><small>Toplam net</small><strong>'+workNet.toFixed(2).replace('.',',')+'</strong></div></div><p class="muted">Etüt kaydı: '+work.length+'</p>'+workHtml+'</div><div class="card"><h3>Ders ders başarı ve net gelişimi</h3>'+performanceHtml+'</div>'+insightHtml+'<div class="card"><h3>Deneme sonuçları</h3>'+examHtml+'</div><div class="card"><h3>Öğrenci hedefleri</h3>'+targetHtml+'</div><div class="card"><h3>Haftalık rapor</h3><p class="muted">Bu öğrenci için tarih aralığı seçerek haftalık rapor oluşturabilirsin.</p><button type="button" class="full" onclick="openStudentWeeklyReport(\''+id+'\')">Bu öğrencinin raporunu aç</button></div>';
  show('studentDetail',document.querySelector('.tabs .tab:nth-child(2)'));
+}
+function printStudentProgressCard(id){
+ const student=cache.students.find(x=>x.id===id),content=$('studentDetailContent');
+ if(!student||!content){alert('Öğrenci karnesi hazırlanamadı.');return}
+ const win=window.open('','_blank');if(!win){alert('Karnenin yazdırma penceresi açılamadı. Açılır pencere iznini kontrol edin.');return}
+ const printable=content.cloneNode(true);
+ printable.querySelectorAll('.student-card-actions,button').forEach(x=>x.remove());
+ win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+safe(student.full_name)+' · Gelişim Karnesi</title><style>*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{margin:0;padding:18px;background:#f4f6f8;color:#253449;font:12px/1.5 Arial,sans-serif}.sheet{max-width:900px;margin:0 auto;background:#fff;padding:22px;border:1px solid #e3e7ec}.grade-banner{padding:24px 26px;background:linear-gradient(120deg,#172f4b,#34516f);border-bottom:5px solid #bda77f;color:#fff;border-radius:12px;margin-bottom:14px}.grade-banner small{display:block;color:#e6d9c1;letter-spacing:1.6px;font-size:9px}.grade-banner h1{font:600 27px Georgia,serif;margin:9px 0 4px;color:#fff}.grade-banner p{margin:0;color:#e1e8ef;font-size:11px}.card{border:1px solid #e3e7ec;border-radius:10px;padding:14px 16px;margin:10px 0;break-inside:avoid}.card h3{font:600 14px Georgia,serif;color:#1c3855;margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid #e8e2d7}.entry{padding:7px 4px;border-bottom:1px solid #edf0f3}.entry:last-child{border:0}.entry small{display:block;color:#718096;font-size:10px;margin-top:2px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:9px 0}.stat{background:#f6f7f9;border:1px solid #e5e9ee;border-top:2px solid #87384e;border-radius:8px;padding:9px}.stat small{display:block;color:#758295;font-size:9px}.stat strong{display:block;font-size:18px;color:#183451;margin-top:3px}.work-table{width:100%;border-collapse:collapse;font-size:10px}.work-table th,.work-table td{padding:7px 6px;border-bottom:1px solid #e7ebef;text-align:center}.work-table th{background:#f2f4f7;color:#41556b}.work-table .work-name{text-align:left}.muted{color:#758295;font-size:10px}.grade-footer{margin-top:16px;padding:14px 5px;border-top:1px solid #d9e0e8;text-align:center;color:#657487;font-size:10px}.grade-footer div{display:flex;justify-content:space-between;margin-top:22px}.grade-footer span{width:30%;border-top:1px solid #aab4c0;padding-top:6px}@page{size:A4 portrait;margin:9mm}@media print{body{padding:0;background:#fff}.sheet{max-width:none;padding:0;border:0}.card{padding:10px 12px;margin:7px 0}.grade-banner{padding:18px 22px}.grade-banner h1{font-size:23px}.stats{gap:6px}.stat{padding:7px}.stat strong{font-size:16px}}
+
+</style></head><body><main class="sheet"><header class="grade-banner"><small>DEĞİRMENLİKIZIK PROJE · EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small><h1>Öğrenci Gelişim Karnesi</h1><p>'+safe(student.full_name)+' · '+safe(student.grade||'')+' · '+new Date().toLocaleDateString('tr-TR')+'</p></header>'+printable.innerHTML+'<footer class="grade-footer">Öğrencimizin gayreti ve gelişimi bizim için kıymetlidir.<div><span>Öğretmen imzası</span><span>Veli imzası</span></div></footer></main><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>');
+ win.document.close();
 }
 function openStudentWeeklyReport(id){
  $('rs').value=id;setDefaultReportDates();show('reports',document.querySelector('.tabs .tab:nth-child(5)'));makeReport();
