@@ -609,7 +609,21 @@ body>header.top small{font-size:11px;letter-spacing:.09em;text-transform:upperca
 <div id="bulkCompareSummary" class="stats"></div><div id="bulkExamTargetComparison"><p class="muted">Karşılaştırmak için deneme seçin.</p></div></div>
 <div class="card"><h3>Bireysel Hedef – Netice Kıyaslama</h3><label for="compareStudent">Öğrenci</label><select id="compareStudent" onchange="renderExamTargetComparison()"><option value="">Öğrenci seçin</option></select><div id="examTargetComparison"><p class="muted">Kıyaslama için öğrenci seçin.</p></div></div></section></div>
 
-<div id="reports" class="page"><h2>Haftalık rapor</h2><div class="card"><div class="grid"><div><label>Öğrenci</label><select id="rs"><option value="">Öğrenci seçin</option></select></div><div><label>Başlangıç tarihi</label><input id="reportFrom" type="date"></div><div><label>Bitiş tarihi</label><input id="reportTo" type="date"></div></div><p class="muted">Varsayılan olarak içinde bulunulan haftanın Pazartesi–Pazar tarihleri seçilir. İstersen tarih aralığını değiştirebilirsin.</p><button class="full" onclick="makeReport()">Raporu oluştur</button></div><div class="card" id="reportout"><p class="muted">Öğrenci ve tarih aralığı seçerek rapor oluşturun.</p></div></div>
+<div id="reports" class="page weekly-report-hub">
+ <div class="weekly-report-hero"><div><div class="eyebrow">PERFORMANS VE GELİŞİM MERKEZİ</div><h2>Haftalık Raporlama</h2><p>Grubun genel ilerlemesini veya seçilen öğrencinin ayrıntılı gelişim karnesini inceleyin.</p></div><div class="weekly-report-seal">HAFTALIK<br><b>RAPOR</b></div></div>
+ <div class="weekly-report-controls card">
+  <div class="weekly-report-control-title"><span class="dashboard-icon">▤</span><div><b>Rapor kapsamını belirle</b><small>Grup veya öğrenci bazlı rapor hazırlayın</small></div></div>
+  <div class="grid">
+   <div><label for="reportScope">RAPOR TÜRÜ</label><select id="reportScope" onchange="toggleWeeklyReportScope()"><option value="group">Grup raporu</option><option value="student">Öğrenci raporu</option></select></div>
+   <div id="weeklyStudentPicker" class="hide"><label for="rs">ÖĞRENCİ</label><select id="rs"><option value="">Öğrenci seçin</option></select></div>
+   <div><label for="reportFrom">BAŞLANGIÇ TARİHİ</label><input id="reportFrom" type="date"></div>
+   <div><label for="reportTo">BİTİŞ TARİHİ</label><input id="reportTo" type="date"></div>
+  </div>
+  <div class="weekly-report-hint">Varsayılan tarih aralığı içinde bulunulan haftadır. İhtiyacınıza göre tarihleri değiştirebilirsiniz.</div>
+  <button class="full" type="button" onclick="createWeeklyReport()">Raporu oluştur</button>
+ </div>
+ <div class="weekly-report-output" id="reportout"><div class="weekly-empty-state"><span>✦</span><b>Raporunuz burada hazırlanacak</b><p>Rapor türünü ve tarih aralığını seçerek başlayın.</p></div></div>
+</div>
 <div id="dailyReports" class="page daily-report-hub"><div class="daily-hub-hero"><div class="daily-hub-brand"><span class="daily-hub-emblem">✦</span><div><strong>DEĞİRMENLİKIZIK PROJE</strong><small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div></div><div class="daily-hub-title"><div><span class="daily-kicker">PERFORMANS MERKEZİ</span><h2>Günlük Raporlama</h2><p>Grubun genel gelişimini inceleyin veya tek bir öğrencinin günlük performansını ayrıntılı görüntüleyin.</p></div><div class="daily-hub-mark">RAPOR<br><b>01</b></div></div></div><div class="daily-workspace"><div class="daily-control-panel"><div class="daily-control-heading"><span class="daily-step">01</span><div><b>Rapor tarihini belirle</b><small>Raporlanacak günü seçin</small></div></div><label for="dailyReportDate">RAPOR TARİHİ</label><input id="dailyReportDate" type="date" onchange="clearDailyReports()"><div class="daily-date-hint">Seçilen tarihteki kayıtlar otomatik olarak hesaplanır.</div></div><div class="daily-report-choice"><article class="daily-choice-card daily-group-choice"><div class="daily-choice-icon">▦</div><span class="daily-choice-overline">TOPLU DEĞERLENDİRME</span><h3>Grup Raporu</h3><p>Öğrencilerin günlük etüt verilerini, toplam sonuçları ve grup içi performans dağılımını tek raporda inceleyin.</p><button type="button" onclick="makeDailyReport()">Grup raporunu oluştur <span>→</span></button></article><article class="daily-choice-card daily-student-choice"><div class="daily-choice-icon">♙</div><span class="daily-choice-overline">KİŞİYE ÖZEL DEĞERLENDİRME</span><h3>Öğrenci Raporu</h3><p>Bir öğrenci seçin; yalnızca o öğrenciye ait etüt, ders performansı ve devam bilgilerini görüntüleyin.</p><label for="dailyReportStudent">ÖĞRENCİ SEÇİN</label><select id="dailyReportStudent"><option value="">Öğrenci seçin</option></select><button type="button" onclick="makeIndividualDailyReport()">Bireysel raporu oluştur <span>→</span></button></article></div></div><div class="daily-output-heading"><span>RAPOR ÇIKTILARI</span><small>Oluşturduğunuz raporlar burada görüntülenir.</small></div><div id="dailyGroupReportOutput"></div><div id="dailyIndividualReportOutput"></div></div>
 <div id="studentModal" class="modal-backdrop hide" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
  <form class="modal" onsubmit="saveStudent(event)">
@@ -1242,6 +1256,41 @@ function printDailyReport(elementId){
 @media(max-width:560px){.daily-reference-page{padding:12px}.daily-reference-header{padding:20px 17px;min-height:175px}.daily-reference-metric{padding:9px 8px;min-height:62px}.daily-reference-metric b{font-size:17px}.daily-reference-tr,.daily-reference-thead{gap:4px;padding-left:6px;padding-right:6px;font-size:8px}}`;
  win.document.write('<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Günlük Rapor</title><style>'+styles+'</style></head><body>'+content.innerHTML+'</body></html>');win.document.close();win.focus();setTimeout(()=>win.print(),350);
 }
+function toggleWeeklyReportScope(){
+ const scope=$('reportScope')?.value||'group';
+ const picker=$('weeklyStudentPicker');if(picker)picker.classList.toggle('hide',scope!=='student');
+}
+function createWeeklyReport(){
+ if(($('reportScope')?.value||'group')==='student')makeReport();
+ else makeWeeklyGroupReport();
+}
+function makeWeeklyGroupReport(){
+ const from=$('reportFrom').value,to=$('reportTo').value;
+ if(!from||!to||from>to){alert('Geçerli bir başlangıç ve bitiş tarihi seçin.');return}
+ const inRange=d=>{const day=String(d||'').slice(0,10);return day>=from&&day<=to};
+ const students=cache.students.map(st=>{
+  const work=cache.work.filter(x=>x.student_id===st.id&&inRange(x.recorded_on)&&hasStudyData(x)&&x.session_label&&!String(x.session_label).toLocaleLowerCase('tr-TR').includes('serbest'));
+  const exams=cache.exams.filter(x=>x.student_id===st.id&&inRange(x.exam_date||x.created_at));
+  const books=cache.books.filter(x=>x.student_id===st.id&&inRange(x.recorded_on||x.created_at));
+  const attendance=cache.attendance.filter(x=>x.student_id===st.id&&inRange(x.attendance_date));
+  const correct=work.reduce((n,x)=>n+Number(x.correct||0),0),wrong=work.reduce((n,x)=>n+Number(x.wrong||0),0);
+  const net=work.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
+  const examNet=exams.reduce((n,x)=>n+Number(x.net||0),0);
+  return {st,work,exams,books,attendance,correct,wrong,net,examNet,hasData:work.length+exams.length+books.length+attendance.length>0};
+ });
+ const active=students.filter(x=>x.hasData),fmt=n=>Number(n||0).toFixed(2).replace('.',',');
+ const totalWork=active.reduce((n,x)=>n+x.work.length,0),totalCorrect=active.reduce((n,x)=>n+x.correct,0),totalWrong=active.reduce((n,x)=>n+x.wrong,0);
+ const totalNet=active.reduce((n,x)=>n+x.net,0),totalExams=active.reduce((n,x)=>n+x.exams.length,0),totalExamNet=active.reduce((n,x)=>n+x.examNet,0);
+ const groupRows=students.map((x,i)=>'<div class="report-line weekly-group-line"><b>'+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'—')+' · '+x.work.length+' etüt · '+x.exams.length+' deneme</span><strong>'+(x.hasData?'Etüt '+fmt(x.net)+' net':'Veri girişi yok')+'</strong></div>').join('');
+ const metric=(label,value)=>'<div class="report-metric"><small>'+label+'</small><b>'+value+'</b></div>';
+ const section=(title,content)=>'<section class="report-section"><h3>'+title+'</h3>'+content+'</section>';
+ const html='<div class="report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">GRUP BAZLI HAFTALIK RAPOR</div><h2>Öğrenci Grubu</h2><p>Rapor dönemi: '+from+' – '+to+' · Kayıtlı öğrenci: '+students.length+'</p></div>'+
+ '<div class="report-overview">'+metric('VERİ GİRİŞİ OLAN',active.length)+' '+metric('ETÜT KAYDI',totalWork)+' '+metric('ETÜT NETİ',fmt(totalNet))+' '+metric('DENEME SAYISI',totalExams)+' '+metric('DENEME NETİ',fmt(totalExamNet))+' '+metric('VERİ GİRİŞİ OLMAYAN',students.length-active.length)+'</div>'+
+ section('01 · ÖĞRENCİ BAZLI PERFORMANS','<div class="report-table-head"><span>ÖĞRENCİ</span><span>SINIF · ETÜT · DENEME</span><span>ETÜT NETİ</span></div>'+(groupRows||'<p class="report-empty">Kayıtlı öğrenci bulunmuyor.</p>')+'<p class="report-note">Bu dönemde toplam '+totalCorrect+' doğru, '+totalWrong+' yanlış ve '+fmt(totalNet)+' etüt neti kaydedildi. Etüt neti doğru − yanlış / 3 formülüyle hesaplanır.</p>')+
+ section('02 · GRUP TAKİP ÖZETİ','<div class="report-line"><b>Kitap okuma kayıtları</b><span>Grup toplamı</span><strong>'+active.reduce((n,x)=>n+x.books.length,0)+'</strong></div><div class="report-line"><b>Devam / devamsızlık kayıtları</b><span>Grup toplamı</span><strong>'+active.reduce((n,x)=>n+x.attendance.length,0)+'</strong></div><div class="report-line"><b>Deneme kayıt ortalaması</b><span>Kaydı bulunan denemeler</span><strong>'+(totalExams?fmt(totalExamNet/totalExams)+' net':'—')+'</strong></div>')+
+ '<div class="report-footer"><p>Her öğrencinin gayreti ayrı, gelişim yolculuğu kıymetlidir.</p><div><span>Öğretmen</span><span>Yönetim</span></div><small>Değirmenlikızık Proje · Grup bazlı haftalık değerlendirme</small></div>';
+ $('reportout').innerHTML='<div class="report-actions"><span>Grup raporu · '+active.length+' / '+students.length+' öğrenci</span><button type="button" onclick="printParentReport()">Grup Raporunu Yazdır / PDF Kaydet</button></div><div id="parentReport">'+html+'</div>';
+}
 function makeReport(){
  const id=$('rs').value;if(!id){alert('Öğrenci seçin.');return}
  const from=$('reportFrom').value,to=$('reportTo').value;if(!from||!to||from>to){alert('Geçerli bir başlangıç ve bitiş tarihi seçin.');return}
@@ -1386,6 +1435,35 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#8b9fb8;box-sh
  .quick-actions{grid-template-columns:1fr 1fr}
 }
 @media(max-width:380px){.quick-actions{grid-template-columns:1fr}.dashboard-stats .stat strong{font-size:20px}}
+
+
+/* Weekly reporting workspace */
+.weekly-report-hero{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 25px;margin:2px 0 14px;border-radius:19px;background:linear-gradient(112deg,#172f4b,#2d4d6c);color:#fff;position:relative;overflow:hidden}
+.weekly-report-hero:after{content:"";position:absolute;right:-60px;top:-110px;width:250px;height:250px;border:1px solid #ffffff24;border-radius:50%;box-shadow:0 0 0 25px #ffffff08,0 0 0 50px #ffffff06}
+.weekly-report-hero .eyebrow{color:#e2c9a4}
+.weekly-report-hero h2{color:#fff;font-family:Georgia,serif;font-size:27px;margin:8px 0}
+.weekly-report-hero p{color:#e0e7ef;font-size:13px;margin:0;max-width:600px}
+.weekly-report-seal{flex:0 0 88px;width:88px;height:88px;display:grid;place-content:center;text-align:center;border:1px solid #d7bb83;border-radius:50%;color:#f0d7a5;font-size:9px;letter-spacing:1.5px;line-height:1.7;z-index:1}
+.weekly-report-seal b{font-family:Georgia,serif;font-size:15px}
+.weekly-report-controls{margin:0 0 15px}
+.weekly-report-control-title{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.weekly-report-control-title b,.weekly-report-control-title small{display:block}
+.weekly-report-control-title b{font-size:14px;color:#203b59}
+.weekly-report-control-title small{font-size:11px;color:#758295;margin-top:3px}
+.weekly-report-hint{font-size:11px;color:#758295;margin:12px 0 2px;padding:10px 12px;background:#f7f8fa;border-radius:9px}
+.weekly-report-output{min-width:0}
+.weekly-empty-state{display:grid;justify-items:center;text-align:center;gap:7px;padding:38px 15px;border:1px dashed #d9e0e8;border-radius:16px;background:#fff;color:#526174}
+.weekly-empty-state>span{font-size:28px;color:#87384e}
+.weekly-empty-state b{color:#203b59;font-size:14px}
+.weekly-empty-state p{margin:0;font-size:12px;color:#758295}
+.weekly-group-line{grid-template-columns:1.2fr 1.6fr .9fr}
+@media(max-width:650px){
+ .weekly-report-hero{padding:19px;align-items:flex-start}
+ .weekly-report-hero h2{font-size:23px}
+ .weekly-report-seal{width:68px;height:68px;flex-basis:68px;font-size:8px}
+ .weekly-group-line{grid-template-columns:1fr 1fr}
+ .weekly-group-line strong{grid-column:1/-1;text-align:left!important}
+}
 
 </style></head><body>'+content.innerHTML+'</body></html>');
  win.document.close();win.focus();setTimeout(()=>win.print(),400);
