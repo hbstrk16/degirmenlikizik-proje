@@ -1373,7 +1373,7 @@ function dailySection(title,headers,rows,empty,footer){
 function makeDailyReport(){
  dailyReportHasBeenGenerated=true;
  const d=dailyReportData();if(!d)return;
- const {date,work,activeData,sum,fmt}=d;
+ const {date,work,books,activeData,sum,fmt}=d;
  const c=sum(work,'correct'),w=sum(work,'wrong'),b=sum(work,'blank'),n=work.reduce((v,x)=>v+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
  const avgNet=activeData.length?n/activeData.length:0,avgEtut=activeData.length?work.length/activeData.length:0;
  const groupRows=activeData.map((x,i)=>'<div class="daily-reference-tr"><b>'+(i+1)+'. '+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'—')+'</span><span>'+x.rows.length+'</span><span>'+x.c+' D / '+x.w+' Y / '+x.b+' B</span><strong>'+fmt(x.n)+'</strong></div>').join('');
