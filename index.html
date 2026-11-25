@@ -1342,6 +1342,25 @@ function setDailyReportDefaults(){
 }
 function hasStudyData(x){return Number(x.correct||0)>0||Number(x.wrong||0)>0||Number(x.blank||0)>0||Number(x.total_questions||0)>0||Math.abs(Number(x.net||0))>0;}
 function clearDailyReports(){ $('dailyGroupReportOutput').innerHTML='';$('dailyIndividualReportOutput').innerHTML=''; }
+function validateReportData(work=[],exams=[]){
+ for(const row of work){
+  const c=Number(row.correct||0),w=Number(row.wrong||0),b=Number(row.blank||0),total=Number(row.total_questions||0);
+  if(![c,w,b,total].every(Number.isInteger)||[c,w,b,total].some(v=>v<0)||c+w+b!==total)return 'Etüt kayıtlarından birinde soru toplamı veya doğru/yanlış/boş değerleri tutarsız. Kayıtları kontrol edin.';
+  const expected=c-w/3,stored=Number(row.net??expected);
+  if(!Number.isFinite(stored)||Math.abs(stored-expected)>0.011)return 'Etüt kayıtlarından birinde net hesabı tutarsız. Kayıtları kontrol edin.';
+ }
+ for(const exam of exams){
+  let expected=0;
+  for(const subject of examSubjects){
+   const c=Number(exam[subject.key+'_correct']||0),w=Number(exam[subject.key+'_wrong']||0);
+   if(![c,w].every(Number.isInteger)||c<0||w<0||c+w>subject.limit)return (exam.exam_name||exam.name||'Bir deneme')+' kaydında ders soru sayısı sınırı aşılmış veya sayı alanı hatalı.';
+   expected+=c-w/3;
+  }
+  const stored=Number(exam.total_net??exam.net??expected);
+  if(!Number.isFinite(stored)||Math.abs(stored-expected)>0.011)return (exam.exam_name||exam.name||'Bir deneme')+' kaydında toplam net ile ders sonuçları uyuşmuyor.';
+ }
+ return '';
+}
 function dailyReportData(){
  const date=$('dailyReportDate').value;if(!date){alert('Rapor tarihi seçin.');return null}
  const students=cache.students.slice().sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name),'tr'));
@@ -1382,6 +1401,7 @@ function makeDailyReport(){
  dailyReportHasBeenGenerated=true;
  const d=dailyReportData();if(!d)return;
  const {date,work,books,activeData,sum,fmt}=d;
+ const validationError=validateReportData(work);if(validationError){alert('Günlük rapor oluşturulamadı: '+validationError);return}
  const c=sum(work,'correct'),w=sum(work,'wrong'),b=sum(work,'blank'),n=work.reduce((v,x)=>v+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
  const avgNet=activeData.length?n/activeData.length:0,avgEtut=activeData.length?work.length/activeData.length:0;
  const groupRows=activeData.map((x,i)=>'<div class="daily-reference-tr"><b>'+(i+1)+'. '+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'—')+'</span><span>'+x.rows.length+'</span><span>'+x.c+' D / '+x.w+' Y / '+x.b+' B</span><strong>'+fmt(x.n)+'</strong></div>').join('');
@@ -1458,6 +1478,7 @@ function makeWeeklyGroupReport(){
   const examNet=exams.reduce((n,x)=>n+Number(x.net||0),0);
   return {st,work,exams,books,attendance,correct,wrong,blank,net,examNet,hasData:work.length+exams.length+books.length+attendance.length>0};
  });
+ const validationError=validateReportData(students.flatMap(x=>x.work),students.flatMap(x=>x.exams));if(validationError){alert('Grup raporu oluşturulamadı: '+validationError);return}
  const active=students.filter(x=>x.hasData),fmt=n=>Number(n||0).toFixed(2).replace('.',','),pct=(a,b)=>b?Math.round(a/b*100):0;
  const totalWork=students.reduce((n,x)=>n+x.work.length,0),totalCorrect=students.reduce((n,x)=>n+x.correct,0),totalWrong=students.reduce((n,x)=>n+x.wrong,0),totalBlank=students.reduce((n,x)=>n+x.blank,0);
  const totalNet=students.reduce((n,x)=>n+x.net,0),totalExams=students.reduce((n,x)=>n+x.exams.length,0),totalExamNet=students.reduce((n,x)=>n+x.examNet,0);
@@ -1494,6 +1515,7 @@ function makeReport(){
  const from=$('reportFrom').value,to=$('reportTo').value;if(!from||!to||from>to){alert('Geçerli bir başlangıç ve bitiş tarihi seçin.');return}
  const student=cache.students.find(s=>s.id===id),inRange=d=>{const day=String(d||'').slice(0,10);return day>=from&&day<=to};
  const work=cache.work.filter(x=>x.student_id===id&&inRange(x.recorded_on)&&hasStudyData(x)&&x.session_label&&!String(x.session_label).toLocaleLowerCase('tr-TR').includes('serbest')),exams=cache.exams.filter(x=>x.student_id===id&&inRange(x.exam_date||x.created_at)),books=cache.books.filter(x=>x.student_id===id&&inRange(x.recorded_on||x.created_at)),attendance=cache.attendance.filter(x=>x.student_id===id&&inRange(x.attendance_date));
+ const validationError=validateReportData(work,exams);if(validationError){alert('Öğrenci karnesi oluşturulamadı: '+validationError);return}
  const lessonRatings=(cache.saturdayRatings||[]).filter(x=>x.student_id===id&&inRange(x.lesson_date)).sort((a,b)=>String(a.lesson_date).localeCompare(String(b.lesson_date)));
  const wc=work.reduce((n,x)=>n+Number(x.correct||0),0),ww=work.reduce((n,x)=>n+Number(x.wrong||0),0),wn=wc-ww/3;
  const ec=exams.reduce((n,x)=>n+['turkish','math','science','revolution','religion','english'].reduce((a,k)=>a+Number(x[k+'_correct']||0),0),0),ew=exams.reduce((n,x)=>n+['turkish','math','science','revolution','religion','english'].reduce((a,k)=>a+Number(x[k+'_wrong']||0),0),0),en=exams.reduce((n,x)=>n+Number(x.net||0),0);
