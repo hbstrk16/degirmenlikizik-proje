@@ -1452,7 +1452,7 @@ function dailySection(title,headers,rows,empty,footer){
 function makeDailyReport(){
  dailyReportHasBeenGenerated=true;
  const d=dailyReportData();if(!d)return;
- const {date,work,books,activeData,sum,fmt}=d;
+ const {date,work,books,attendance,activeData,sum,fmt}=d;
  const validationError=validateReportData(work);if(validationError){alert('Günlük rapor oluşturulamadı: '+validationError);return}
  const c=sum(work,'correct'),w=sum(work,'wrong'),b=sum(work,'blank'),n=work.reduce((v,x)=>v+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
  const avgNet=activeData.length?n/activeData.length:0,avgEtut=activeData.length?work.length/activeData.length:0;
