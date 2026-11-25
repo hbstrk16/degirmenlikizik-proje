@@ -1424,29 +1424,31 @@ function makeIndividualDailyReport(){
  $('dailyIndividualReportOutput').innerHTML='<div class="report-actions"><span>'+safe(x.st.full_name)+' • Bireysel günlük rapor</span><button type="button" onclick="printDailyReport(\'dailyIndividualPrint\')">Öğrenci raporunu PDF kaydet</button></div><div id="dailyIndividualPrint" class="daily-report-document">'+report+'</div>';
 }
 function launchReportPrint(title,styles,bodyHTML){
- const html='<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title><style>'+styles+'</style></head><body>'+bodyHTML+'</body></html>';
- let win=null;
- try{win=window.open('','_blank')}catch(e){}
- if(win){
-  try{
-   win.document.open();win.document.write(html);win.document.close();
-   let printed=false;
-   const run=()=>{if(printed||win.closed)return;printed=true;try{win.focus();win.print()}catch(e){alert('Yazdırma başlatılamadı: '+(e.message||e))}};
-   win.onload=()=>setTimeout(run,250);
-   setTimeout(run,900);
-   return;
-  }catch(e){try{win.close()}catch(_){}}
- }
- const frame=document.createElement('iframe');
- frame.setAttribute('aria-hidden','true');
- frame.style.cssText='position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none';
- document.body.appendChild(frame);
- try{
-  frame.contentDocument.open();frame.contentDocument.write(html);frame.contentDocument.close();
-  frame.onload=()=>setTimeout(()=>{try{frame.contentWindow.focus();frame.contentWindow.print()}catch(e){alert('PDF çıktısı başlatılamadı. Tarayıcının yazdırma menüsünü kullanın.')}},300);
-  setTimeout(()=>{if(frame.isConnected)setTimeout(()=>frame.remove(),60000)},1000);
- }catch(e){frame.remove();alert('Rapor yazdırmaya hazırlanamadı: '+(e.message||e))}
+ // iOS Safari otomatik popup/iframe yazdırmasını engelleyebildiğinden raporu uygulama içinde önizle.
+ const prior=document.getElementById('reportPrintOverlay');if(prior)prior.remove();
+ const priorStyle=document.getElementById('reportPrintStyles');if(priorStyle)priorStyle.remove();
+ const printStyle=document.createElement('style');printStyle.id='reportPrintStyles';
+ printStyle.textContent=styles+'\n'+
+  '#reportPrintOverlay{position:fixed;inset:0;z-index:2147483000;overflow:auto;background:#eef1f4;padding:12px;box-sizing:border-box}'+
+  '#reportPrintToolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:900px;margin:0 auto 12px;padding:10px 12px;background:#fff;border:1px solid #dce2e8;border-radius:10px;box-shadow:0 2px 12px #182b4018;font:14px Arial,sans-serif}'+
+  '#reportPrintToolbar button{border:0;border-radius:7px;padding:11px 15px;background:#672d42;color:#fff;font-weight:700;font-size:14px;cursor:pointer}'+
+  '#reportPrintToolbar button.secondary{background:#e9edf1;color:#34465a}'+
+  '#reportPrintContent{max-width:900px;margin:0 auto;background:#fff}'+
+  '@media print{body> *:not(#reportPrintOverlay){display:none!important}#reportPrintOverlay{position:static!important;inset:auto!important;overflow:visible!important;padding:0!important;background:#fff!important}#reportPrintToolbar{display:none!important}#reportPrintContent{max-width:none!important;margin:0!important}}';
+ document.head.appendChild(printStyle);
+ const overlay=document.createElement('section');overlay.id='reportPrintOverlay';overlay.setAttribute('aria-label',title+' önizlemesi');
+ const toolbar=document.createElement('div');toolbar.id='reportPrintToolbar';
+ const label=document.createElement('strong');label.textContent=title+' · PDF önizleme';
+ const actions=document.createElement('div');actions.style.cssText='display:flex;gap:8px;align-items:center';
+ const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Kapat';
+ close.addEventListener('click',()=>{overlay.remove();printStyle.remove()});
+ const print=document.createElement('button');print.type='button';print.textContent='Yazdır / PDF Kaydet';
+ print.addEventListener('click',()=>{try{window.focus();window.print()}catch(e){alert('Yazdırma başlatılamadı: '+(e.message||e))}});
+ actions.append(close,print);toolbar.append(label,actions);
+ const content=document.createElement('div');content.id='reportPrintContent';content.innerHTML=bodyHTML;
+ overlay.append(toolbar,content);document.body.appendChild(overlay);overlay.scrollTop=0;
 }
+
 function printDailyReport(elementId){
  const content=$(elementId);if(!content){alert('Önce ilgili raporu oluşturun.');return}
  const styles=`*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;font-family:Arial,sans-serif;color:#142b43}.daily-report-document{width:100%}.daily-reference-page{width:100%;max-width:100%;margin:0 auto;padding:7mm;background:#fff;color:#263b52}.daily-reference-header{position:relative;padding:25px 26px 23px;min-height:180px;background:linear-gradient(118deg,#142a43,#294765 62%,#385873);border-radius:12px;border-bottom:4px solid #c5a66f;color:#fff;overflow:hidden}.daily-reference-brand b{display:block;font-size:13px;letter-spacing:2px}.daily-reference-brand small{display:block;margin-top:5px;font-size:8px;letter-spacing:2px;color:#c3ccd7}.daily-reference-label{display:inline-block;margin-top:20px;padding:6px 11px;border:1px solid #c5a66f;border-radius:20px;color:#e1c58f;font-size:8px;letter-spacing:1.5px}.daily-reference-header h1{margin:11px 0 5px;font:700 24px Georgia,serif;color:#fff}.daily-reference-header p{margin:0;color:#d5deea;font-size:10px}.daily-reference-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:13px 0}.daily-reference-metric{min-height:65px;padding:10px 12px;border:1px solid #e6e9ed;border-top:3px solid #bda477;border-radius:8px;background:#fbfaf7}.daily-reference-metric small{display:block;color:#8793a2;font-size:8px}.daily-reference-metric b{display:block;margin-top:5px;color:#263f5a;font-size:18px}.daily-reference-section{margin:10px 0;padding:12px 13px;border:1px solid #e2e7ed;border-radius:9px;background:#fff;break-inside:avoid}.daily-reference-section h3{margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid #e8e0d2;color:#29445f;font:700 13px Georgia,serif}.daily-reference-thead,.daily-reference-tr{display:grid;grid-template-columns:1.35fr 1.25fr .7fr;gap:8px;align-items:center}.daily-reference-thead{padding:7px 8px;border-radius:5px;background:#f5f3ee;color:#9a896d;font-size:7px;font-weight:800;letter-spacing:.6px}.daily-reference-tr{padding:7px 8px;border-bottom:1px solid #e9edf1;color:#40536a;font-size:9px}.daily-reference-tr b{color:#34485e}.daily-reference-tr strong{text-align:right;color:#304c69}.daily-reference-empty{padding:8px 0;color:#8a98a8;font-size:9px}.daily-reference-note{margin-top:7px;padding-top:7px;border-top:1px dashed #dce2e8;color:#8190a0;font-size:8px;line-height:1.5}.daily-reference-footer{margin-top:18px;padding-top:9px;border-top:1px solid #e8e4dc;text-align:center;color:#9aa5b1;font-size:8px}@page{size:A4 portrait;margin:8mm}@media print{html,body{margin:0;padding:0;background:#fff}.daily-reference-page{padding:0;border:0;box-shadow:none}.daily-reference-section,.daily-reference-metric{break-inside:avoid;page-break-inside:avoid}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}`;
