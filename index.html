@@ -1508,6 +1508,8 @@ function makeWeeklyGroupReport(){
  section('06 · DEVAM VE KATILIM','<div class="report-table-head weekly-attendance-head"><span>ÖĞRENCİ</span><span>TARİH</span><span>DURUM</span><span>AÇIKLAMA</span></div>'+(attendanceRows||noData)+'<p class="report-note">Devamsızlık toplamı tam gün ve yarım gün devamsızlık kayıtlarını; geç kalma sayısı ise “Geç geldi” kayıtlarını kapsar.</p>')+
  '<div class="report-footer"><p>Her öğrencinin gelişimi; düzenli takip, emek ve iş birliğiyle güçlenir.</p><div><span>Öğretmen</span><span>Yönetim</span></div><small>Değirmenlikızık Proje · Haftalık grup gelişim raporu</small></div>';
  $('reportout').innerHTML='<div class="report-actions"><span>Grup raporu · '+active.length+' / '+students.length+' öğrencide veri girişi</span><button type="button" onclick="printParentReport()">Grup Raporunu Yazdır / PDF Kaydet</button></div><div id="parentReport">'+html+'</div>';
+ const groupPrintButton=$('reportout').querySelector('.report-actions button');
+ if(groupPrintButton){groupPrintButton.removeAttribute('onclick');groupPrintButton.addEventListener('click',function(){try{printParentReport()}catch(error){console.error('Grup raporu yazdırma hatası:',error);alert('PDF işlemi başlatılamadı: '+(error&&error.message?error.message:'Bilinmeyen hata'))}})}
 }
 function makeReport(){
  const id=$('rs').value;if(!id){alert('Öğrenci seçin.');return}
