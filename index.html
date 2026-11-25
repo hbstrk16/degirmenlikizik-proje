@@ -1341,7 +1341,27 @@ function printExamGroupComparison(){
  w.document.close();
 }
 function renderExamTargetComparison(){const id=$('compareStudent')?.value;if(!id){$('examTargetComparison').innerHTML='<p class="muted">Kıyaslama için öğrenci seçin.</p>';return}const e=cache.exams.filter(x=>x.student_id===id).sort((a,b)=>new Date(b.exam_date||b.created_at)-new Date(a.exam_date||a.created_at))[0];if(!e){$('examTargetComparison').innerHTML='<p class="muted">Kıyaslama için önce deneme sonucu girin.</p>';return}const snapshot=(cache.targetSnapshots||[]).find(x=>x.student_id===id&&x.exam_name===String(e.name||e.exam_name||'Deneme')&&String(x.exam_date)===String(e.exam_date)),t=snapshot?.targets;if(!t){$('examTargetComparison').innerHTML='<p class="muted">Bu deneme için hedef kaydı bulunamadı. Deneme adı ve tarihiyle eşleşen hedef oluşturun.</p>';return}let goalC=0,goalW=0,actualC=0,actualW=0,goalN=0,actualN=0;const rows=examSubjects.map(s=>{const gc=Number(t[s.key+'_correct_target']||0),gw=Number(t[s.key+'_wrong_target']||0),gn=Number(t[s.key+'_net_target']||0),c=Number(e[s.key+'_correct']||0),w=Number(e[s.key+'_wrong']||0),n=Number(e[s.key+'_net']??c-w/3),ok=n>=gn;goalC+=gc;goalW+=gw;goalN+=gn;actualC+=c;actualW+=w;actualN+=n;return '<tr><td class="work-name">'+s.name+'</td><td><small>Doğru '+gc+' • Yanlış '+gw+'<br><b>Net '+gn.toFixed(2).replace('.',',')+'</b></small></td><td><small>Doğru '+c+' • Yanlış '+w+'<br><b>Net '+n.toFixed(2).replace('.',',')+'</b></small></td><td><span class="exam-compare-status '+(ok?'is-good':'is-low')+'">'+(ok?'Hedefe ulaştı':'Hedef altında')+'</span></td></tr>'}).join('');$('examTargetComparison').innerHTML='<p><b>'+safe(e.name)+'</b> • '+safe(e.exam_date||'Tarih yok')+'</p><div class="work-table-wrap"><table class="work-table exam-compare-table"><thead><tr><th>Ders</th><th>Hedef</th><th>Netice</th><th>Kıyaslama</th></tr></thead><tbody>'+rows+'<tr class="exam-total-row"><td><b>TOPLAM</b></td><td><b>Doğru '+goalC+' • Yanlış '+goalW+'<br>Net '+goalN.toFixed(2).replace('.',',')+'</b></td><td><b>Doğru '+actualC+' • Yanlış '+actualW+'<br>Net '+actualN.toFixed(2).replace('.',',')+'</b></td><td><span class="exam-compare-status '+(actualN>=goalN?'is-good':'is-low')+'">'+(actualN>=goalN?'Hedefe ulaştı':'Hedef altında')+'</span></td></tr></tbody></table></div>'}
-async function addExam(){try{await ensureTeacherSession();if(!$('es').value||!$('en').value.trim()){alert('Öğrenci ve deneme adı girin.');return}const p={student_id:$('es').value,exam_name:$('en').value.trim(),exam_date:$('examDate').value||localDateValue()};let net=0;for(const tr of document.querySelectorAll('#examInputRows tr')){const k=tr.dataset.subject,c=Number(tr.querySelector('.ex-correct').value||0),w=Number(tr.querySelector('.ex-wrong').value||0),l=Number(tr.dataset.limit);if(!Number.isInteger(c)||!Number.isInteger(w)||c<0||w<0||c+w>l){alert(safe(tr.querySelector('.work-name').textContent)+' için doğru ve yanlış toplamı '+l+' soruyu aşamaz.');return}p[k+'_correct']=c;p[k+'_wrong']=w;p[k+'_net']=c-w/3;net+=c-w/3}p.total_net=net;const {error}=await supabaseClient.from('exam_results').insert(p);if(error)throw error;alert('Deneme neticesi kaydedildi.');$('en').value='';document.querySelectorAll('#examInputRows tr').forEach(tr=>{tr.querySelector('.ex-correct').value=0;tr.querySelector('.ex-wrong').value=0});updateExamPreview();await render();$('es').value=p.student_id;renderExamTargetComparison()}catch(e){alert('Deneme neticesi kaydedilemedi: '+e.message)}}
+async function addExam(){
+ if(addExam.saving)return;addExam.saving=true;
+ const saveButton=document.querySelector('#examEntry button[onclick="addExam()"]');if(saveButton){saveButton.disabled=true;saveButton.textContent='Kaydediliyor...'}
+ try{
+  await ensureTeacherSession();
+  if(!$('es').value||!$('en').value.trim()){alert('Öğrenci ve deneme adı girin.');return}
+  const p={student_id:$('es').value,exam_name:$('en').value.trim(),exam_date:$('examDate').value||localDateValue()};
+  let net=0;
+  for(const tr of document.querySelectorAll('#examInputRows tr')){
+   const k=tr.dataset.subject,c=Number(tr.querySelector('.ex-correct').value||0),w=Number(tr.querySelector('.ex-wrong').value||0),l=Number(tr.dataset.limit);
+   if(!Number.isInteger(c)||!Number.isInteger(w)||c<0||w<0||c+w>l){alert(safe(tr.querySelector('.work-name').textContent)+' için doğru ve yanlış toplamı '+l+' soruyu aşamaz.');return}
+   p[k+'_correct']=c;p[k+'_wrong']=w;p[k+'_blank']=l-c-w;p[k+'_net']=c-w/3;net+=c-w/3;
+  }
+  p.total_net=net;
+  const {error}=await supabaseClient.from('exam_results').upsert(p,{onConflict:'student_id,exam_date,exam_name'});
+  if(error)throw error;
+  alert('Deneme neticesi kaydedildi. Aynı öğrenci, deneme ve tarihteki kayıt varsa güncellendi; yeni mükerrer kayıt oluşturulmadı.');
+  $('en').value='';document.querySelectorAll('#examInputRows tr').forEach(tr=>{tr.querySelector('.ex-correct').value=0;tr.querySelector('.ex-wrong').value=0});updateExamPreview();await render();$('es').value=p.student_id;renderExamTargetComparison();
+ }catch(e){alert('Deneme neticesi kaydedilemedi: '+e.message)}
+ finally{addExam.saving=false;if(saveButton){saveButton.disabled=false;saveButton.textContent='Deneme neticesini kaydet'}}
+}
 
 
 function renderAttendanceRecords(){const box=$('attendanceList');if(!box)return;const filter=$('attFilterStudent')?.value||'';const rows=[...cache.attendance].filter(x=>!filter||x.student_id===filter).sort((a,b)=>String(b.attendance_date).localeCompare(String(a.attendance_date)));const counts=rows.reduce((o,x)=>(o[x.status]=(o[x.status]||0)+1,o),{});$('attendanceSummary').innerHTML='<div class="stat"><small>Toplam kayıt</small><strong>'+rows.length+'</strong></div><div class="stat"><small>Tam gün</small><strong>'+(counts['Tam gün devamsız']||0)+'</strong></div><div class="stat"><small>Yarım gün</small><strong>'+(counts['Yarım gün devamsız']||0)+'</strong></div><div class="stat"><small>Geç geldi</small><strong>'+(counts['Geç geldi']||0)+'</strong></div><div class="stat"><small>Geldi</small><strong>'+(counts['Geldi']||0)+'</strong></div>';box.innerHTML=rows.length?'<div class="work-table-wrap"><table class="work-table"><thead><tr><th>Tarih</th><th>Öğrenci</th><th>Durum</th><th>Açıklama</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+safe(x.attendance_date)+'</td><td class="work-name">'+safe(x.student)+'</td><td>'+safe(x.status)+'</td><td>'+safe(x.note||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<p class="muted">Bu filtrede devamsızlık kaydı yok.</p>'}
@@ -1382,9 +1402,11 @@ function validateReportData(work=[],exams=[]){
  for(const exam of exams){
   let expected=0;
   for(const subject of examSubjects){
-   const c=Number(exam[subject.key+'_correct']||0),w=Number(exam[subject.key+'_wrong']||0);
-   if(![c,w].every(Number.isInteger)||c<0||w<0||c+w>subject.limit)return (exam.exam_name||exam.name||'Bir deneme')+' kaydında ders soru sayısı sınırı aşılmış veya sayı alanı hatalı.';
-   expected+=c-w/3;
+   const c=Number(exam[subject.key+'_correct']||0),w=Number(exam[subject.key+'_wrong']||0),b=Number(exam[subject.key+'_blank']||0);
+   if(![c,w,b].every(Number.isInteger)||c<0||w<0||b<0||c+w+b>subject.limit)return (exam.exam_name||exam.name||'Bir deneme')+' kaydında ders soru dağılımı sınırı aşılmış veya sayı alanı hatalı.';
+   const subjectNet=c-w/3,storedSubject=Number(exam[subject.key+'_net']??subjectNet);
+   if(!Number.isFinite(storedSubject)||Math.abs(storedSubject-subjectNet)>0.011)return (exam.exam_name||exam.name||'Bir deneme')+' kaydında ders neti doğru ve yanlış sayılarıyla uyuşmuyor.';
+   expected+=subjectNet;
   }
   const stored=Number(exam.total_net??exam.net??expected);
   if(!Number.isFinite(stored)||Math.abs(stored-expected)>0.011)return (exam.exam_name||exam.name||'Bir deneme')+' kaydında toplam net ile ders sonuçları uyuşmuyor.';
