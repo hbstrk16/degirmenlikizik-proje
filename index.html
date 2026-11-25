@@ -1171,19 +1171,19 @@ async function saveWorkBatch(){
   if(rawCorrect===''||rawWrong===''){alert('Kayıt girilen her öğrenci için doğru ve yanlış sayılarını doldurun.');return}
   const correct=Number(rawCorrect),wrong=Number(rawWrong);
   if(![correct,wrong].every(Number.isInteger)||correct<0||wrong<0){alert('Doğru ve yanlış sayıları sıfır veya pozitif tam sayı olmalıdır.');return}
-  // Keep legacy database columns populated without exposing total/blank entry fields.
   const total=correct+wrong,blank=0;
   const studentId=tr.dataset.student,existing=cache.work.find(w=>w.student_id===studentId&&w.recorded_on===chosen.date&&w.session_label===session);
-  payloads.push({student_id:studentId,subject,total_questions:total,correct,wrong,blank,teacher_note:existing?.teacher_note??null,recorded_on:chosen.date,status:'Tamamlandı',session_label:session,existingId:existing?.id});
+  payloads.push({student_id:studentId,subject,total_questions:total,correct,wrong,blank,teacher_note:existing?.teacher_note??null,recorded_on:chosen.date,status:'Tamamlandı',session_label:session});
  }
  if(!payloads.length){alert('Kaydedilecek bir öğrenci bilgisi bulunamadı.');return}
- const btn=$('saveWorkBatch');btn.disabled=true;btn.textContent='Kaydediliyor...';
+ const btn=$('saveWorkBatch');if(btn.disabled)return;btn.disabled=true;btn.textContent='Kaydediliyor...';
  try{
   await ensureTeacherSession();
-  for(const p of payloads){const existingId=p.existingId;delete p.existingId;let q=supabaseClient.from('study_records');const result=existingId?await q.update(p).eq('id',existingId):await q.insert(p);if(result.error)throw result.error}
-  alert(payloads.length+' öğrencinin etüt kaydı kaydedildi.');await render();
+  const {error}=await supabaseClient.from('study_records').upsert(payloads,{onConflict:'student_id,recorded_on,session_label'});
+  if(error)throw error;
+  alert(payloads.length+' öğrencinin etüt kaydı tek işlemde güvenli biçimde kaydedildi.');await render();
   $('workdate').value=chosen.date;loadWorkSessions();$('workSession').value=String(chosen.idx);renderWorkTable();
- }catch(e){alert('Kayıt sırasında hata: '+e.message+'\nOturum ve öğretmen yetkisi kontrol edildi. Sorun sürerse hata kodunu paylaşın.')}
+ }catch(e){alert('Kayıt sırasında hata: '+e.message+'\\nVeriler tekrar kontrol edilmeden yeniden kayıt oluşturulmadı.')}
  finally{btn.disabled=false;btn.textContent='Bu etüdün kayıtlarını kaydet'}
 }
 
@@ -1347,7 +1347,19 @@ async function addExam(){try{await ensureTeacherSession();if(!$('es').value||!$(
 function renderAttendanceRecords(){const box=$('attendanceList');if(!box)return;const filter=$('attFilterStudent')?.value||'';const rows=[...cache.attendance].filter(x=>!filter||x.student_id===filter).sort((a,b)=>String(b.attendance_date).localeCompare(String(a.attendance_date)));const counts=rows.reduce((o,x)=>(o[x.status]=(o[x.status]||0)+1,o),{});$('attendanceSummary').innerHTML='<div class="stat"><small>Toplam kayıt</small><strong>'+rows.length+'</strong></div><div class="stat"><small>Tam gün</small><strong>'+(counts['Tam gün devamsız']||0)+'</strong></div><div class="stat"><small>Yarım gün</small><strong>'+(counts['Yarım gün devamsız']||0)+'</strong></div><div class="stat"><small>Geç geldi</small><strong>'+(counts['Geç geldi']||0)+'</strong></div><div class="stat"><small>Geldi</small><strong>'+(counts['Geldi']||0)+'</strong></div>';box.innerHTML=rows.length?'<div class="work-table-wrap"><table class="work-table"><thead><tr><th>Tarih</th><th>Öğrenci</th><th>Durum</th><th>Açıklama</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+safe(x.attendance_date)+'</td><td class="work-name">'+safe(x.student)+'</td><td>'+safe(x.status)+'</td><td>'+safe(x.note||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<p class="muted">Bu filtrede devamsızlık kaydı yok.</p>'}
 async function addAttendance(){try{await ensureTeacherSession();const student=$('attStudent').value,date=$('attDate').value,status=$('attStatus').value,note=$('attNote').value.trim();if(!student||!date){alert('Öğrenci ve tarih seçin.');return}const {data:existing,error:checkError}=await supabaseClient.from('attendance_records').select('id').eq('student_id',student).eq('attendance_date',date).maybeSingle();if(checkError)throw checkError;if(existing){alert('Bu öğrenci için seçilen tarihte zaten bir devamsızlık kaydı var. Mevcut kayıt korunmuştur.');return}const {error}=await supabaseClient.from('attendance_records').insert({student_id:student,attendance_date:date,status,note});if(error){if(error.code==='23505')throw new Error('Bu öğrenci için seçilen tarihte kayıt zaten mevcut.');throw error}$('attNote').value='';await render();$('attStudent').value=student;$('attFilterStudent').value=student;renderAttendanceRecords();alert('Devamsızlık kaydedildi.')}catch(e){alert('Devamsızlık kaydedilemedi: '+e.message)}}
 function renderBookRecords(){const box=$('booklist');if(!box)return;const rows=[...cache.books].sort((a,b)=>String(b.recorded_on||'').localeCompare(String(a.recorded_on||''))||new Date(b.created_at||0)-new Date(a.created_at||0));box.innerHTML=rows.length?'<div class="work-table-wrap"><table class="work-table"><thead><tr><th>Tarih</th><th>Öğrenci</th><th>Kitap / Metin</th><th>Okunan sayfa</th><th>Durum</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+safe(x.recorded_on||'—')+'</td><td class="work-name">'+safe(x.student)+'</td><td>'+safe(x.title||'—')+'</td><td>'+safe(x.progress||'—')+'</td><td>'+safe(x.status||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<p class="muted">Henüz okuma kaydı yok.</p>'}
-async function addBook(){try{const date=$('bookDate').value;if(!date||!$('bs').value||!$('bt').value.trim()){alert('Okuma tarihi, öğrenci ve kitap/metin adı zorunludur.');return}await saveRow('reading_records',{student_id:$('bs').value,title:$('bt').value.trim(),progress:$('bp').value.trim(),status:$('bst').value,recorded_on:date})}catch(e){alert(e.message)}}
+async function addBook(){
+ if(addBook.saving)return;addBook.saving=true;
+ try{
+  const date=$('bookDate').value,student=$('bs').value,title=$('bt').value.trim(),progress=$('bp').value.trim(),status=$('bst').value;
+  if(!date||!student||!title){alert('Okuma tarihi, öğrenci ve kitap/metin adı zorunludur.');return}
+  await ensureTeacherSession();
+  const {data:existing,error:checkError}=await supabaseClient.from('reading_records').select('id').eq('student_id',student).eq('recorded_on',date).eq('title',title).eq('progress',progress).eq('status',status).maybeSingle();
+  if(checkError)throw checkError;
+  if(existing){alert('Aynı öğrenci, tarih, kitap, ilerleme ve durum bilgisiyle kayıt zaten var. Mevcut kayıt korundu.');return}
+  await saveRow('reading_records',{student_id:student,title,progress,status,recorded_on:date});
+ }catch(e){alert('Kitap okuma kaydedilemedi: '+e.message)}
+ finally{addBook.saving=false}
+}
 
 function localDateString(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day}
 function setDefaultReportDates(){const now=new Date(),monday=new Date(now);monday.setDate(now.getDate()-((now.getDay()+6)%7));if($('reportFrom')&&!$('reportFrom').value)$('reportFrom').value=localDateString(monday);if($('reportTo')&&!$('reportTo').value)$('reportTo').value=localDateString(now)}
