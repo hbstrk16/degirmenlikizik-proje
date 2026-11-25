@@ -958,15 +958,23 @@ async function loadParentChild(studentId){
  const box=$('parentChildContent');if(!box)return;
  box.innerHTML='<div class="card"><p class="muted">Öğrenci kayıtları yükleniyor...</p></div>';
  try{
-  const [workR,examR,attendanceR,booksR,valuesR]=await Promise.all([
-   supabaseClient.from('study_records').select('*').eq('student_id',studentId).order('recorded_on',{ascending:false}).limit(60),
-   supabaseClient.from('exam_results').select('*').eq('student_id',studentId).order('exam_date',{ascending:false}).limit(20),
-   supabaseClient.from('attendance_records').select('*').eq('student_id',studentId).order('attendance_date',{ascending:false}).limit(30),
-   supabaseClient.from('reading_records').select('*').eq('student_id',studentId).order('recorded_on',{ascending:false}).limit(30),
-   supabaseClient.from('values_records').select('*').eq('student_id',studentId).order('recorded_on',{ascending:false}).limit(30)
+  const fetchAllStudentRecords=async(table,dateColumn)=>{
+   const pageSize=500,all=[];
+   for(let offset=0;;offset+=pageSize){
+    const {data,error}=await supabaseClient.from(table).select('*').eq('student_id',studentId).order(dateColumn,{ascending:false}).order('id',{ascending:true}).range(offset,offset+pageSize-1);
+    if(error)throw error;
+    all.push(...(data||[]));
+    if(!data||data.length<pageSize)break;
+   }
+   return all;
+  };
+  const [work,exams,attendance,books,values]=await Promise.all([
+   fetchAllStudentRecords('study_records','recorded_on'),
+   fetchAllStudentRecords('exam_results','exam_date'),
+   fetchAllStudentRecords('attendance_records','attendance_date'),
+   fetchAllStudentRecords('reading_records','recorded_on'),
+   fetchAllStudentRecords('values_records','recorded_on')
   ]);
-  for(const result of [workR,examR,attendanceR,booksR,valuesR])if(result.error)throw result.error;
-  const work=workR.data||[],exams=examR.data||[],attendance=attendanceR.data||[],books=booksR.data||[],values=valuesR.data||[];
   const now=new Date(),monday=new Date(now);monday.setDate(now.getDate()-((now.getDay()+6)%7));
   const dateValue=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day};
   const from=dateValue(monday),to=dateValue(now),within=d=>String(d||'').slice(0,10)>=from&&String(d||'').slice(0,10)<=to;
