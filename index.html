@@ -1513,7 +1513,8 @@ function makeWeeklyGroupReport(){
 function makeReport(){
  const id=$('rs').value;if(!id){alert('Öğrenci seçin.');return}
  const from=$('reportFrom').value,to=$('reportTo').value;if(!from||!to||from>to){alert('Geçerli bir başlangıç ve bitiş tarihi seçin.');return}
- const student=cache.students.find(s=>s.id===id),inRange=d=>{const day=String(d||'').slice(0,10);return day>=from&&day<=to};
+ const student=cache.students.find(s=>s.id===id);if(!student){alert('Seçilen öğrenci kaydı bulunamadı. Lütfen öğrenci listesini yenileyin.');return}
+ const inRange=d=>{const day=String(d||'').slice(0,10);return day>=from&&day<=to};
  const work=cache.work.filter(x=>x.student_id===id&&inRange(x.recorded_on)&&hasStudyData(x)&&x.session_label&&!String(x.session_label).toLocaleLowerCase('tr-TR').includes('serbest')),exams=cache.exams.filter(x=>x.student_id===id&&inRange(x.exam_date||x.created_at)),books=cache.books.filter(x=>x.student_id===id&&inRange(x.recorded_on||x.created_at)),attendance=cache.attendance.filter(x=>x.student_id===id&&inRange(x.attendance_date));
  const validationError=validateReportData(work,exams);if(validationError){alert('Öğrenci karnesi oluşturulamadı: '+validationError);return}
  const lessonRatings=(cache.saturdayRatings||[]).filter(x=>x.student_id===id&&inRange(x.lesson_date)).sort((a,b)=>String(a.lesson_date).localeCompare(String(b.lesson_date)));
