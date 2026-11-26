@@ -642,7 +642,71 @@ body>header.top small{font-size:11px;letter-spacing:.09em;text-transform:upperca
  #parentReport .weekly-report-head h2{font-size:24px}
 }
 
-\n.book-record-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:14px 0 18px}.book-record-toolbar>div:first-child{min-width:min(100%,260px);flex:1}.book-record-toolbar select{width:100%;max-width:420px}.book-record-toolbar .muted{margin:0 0 8px}.book-student-group{border:1px solid #dfe5ec;border-radius:13px;background:#fff;margin:14px 0;padding:14px;box-shadow:0 4px 14px rgba(25,45,70,.045)}.book-student-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 2px 12px;margin-bottom:10px;border-bottom:1px solid #e8edf2}.book-student-heading h4{margin:0;color:#203b5b;font-size:16px}.book-student-heading small,.book-latest-date{display:block;color:#78869a;font-size:12px;margin-top:4px}.book-latest-date{white-space:nowrap;margin:0}.book-student-group .work-table-wrap{margin:0}.book-student-group .work-table{min-width:540px}.book-status{display:inline-block;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;background:#eef3f8;color:#365574}.book-status.is-complete{background:#e9f4ed;color:#286442}@media(max-width:600px){.book-student-group{padding:11px}.book-student-heading{align-items:flex-start;flex-direction:column}.book-latest-date{white-space:normal}}\n</style></head><body>
+\n.book-record-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:14px 0 18px}.book-record-toolbar>div:first-child{min-width:min(100%,260px);flex:1}.book-record-toolbar select{width:100%;max-width:420px}.book-record-toolbar .muted{margin:0 0 8px}.book-student-group{border:1px solid #dfe5ec;border-radius:13px;background:#fff;margin:14px 0;padding:14px;box-shadow:0 4px 14px rgba(25,45,70,.045)}.book-student-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 2px 12px;margin-bottom:10px;border-bottom:1px solid #e8edf2}.book-student-heading h4{margin:0;color:#203b5b;font-size:16px}.book-student-heading small,.book-latest-date{display:block;color:#78869a;font-size:12px;margin-top:4px}.book-latest-date{white-space:nowrap;margin:0}.book-student-group .work-table-wrap{margin:0}.book-student-group .work-table{min-width:540px}.book-status{display:inline-block;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;background:#eef3f8;color:#365574}.book-status.is-complete{background:#e9f4ed;color:#286442}@media(max-width:600px){.book-student-group{padding:11px}.book-student-heading{align-items:flex-start;flex-direction:column}.book-latest-date{white-space:normal}}\n
+/* INSTITUTION-WIDE DESIGN SYSTEM V2 — visual-only refinement */
+:root{
+ --brand-ink:#20364d;--brand-blue:#304b65;--brand-gold:#b9a27d;
+ --page-bg:#f3f5f7;--panel-border:#e4e9ee;--panel-shadow:0 8px 24px rgba(28,45,63,.045);
+ --text-main:#263747;--text-soft:#788797;
+}
+body{background:linear-gradient(180deg,#f6f7f8 0%,#eef1f4 100%);color:var(--text-main)}
+body>header.top{min-height:108px;padding:20px max(18px,calc((100% - 1160px)/2));}
+body>header.top .mark{position:relative;flex:0 0 52px;width:52px;height:52px;border-radius:15px;font-family:Georgia,serif;font-size:23px}
+body>header.top>div:last-child{display:flex;flex-direction:column;gap:3px}
+body>header.top b{font-size:18px;letter-spacing:.01em}
+body>header.top small{font-size:10px;letter-spacing:.12em}
+main{max-width:1200px}
+#login{max-width:620px;margin:clamp(32px,7vh,76px) auto 0}
+#login>.eyebrow{color:#9a8465}
+#login>h1{max-width:560px;color:#20364d;font-size:clamp(30px,4.4vw,42px);line-height:1.12}
+#login>.card{border:1px solid #e2e7eb;border-top:3px solid var(--brand-gold);box-shadow:0 18px 48px rgba(30,49,68,.075)}
+#login>.card h2{color:#263f57}
+#app{max-width:1200px}
+#app>.roleline{background:linear-gradient(115deg,#20364d 0%,#304b65 72%,#3b566f 100%);border-radius:18px;box-shadow:0 12px 30px rgba(25,43,62,.13)}
+#app>.roleline h1{font-size:clamp(23px,2.6vw,30px)}
+#app>.tabs{top:7px;z-index:30;border-radius:14px;padding:7px;background:rgba(250,251,252,.94);border-color:#e1e7ec}
+#app>.tabs .tab{min-height:45px;padding:0 16px;font-size:12px}
+#app>.tabs .tab.on{background:linear-gradient(120deg,#203b55,#385570);border-color:#29445f}
+#app>.page{padding-bottom:14px}
+#app>.page>h2{font-size:23px;color:#20364d;margin:10px 2px 17px}
+#app>.page>.roleline{background:#fff;color:var(--text-main);border:1px solid var(--panel-border);box-shadow:var(--panel-shadow);border-radius:15px;padding:17px 20px}
+#app>.page>.roleline h2{margin:0;color:#20364d}
+#app>.page>.card{border:1px solid var(--panel-border);border-radius:16px;box-shadow:var(--panel-shadow)}
+#app .page .card>h3{color:#2b455e;font-size:15px;font-weight:750}
+#app .page label{color:#526579;font-size:11px;font-weight:750;letter-spacing:.025em}
+#app .page input,#app .page select,#app .page textarea{border:1px solid #dce3e9;background:#fff;border-radius:10px;min-height:45px}
+#app .page input:focus,#app .page select:focus,#app .page textarea:focus{border-color:#879bad;box-shadow:0 0 0 3px rgba(65,91,116,.11)}
+#app .page button:not(.tab),#login button{min-height:43px;border-radius:10px}
+#app .page button.secondary,#login button.secondary{background:#edf1f4;color:#344c63;border:1px solid #dfe6eb;box-shadow:none}
+#app .page .stats .stat{border:1px solid #e4e9ee;border-top:3px solid #b9a27d;border-radius:13px;background:linear-gradient(145deg,#fff,#fafbfc)}
+#app .page .stats .stat strong{color:#29455f}
+#app .page .work-table-wrap{border:1px solid #e4e9ee;border-radius:12px;background:#fff}
+#app .page .work-table{font-variant-numeric:tabular-nums}
+#app .page .work-table th{position:sticky;top:0;background:#eef2f5;color:#40576d;border-bottom:1px solid #dfe6eb}
+#app .page .work-table td{border-bottom:1px solid #edf0f3}
+#app .page .work-table tbody tr:nth-child(even) td{background:#fbfcfd}
+#app .page .work-table tbody tr:hover td{background:#f5f7f9}
+#app .page .report-actions{border:1px solid #e1e7eb;background:#f6f8f9}
+#app .page .report-actions button{white-space:normal}
+#app .page .modal{border-radius:18px}
+#app .page .entry{padding:11px 9px}
+#app .page :focus-visible,#app>.tabs .tab:focus-visible{outline:3px solid rgba(185,162,125,.55);outline-offset:2px}
+@media(max-width:760px){
+ body>header.top{min-height:88px;padding:14px}
+ body>header.top .mark{flex-basis:45px;width:45px;height:45px;font-size:20px}
+ body>header.top b{font-size:15px}
+ body>header.top small{font-size:9px;letter-spacing:.08em}
+ #app{padding-left:10px;padding-right:10px}
+ #app>.roleline{min-height:82px}
+ #app>.tabs{top:4px}
+ #app>.tabs .tab{min-height:42px;padding:0 13px}
+ #app>.page>h2{font-size:20px}
+ #app>.page>.card{padding:14px}
+ #app .page .work-table-wrap{border-radius:10px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+</style></head><body>
 <header class="top"><div class="mark">D</div><div><b>Değirmenlikızık Proje</b><small>Eğitim ve gelişim takip sistemi</small></div></header><main>
 <section id="login"><div class="eyebrow">HEDEF • TAKİP • GELİŞİM</div><h1>Her öğrencinin başarı yolculuğu.</h1><p class="muted">Öğretmen, öğrenci ve veli için eğitim takip alanı.</p><div class="card"><h2>Öğretmen girişi</h2><label for="person">E-posta adresi</label><input id="person" type="email" autocomplete="username" placeholder="E-posta adresiniz"><label for="teacherPassword">Şifre</label><input id="teacherPassword" type="password" autocomplete="current-password" placeholder="Öğretmen şifreniz"><button id="teacherLoginBtn" type="button" class="full" onclick="teacherLogin()">Şifre ile giriş yap</button><button type="button" class="secondary full" onclick="requestTeacherPasswordReset()">Şifremi unuttum / İlk şifremi belirle</button><p id="authmsg" class="muted">Öğretmen hesabınıza e-posta ve şifrenizle giriş yapın. İlk kullanımda şifre belirlemek için “Şifremi unuttum” bağlantısını kullanın.</p><p class="muted" style="margin-top:16px">Bu sistem şu anda yalnızca öğretmen kullanımına açıktır.</p></div></section><section id="passwordRecovery" class="card hide"><h2>Öğretmen şifresi belirle</h2><p class="muted">Yeni şifrenizi iki kez girin.</p><label for="newTeacherPassword">Yeni şifre</label><input id="newTeacherPassword" type="password" autocomplete="new-password" placeholder="En az 8 karakter"><label for="confirmTeacherPassword">Yeni şifreyi tekrar girin</label><input id="confirmTeacherPassword" type="password" autocomplete="new-password" placeholder="Şifrenizi tekrar yazın"><button type="button" class="full" onclick="saveTeacherPassword()">Şifremi kaydet</button><p id="passwordRecoveryMsg" class="muted"></p></section>
 <section id="app" class="hide"><div class="roleline"><div><div class="eyebrow" id="rolelabel">ÖĞRETMEN PANELİ</div><h1 id="hello">Hoş geldiniz</h1></div><button class="secondary" onclick="logout()">Çıkış</button></div>
