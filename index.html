@@ -1381,7 +1381,7 @@ async function addBook(){
   if(checkError)throw checkError;
   if(existing){alert('Aynı öğrenci, tarih, kitap, ilerleme ve durum bilgisiyle kayıt zaten var. Mevcut kayıt korundu.');return}
   await saveRow('reading_records',{student_id:student,title,progress,status,recorded_on:date});
- }catch(e){alert('Kitap okuma kaydedilemedi: '+e.message)}
+ }catch(e){alert(e.code==='23505'?'Bu kitap okuma kaydı aynı öğrenci, tarih ve içerikle zaten mevcut. Yeni kayıt eklenmedi.':'Kitap okuma kaydedilemedi: '+e.message)}
  finally{addBook.saving=false}
 }
 
