@@ -743,7 +743,7 @@ main{max-width:1200px}
    <div><label for="reportFrom">BAŞLANGIÇ TARİHİ</label><input id="reportFrom" type="date"></div>
    <div><label for="reportTo">BİTİŞ TARİHİ</label><input id="reportTo" type="date"></div>
   </div>
-  <div class="weekly-report-hint">Varsayılan tarih aralığı içinde bulunulan haftadır. İhtiyacınıza göre tarihleri değiştirebilirsiniz.</div>
+  <div class="weekly-report-hint">Varsayılan haftalık rapor dönemi Pazar günü başlar, Cumartesi günü biter. İhtiyacınıza göre tarihleri değiştirebilirsiniz.</div>
   <button class="full" type="button" onclick="createWeeklyReport()">Raporu oluştur</button>
  </div>
  <div class="weekly-report-output" id="reportout"><div class="weekly-empty-state"><span>✦</span><b>Raporunuz burada hazırlanacak</b><p>Rapor türünü ve tarih aralığını seçerek başlayın.</p></div></div>
@@ -1469,7 +1469,7 @@ async function addBook(){
 }
 
 function localDateString(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day}
-function setDefaultReportDates(){const now=new Date(),monday=new Date(now);monday.setDate(now.getDate()-((now.getDay()+6)%7));if($('reportFrom')&&!$('reportFrom').value)$('reportFrom').value=localDateString(monday);if($('reportTo')&&!$('reportTo').value)$('reportTo').value=localDateString(now)}
+function setDefaultReportDates(){const now=new Date(),sunday=new Date(now);sunday.setDate(now.getDate()-now.getDay());const saturday=new Date(sunday);saturday.setDate(sunday.getDate()+6);if($('reportFrom')&&!$('reportFrom').value)$('reportFrom').value=localDateString(sunday);if($('reportTo')&&!$('reportTo').value)$('reportTo').value=localDateString(saturday)}
 function setDailyReportDefaults(){
  const date=$('dailyReportDate');if(date&&!date.value)date.value=localDateString(new Date());
  const select=$('dailyReportStudent');if(!select)return;
