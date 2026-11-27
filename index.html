@@ -1469,7 +1469,7 @@ async function addBook(){
 }
 
 function localDateString(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day}
-function setDefaultReportDates(){const now=new Date(),sunday=new Date(now);sunday.setDate(now.getDate()-now.getDay());const saturday=new Date(sunday);saturday.setDate(sunday.getDate()+6);if($('reportFrom')&&!$('reportFrom').value)$('reportFrom').value=localDateString(sunday);if($('reportTo')&&!$('reportTo').value)$('reportTo').value=localDateString(saturday)}
+function setDefaultReportDates(){const now=new Date(),sunday=new Date(now);sunday.setDate(now.getDate()-now.getDay());if($('reportFrom')&&!$('reportFrom').value)$('reportFrom').value=localDateString(sunday);if($('reportTo')&&!$('reportTo').value)$('reportTo').value=localDateString(now)}
 function setDailyReportDefaults(){
  const date=$('dailyReportDate');if(date&&!date.value)date.value=localDateString(new Date());
  const select=$('dailyReportStudent');if(!select)return;
