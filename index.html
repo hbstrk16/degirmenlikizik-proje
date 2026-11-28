@@ -813,10 +813,8 @@ main{max-width:1200px}
 <div id="reports" class="page weekly-report-hub">
  <div class="weekly-report-hero"><div><div class="eyebrow">DEĞİRMENLİKIZIK PROJE · AKADEMİK İZLEME</div><h2>Akademik Rapor Merkezi</h2><p>Grup performansını ve öğrenci gelişimini seçilen rapor dönemi üzerinden, ölçülebilir göstergelerle değerlendirin.</p></div><div class="weekly-report-seal">HAFTALIK<br><b>RAPOR</b></div></div>
  <div class="weekly-report-controls card">
-  <div class="weekly-report-control-title"><span class="dashboard-icon">▤</span><div><b>Rapor ayarları</b><small>Rapor düzeyini ve değerlendirme dönemini seçin</small></div></div>
+  <div class="weekly-report-control-title"><span class="dashboard-icon">▤</span><div><b>Genel kurum raporu</b><small>Toplu verilerle kurumun çalışma ve gelişim durumunu değerlendirin</small></div></div>
   <div class="grid">
-   <div><label for="reportScope">RAPOR DÜZEYİ</label><select id="reportScope" onchange="toggleWeeklyReportScope()"><option value="group">Grup değerlendirmesi</option><option value="student">Bireysel öğrenci karnesi</option></select></div>
-   <div id="weeklyStudentPicker" class="hide"><label for="rs">ÖĞRENCİ</label><select id="rs"><option value="">Öğrenci seçin</option></select></div>
    <div><label for="reportFrom">DÖNEM BAŞLANGICI</label><input id="reportFrom" type="date"></div>
    <div><label for="reportTo">DÖNEM BİTİŞİ</label><input id="reportTo" type="date"></div>
   </div>
@@ -1678,71 +1676,55 @@ function printDailyReport(elementId){
  launchReportPrint('Günlük Rapor',styles,content.innerHTML);
 }
 
-function toggleWeeklyReportScope(){
- const scope=$('reportScope')?.value||'group';
- const picker=$('weeklyStudentPicker');if(picker)picker.classList.toggle('hide',scope!=='student');
-}
-function createWeeklyReport(){
- if(($('reportScope')?.value||'group')==='student')makeReport();
- else makeWeeklyGroupReport();
-}
+function createWeeklyReport(){makeWeeklyGroupReport()}
+
 function isReportableEtutRecord(x){const label=String(x?.session_label||'').toLocaleLowerCase('tr-TR');return !!label&&(!label.includes('serbest')||label.includes('serbest test etüt'));}
 function makeWeeklyGroupReport(){
  const from=$('reportFrom').value,to=$('reportTo').value;
  if(!from||!to||from>to){alert('Geçerli bir başlangıç ve bitiş tarihi seçin.');return}
  const inRange=d=>{const day=String(d||'').slice(0,10);return day>=from&&day<=to};
- const students=cache.students.map(st=>{
-  const work=cache.work.filter(x=>x.student_id===st.id&&inRange(x.recorded_on)&&hasStudyData(x)&&isReportableEtutRecord(x));
-  const exams=cache.exams.filter(x=>x.student_id===st.id&&inRange(x.exam_date||x.created_at));
-  const books=cache.books.filter(x=>x.student_id===st.id&&inRange(x.recorded_on||x.created_at));
-  const attendance=cache.attendance.filter(x=>x.student_id===st.id&&inRange(x.attendance_date));
-  const ratings=cache.saturdayRatings.filter(x=>x.student_id===st.id&&inRange(x.lesson_date));
-  const ratedScores=ratings.map(x=>Number(x.score)).filter(Number.isFinite);
-  const listeningAverage=ratedScores.length?ratedScores.reduce((a,b)=>a+b,0)/ratedScores.length:null;
-  const correct=work.reduce((n,x)=>n+Number(x.correct||0),0),wrong=work.reduce((n,x)=>n+Number(x.wrong||0),0),blank=work.reduce((n,x)=>n+Number(x.blank||0),0);
-  const net=work.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
-  const examNet=exams.reduce((n,x)=>n+Number(x.net||0),0);
-  return {st,work,exams,books,attendance,ratings,listeningAverage,correct,wrong,blank,net,examNet,hasData:work.length+exams.length+books.length+attendance.length+ratings.length>0};
- });
- const validationError=validateReportData(students.flatMap(x=>x.work),students.flatMap(x=>x.exams));if(validationError){alert('Grup raporu oluşturulamadı: '+validationError);return}
- const active=students.filter(x=>x.hasData),fmt=n=>Number(n||0).toFixed(2).replace('.',','),pct=(a,b)=>b?Math.round(a/b*100):0;
- const totalWork=students.reduce((n,x)=>n+x.work.length,0),totalCorrect=students.reduce((n,x)=>n+x.correct,0),totalWrong=students.reduce((n,x)=>n+x.wrong,0),totalBlank=students.reduce((n,x)=>n+x.blank,0);
- const totalNet=students.reduce((n,x)=>n+x.net,0),totalExams=students.reduce((n,x)=>n+x.exams.length,0),totalExamNet=students.reduce((n,x)=>n+x.examNet,0);
- const totalBooks=students.reduce((n,x)=>n+x.books.length,0),totalAttendance=students.reduce((n,x)=>n+x.attendance.length,0);
- const listeningScores=students.flatMap(x=>x.ratings.map(r=>Number(r.score)).filter(Number.isFinite));
- const listeningAverage=listeningScores.length?listeningScores.reduce((a,b)=>a+b,0)/listeningScores.length:0;
- const absent=students.reduce((n,x)=>n+x.attendance.filter(a=>['Tam gün devamsız','Yarım gün devamsız'].includes(a.status)).length,0);
- const late=students.reduce((n,x)=>n+x.attendance.filter(a=>a.status==='Geç geldi').length,0);
- const avgNet=totalExams?totalExamNet/totalExams:0;
- const subjectMap={};students.forEach(x=>x.work.forEach(w=>{const k=w.subject||'Diğer';if(!subjectMap[k])subjectMap[k]={sessions:0,c:0,w:0,b:0,net:0};const z=subjectMap[k];z.sessions++;z.c+=Number(w.correct||0);z.w+=Number(w.wrong||0);z.b+=Number(w.blank||0);z.net+=Number(w.net??(Number(w.correct||0)-Number(w.wrong||0)/3));}));
- const workDetailRows=students.flatMap(x=>x.work.map(w=>({student:x.st.full_name,date:w.recorded_on,session:w.session_label||'Etüt adı belirtilmedi',subject:w.subject||'Ders belirtilmedi',correct:Number(w.correct||0),wrong:Number(w.wrong||0),blank:Number(w.blank||0),net:Number(w.net??(Number(w.correct||0)-Number(w.wrong||0)/3))}))).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||a.student.localeCompare(b.student,'tr')).map((w,i)=>{const raw=String(w.date||'').slice(0,10),p=raw.split('-'),d=p.length===3?p[2]+'.'+p[1]+'.'+p[0]:(raw||'—');return '<div class="report-line weekly-work-detail-row"><b>'+safe(w.student)+'</b><span>'+safe(d)+'</span><span>'+safe(w.session)+'</span><span>'+safe(w.subject)+'</span><span>'+w.correct+' D · '+w.wrong+' Y · '+w.blank+' B</span><strong>'+fmt(w.net)+'</strong></div>'}).join('');
- const examDetailRows=students.flatMap(x=>x.exams.map(e=>({student:x.st.full_name,name:e.exam_name||e.name||'Deneme',date:e.exam_date||String(e.created_at||'').slice(0,10),net:Number(e.total_net??e.net??examSubjects.reduce((sum,sub)=>sum+Number(e[sub.key+'_net']??Number(e[sub.key+'_correct']||0)-Number(e[sub.key+'_wrong']||0)/3),0))}))).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||a.student.localeCompare(b.student,'tr')).map(e=>{const raw=String(e.date||'').slice(0,10),p=raw.split('-'),d=p.length===3?p[2]+'.'+p[1]+'.'+p[0]:(raw||'—');return '<div class="report-line weekly-exam-detail-row"><b>'+safe(e.student)+'</b><span>'+safe(d)+'</span><span>'+safe(e.name)+'</span><strong>'+fmt(e.net)+' net</strong></div>'}).join('');
- const ranked=students.filter(x=>x.work.length).slice().sort((a,b)=>b.net-a.net);
- const rankMap=new Map(ranked.map((x,i)=>[x.st.id,i+1]));
- const studentRows=students.slice().sort((a,b)=>String(a.st.full_name).localeCompare(String(b.st.full_name),'tr')).map(x=>'<div class="report-line weekly-student-row"><b>'+safe(x.st.full_name)+'</b><span>'+safe(x.st.grade||'—')+'</span><span>'+x.work.length+'</span><span>'+x.correct+' D · '+x.wrong+' Y</span><strong>'+(x.work.length?fmt(x.net):'—')+'</strong><span>'+x.exams.length+'</span><span>'+x.books.length+'</span><span>'+(x.listeningAverage===null?'—':fmt(x.listeningAverage)+'/10')+'</span></div>').join('');
- const listeningRows=students.slice().sort((a,b)=>String(a.st.full_name).localeCompare(String(b.st.full_name),'tr')).map(x=>{const bySubject=saturdayRatingSubjects.map(sub=>{const vals=x.ratings.filter(r=>r.subject===sub).map(r=>Number(r.score)).filter(Number.isFinite);return vals.length?fmt(vals.reduce((a,b)=>a+b,0)/vals.length):'—'});const notes=[...new Set(x.ratings.map(r=>String(r.teacher_note||'').trim()).filter(Boolean))];return '<div class="report-line weekly-listening-row"><b>'+safe(x.st.full_name)+'</b>'+bySubject.map(v=>'<span>'+v+'</span>').join('')+'<strong>'+(x.listeningAverage===null?'—':fmt(x.listeningAverage)+'/10')+'</strong><span>'+safe(notes.join(' · ')||'—')+'</span></div>'}).join('');
- const listeningSubjectRows=saturdayRatingSubjects.map(sub=>{const vals=students.flatMap(x=>x.ratings.filter(r=>r.subject===sub).map(r=>Number(r.score)).filter(Number.isFinite));return '<div class="report-line weekly-listening-summary"><b>'+safe(sub)+'</b><span>'+vals.length+' puan</span><strong>'+(vals.length?fmt(vals.reduce((a,b)=>a+b,0)/vals.length)+'/10':'—')+'</strong></div>'}).join('');
- const bookRows=students.flatMap(x=>x.books.map(b=>({student:x.st.full_name,title:b.title,progress:b.progress,status:b.status,date:b.recorded_on||b.created_at}))).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>{const raw=String(x.date||'').slice(0,10),parts=raw.split('-'),dateLabel=parts.length===3?parts[2]+'.'+parts[1]+'.'+parts[0]:(raw||'—');return '<div class="report-line weekly-book-row"><b>'+safe(x.student)+'</b><span>'+safe(dateLabel)+'</span><span>'+safe(x.title||'Kitap / metin belirtilmedi')+'</span><span>'+safe(x.progress??'—')+'</span><strong>'+safe(x.status||'—')+'</strong></div>'}).join('');
- const attendanceRows=students.flatMap(x=>x.attendance.map(a=>({student:x.st.full_name,date:a.attendance_date,status:a.status,note:a.note}))).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).map(x=>'<div class="report-line weekly-attendance-row"><b>'+safe(x.student)+'</b><span>'+safe(x.date||'—')+'</span><strong>'+safe(x.status||'—')+'</strong><span>'+safe(x.note||'—')+'</span></div>').join('');
- const metric=(label,value,detail='')=>'<div class="report-metric"><small>'+label+'</small><b>'+value+'</b>'+(detail?'<span class="weekly-metric-detail">'+detail+'</span>':'')+'</div>';
- const section=(title,content)=>'<section class="report-section"><h3>'+title+'</h3>'+content+'</section>';
- const dateLabel=d=>{const v=String(d||'').split('-');return v.length===3?v[2]+'.'+v[1]+'.'+v[0]:d};
- const noData='<p class="report-empty">Seçilen rapor döneminde kayıt bulunmuyor.</p>';
- const top=ranked[0];
- const overview='<div class="report-overview weekly-overview">'+metric('GRUP MEVCUDU',students.length)+metric('VERİ GİRİŞİ TAMAMLANAN',active.length,pct(active.length,students.length)+'% kayıt kapsamı')+metric('TEST ETÜDÜ KAYDI',totalWork)+metric('ETÜT TOPLAM NETİ',fmt(totalNet))+metric('DENEME SONUCU',totalExams)+metric('DENEME BAŞINA ORT. NET',totalExams?fmt(avgNet):'—')+metric('KİTAP OKUMA KAYDI',totalBooks)+metric('DEVAMSIZLIK / GEÇ KALMA',absent+late,'Geç kalma: '+late)+'</div>';
- const html='<div class="report-head weekly-report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">HAFTALIK AKADEMİK İZLEME RAPORU</div><h2>Haftalık Grup Akademik Değerlendirme Raporu</h2><p>Rapor dönemi: '+dateLabel(from)+' – '+dateLabel(to)+' · Hazırlanma tarihi: '+new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date())+'</p></div>'+
+ const work=cache.work.filter(x=>inRange(x.recorded_on)&&hasStudyData(x)&&isReportableEtutRecord(x));
+ const exams=cache.exams.filter(x=>inRange(x.exam_date||x.created_at));
+ const books=cache.books.filter(x=>inRange(x.recorded_on||x.created_at));
+ const attendance=cache.attendance.filter(x=>inRange(x.attendance_date));
+ const ratings=(cache.saturdayRatings||[]).filter(x=>inRange(x.lesson_date));
+ const error=validateReportData(work,exams);if(error){alert('Genel kurum raporu oluşturulamadı: '+error);return}
+ const fmt=n=>Number(n||0).toFixed(2).replace('.',',');
+ const date=d=>{const p=String(d||'').slice(0,10).split('-');return p.length===3?p[2]+'.'+p[1]+'.'+p[0]:(d||'—')};
+ const c=work.reduce((n,x)=>n+Number(x.correct||0),0),w=work.reduce((n,x)=>n+Number(x.wrong||0),0),blank=work.reduce((n,x)=>n+Number(x.blank||0),0);
+ const workNet=work.reduce((n,x)=>n+Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3)),0);
+ const examNet=exams.reduce((n,x)=>n+Number(x.total_net??x.net??examSubjects.reduce((a,k)=>a+Number(x[k.key+'_net']??Number(x[k.key+'_correct']||0)-Number(x[k.key+'_wrong']||0)/3),0)),0);
+ const avgExam=exams.length?examNet/exams.length:0;
+ const absent=attendance.filter(x=>['Tam gün devamsız','Yarım gün devamsız'].includes(x.status)).length;
+ const late=attendance.filter(x=>x.status==='Geç geldi').length;
+ const scores=ratings.map(x=>Number(x.score)).filter(Number.isFinite);
+ const listening=scores.length?scores.reduce((a,b)=>a+b,0)/scores.length:null;
+ const active=new Set([...work,...exams,...books,...attendance,...ratings].map(x=>x.student_id).filter(Boolean)).size;
+ const metric=(a,b)=>'<div class="report-metric"><small>'+a+'</small><b>'+b+'</b></div>';
+ const section=(a,b)=>'<section class="report-section"><h3>'+a+'</h3>'+b+'</section>';
+ const row=(a,b,c)=>'<div class="report-line"><b>'+safe(a)+'</b><span>'+safe(b)+'</span><strong>'+safe(c)+'</strong></div>';
+ const empty='<p class="report-empty">Seçilen dönemde kayıt bulunmuyor.</p>';
+ const workMap={};work.forEach(x=>{const k=[x.recorded_on,x.session_label,x.subject].join('|');if(!workMap[k])workMap[k]={d:x.recorded_on,s:x.session_label||'Etüt',sub:x.subject||'Ders',n:0,c:0,w:0,b:0,net:0};const z=workMap[k];z.n++;z.c+=Number(x.correct||0);z.w+=Number(x.wrong||0);z.b+=Number(x.blank||0);z.net+=Number(x.net??(Number(x.correct||0)-Number(x.wrong||0)/3));});
+ const workRows=Object.values(workMap).sort((a,b)=>String(a.d).localeCompare(String(b.d))).map(x=>'<div class="report-line"><b>'+date(x.d)+'</b><span>'+safe(x.s)+' · '+safe(x.sub)+' · '+x.n+' kayıt</span><strong>'+x.c+' D · '+x.w+' Y · '+x.b+' B · '+fmt(x.net)+' net</strong></div>').join('');
+ const examMap={};exams.forEach(x=>{const name=x.exam_name||x.name||'Deneme',d=x.exam_date||String(x.created_at||'').slice(0,10),k=d+'|'+name,n=Number(x.total_net??x.net??examSubjects.reduce((a,z)=>a+Number(x[z.key+'_net']??Number(x[z.key+'_correct']||0)-Number(x[z.key+'_wrong']||0)/3),0));if(!examMap[k])examMap[k]={name,d,n:0,count:0};examMap[k].n+=n;examMap[k].count++;});
+ const examRows=Object.values(examMap).map(x=>row(x.name,date(x.d)+' · '+x.count+' kayıt',fmt(x.n/x.count)+' net ort.')).join('');
+ const bookMap={};books.forEach(x=>{const name=x.title||'Kitap / metin belirtilmedi';if(!bookMap[name])bookMap[name]={n:0,pages:0,done:0};bookMap[name].n++;bookMap[name].pages+=Number(x.progress||0);if(String(x.status||'').toLocaleLowerCase('tr-TR').includes('tamam'))bookMap[name].done++;});
+ const bookRows=Object.entries(bookMap).map(([name,x])=>row(name,x.n+' okuma kaydı · '+x.done+' tamamlandı',x.pages+' sayfa')).join('');
+ const attMap={};attendance.forEach(x=>{const k=x.status||'Durum belirtilmedi';attMap[k]=(attMap[k]||0)+1;});
+ const attRows=Object.entries(attMap).map(([k,v])=>row(k,'Toplam kayıt',v)).join('');
+ const listeningRows=saturdayRatingSubjects.map(sub=>{const v=ratings.filter(x=>x.subject===sub).map(x=>Number(x.score)).filter(Number.isFinite);return row(sub,v.length+' değerlendirme',v.length?fmt(v.reduce((a,b)=>a+b,0)/v.length)+'/10':'—')}).join('');
+ const overview='<div class="report-overview weekly-overview">'+metric('KURUM MEVCUDU',cache.students.length+' öğrenci')+metric('VERİ GİRİŞİ BULUNAN',active+' öğrenci')+metric('TEST ETÜDÜ KAYDI',work.length)+metric('ETÜT TOPLAM NETİ',fmt(workNet))+metric('DENEME KAYDI',exams.length)+metric('DENEME ORTALAMASI',exams.length?fmt(avgExam)+' net':'—')+metric('KİTAP OKUMA KAYDI',books.length)+metric('DEVAMSIZLIK / GEÇ KALMA',absent+' / '+late)+'</div>';
+ const html='<div class="report-head weekly-report-head"><div class="report-brand">DEĞİRMENLİKIZIK PROJE <small>EĞİTİM VE GELİŞİM TAKİP SİSTEMİ</small></div><div class="report-tag">GENEL KURUM DEĞERLENDİRME RAPORU</div><h2>Genel Kurum Akademik ve Çalışma Raporu</h2><p>Rapor dönemi: '+date(from)+' – '+date(to)+' · Hazırlanma tarihi: '+new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date())+'</p></div>'+
  overview+
- section('01 · GENEL DURUM VE YÖNETİCİ ÖZETİ','<div class="weekly-executive-grid"><div><span>TEST ETÜDÜ ÇALIŞMALARI</span><b>'+totalCorrect+' doğru · '+totalWrong+' yanlış · '+totalBlank+' boş</b><small>'+fmt(totalNet)+' toplam net · '+totalWork+' kayıt</small></div><div><span>DENEME SINAVI PERFORMANSI</span><b>'+totalExams+' deneme sonucu</b><small>'+(totalExams?fmt(avgNet)+' net ortalaması':'Bu dönemde deneme kaydı yok')+'</small></div><div><span>KİTAP OKUMA TAKİBİ</span><b>'+totalBooks+' kitap okuma kaydı</b><small>'+(students.filter(x=>x.books.length).length)+' öğrenci okuma kaydı girdi</small></div><div><span>DEVAM VE ZAMANINDA KATILIM</span><b>'+absent+' devamsızlık · '+late+' geç kalma</b><small>'+totalAttendance+' toplam devam kaydı</small></div></div><p class="report-note">'+(top?'Etüt neti kaydı bulunan öğrenciler arasında en yüksek toplam net: <b>'+safe(top.st.full_name)+'</b> · '+fmt(top.net)+' net.':'Bu dönemde etüt performans kaydı bulunmuyor.')+' Bu rapor yalnızca seçilen tarih aralığında sisteme kaydedilmiş verileri kapsar. Kayıt bulunmayan alanlar performans değerlendirmesine dahil edilmemiştir.</p>')+
- section('02 · ÖĞRENCİ GELİŞİM TABLOSU','<div class="report-table-head weekly-student-head"><span>ÖĞRENCİ</span><span>SINIF</span><span>ETÜT KAYDI</span><span>DOĞRU / YANLIŞ</span><span>ETÜT NETİ</span><span>DENEME</span><span>OKUMA</span><span>DİNLEME ORT.</span></div>'+(studentRows||noData)+'<p class="report-note">Net hesabı doğru − yanlış / 3 formülüne göre yapılır. Veri girişi bulunmayan öğrenciler de takip tablosunda gösterilir.</p>')+
- section('03 · HAFTA İÇİ ETÜT ÇALIŞMALARI','<div class="report-table-head weekly-work-detail-head"><span>ÖĞRENCİ</span><span>TARİH</span><span>ETÜT / ÇALIŞMA</span><span>DERS</span><span>D · Y · B</span><span>NET</span></div>'+(workDetailRows||noData)+'<p class="report-note">Listede seçilen dönemde kaydedilmiş tüm test etütleri yer alır. Net hesabı doğru − yanlış / 3 formülüne göre yapılır. Toplam '+totalWork+' etüt kaydı.</p>')+
- section('04 · DENEME SINAVI SONUÇLARI','<div class="weekly-insight-grid"><div><span>TOPLAM DENEME</span><b>'+totalExams+'</b></div><div><span>TOPLAM NET</span><b>'+fmt(totalExamNet)+'</b></div><div><span>DENEME BAŞINA ORTALAMA</span><b>'+(totalExams?fmt(avgNet):'—')+'</b></div></div><div class="report-table-head weekly-exam-detail-head"><span>ÖĞRENCİ</span><span>TARİH</span><span>DENEME ADI</span><span>TOPLAM NET</span></div>'+(examDetailRows||noData)+'<p class="report-note">Her deneme kaydı öğrenci adı, tarih ve toplam netiyle listelenmiştir.</p>')+
- section('05 · OKUMA ALIŞKANLIĞI VE KİTAP TAKİBİ','<div class="report-table-head weekly-book-head"><span>ÖĞRENCİ</span><span>OKUMA TARİHİ</span><span>KİTAP / METİN</span><span>SAYFA BİLGİSİ</span><span>OKUMA DURUMU</span></div>'+(bookRows||noData))+
- section('06 · CUMARTESİ DERS DİNLEME VE KATILIM','<div class="weekly-insight-grid"><div><span>PUANLANAN DERS</span><b>'+listeningScores.length+'</b></div><div><span>GRUP DİNLEME ORTALAMASI</span><b>'+(listeningScores.length?fmt(listeningAverage)+'/10':'—')+'</b></div><div><span>PUAN GİRİLEN ÖĞRENCİ</span><b>'+students.filter(x=>x.ratings.length).length+' / '+students.length+'</b></div></div><div class="report-table-head weekly-listening-head"><span>ÖĞRENCİ</span>'+saturdayRatingSubjects.map(sub=>'<span>'+safe(sub)+'</span>').join('')+'<span>ÖĞRENCİ ORT.</span><span>ÖĞRETMEN NOTU</span></div>'+(listeningRows||noData)+'<div class="report-table-head weekly-listening-summary-head"><span>DERS ORTALAMASI</span><span>PUAN SAYISI</span><span>GRUP ORT.</span></div>'+(listeningSubjectRows||noData)+'<p class="report-note">Cumartesi ders dinleme puanları 0–10 aralığındaki öğretmen değerlendirmelerinden hesaplanır. Boş bırakılan dersler ortalamaya dahil edilmez. Tarih aralığına giren cumartesi kayıtları raporlanır.</p>')+
- section('07 · DEVAM DURUMU VE DEVAM TAKİBİ','<div class="report-table-head weekly-attendance-head"><span>ÖĞRENCİ</span><span>KAYIT TARİHİ</span><span>DEVAM DURUMU</span><span>AÇIKLAMA</span></div>'+(attendanceRows||noData)+'<p class="report-note">Devamsızlık toplamı tam gün ve yarım gün devamsızlık kayıtlarını; geç kalma sayısı ise “Geç geldi” kayıtlarını kapsar.</p>')+
- '<div class="report-footer"><p>Her öğrencinin gelişimi; düzenli takip, emek ve iş birliğiyle güçlenir.</p><div><span>Öğretmen</span><span>Yönetim</span></div><small>Değirmenlikızık Proje · Haftalık grup gelişim raporu</small></div>';
- $('reportout').innerHTML='<div class="report-actions"><span>Grup raporu · '+active.length+' / '+students.length+' öğrencide veri girişi</span><button type="button" onclick="printParentReport()">Grup Raporunu Yazdır / PDF Olarak Kaydet</button></div><div id="parentReport">'+html+'</div>';
- const groupPrintButton=$('reportout').querySelector('.report-actions button');
- if(groupPrintButton){groupPrintButton.removeAttribute('onclick');groupPrintButton.addEventListener('click',function(){try{printParentReport()}catch(error){console.error('Grup raporu yazdırma hatası:',error);alert('PDF işlemi başlatılamadı: '+(error&&error.message?error.message:'Bilinmeyen hata'))}})}
+ section('01 · GENEL DURUM','<div class="weekly-executive-grid"><div><span>TEST ETÜDÜ ÇALIŞMALARI</span><b>'+work.length+' etüt kaydı</b><small>'+c+' doğru · '+w+' yanlış · '+blank+' boş · '+fmt(workNet)+' net</small></div><div><span>DENEME SINAVI PERFORMANSI</span><b>'+exams.length+' deneme sonucu</b><small>'+(exams.length?fmt(avgExam)+' ortalama net':'Kayıt bulunmuyor')+'</small></div><div><span>KİTAP OKUMA TAKİBİ</span><b>'+books.length+' okuma kaydı</b><small>'+Object.keys(bookMap).length+' farklı kitap / metin</small></div><div><span>DEVAM DURUMU</span><b>'+absent+' devamsızlık · '+late+' geç kalma</b><small>'+attendance.length+' toplam devam kaydı</small></div></div><p class="report-note">Tüm veriler kurum genelinde toplulaştırılmıştır. Bireysel öğrenci bilgileri, sıralamalar ve kişiye özel yorumlar gösterilmez.</p>')+
+ section('02 · HAFTA İÇİ TEST ETÜDÜ ÇALIŞMALARI','<div class="report-table-head"><span>TARİH</span><span>ETÜT / DERS / KAYIT</span><span>DOĞRU · YANLIŞ · BOŞ · NET</span></div>'+(workRows||empty)+'<p class="report-note">Seçilen dönemde kaydedilmiş tüm test etütleri toplu gösterilir. Serbest test etütleri dahildir. Net hesabı doğru − yanlış / 3 formülüne göre yapılır.</p>')+
+ section('03 · DENEME SINAVI SONUÇLARI','<div class="weekly-insight-grid"><div><span>TOPLAM DENEME</span><b>'+exams.length+'</b></div><div><span>TOPLAM NET</span><b>'+fmt(examNet)+'</b></div><div><span>DENEME ORTALAMASI</span><b>'+(exams.length?fmt(avgExam):'—')+'</b></div></div><div class="report-table-head"><span>DENEME</span><span>TARİH / KAYIT SAYISI</span><span>ORTALAMA NET</span></div>'+(examRows||empty)+'<p class="report-note">Deneme sonuçları sınav adı ve tarihe göre birleştirilir; bireysel netler gösterilmez.</p>')+
+ section('04 · KİTAP OKUMA ÇALIŞMALARI','<div class="report-table-head"><span>KİTAP / METİN</span><span>OKUMA ÖZETİ</span><span>SAYFA TOPLAMI</span></div>'+(bookRows||empty)+'<p class="report-note">Okuma kayıtları kitap adına göre toplulaştırılır.</p>')+
+ section('05 · DERS DİNLEME PERFORMANSI','<div class="weekly-insight-grid"><div><span>TOPLAM PUANLAMA</span><b>'+scores.length+'</b></div><div><span>GENEL DİNLEME ORTALAMASI</span><b>'+(listening===null?'—':fmt(listening)+'/10')+'</b></div><div><span>DEĞERLENDİRİLEN DERS</span><b>'+saturdayRatingSubjects.length+'</b></div></div><div class="report-table-head"><span>DERS</span><span>DEĞERLENDİRME SAYISI</span><span>ORTALAMA</span></div>'+(listeningRows||empty)+'<p class="report-note">Öğretmen değerlendirmeleri ders bazında ortalama puanla gösterilir. Kişisel puan ve notlar yer almaz.</p>')+
+ section('06 · DEVAM VE KATILIM DURUMU','<div class="weekly-insight-grid"><div><span>DEVAMSIZLIK</span><b>'+absent+'</b></div><div><span>GEÇ KALMA</span><b>'+late+'</b></div><div><span>TOPLAM KAYIT</span><b>'+attendance.length+'</b></div></div><div class="report-table-head"><span>DURUM</span><span>AÇIKLAMA</span><span>KAYIT SAYISI</span></div>'+(attRows||empty)+'<p class="report-note">Devam kayıtları durum türüne göre sayılır; öğrenci adı ve kişisel açıklamalar gösterilmez.</p>')+
+ '<div class="report-footer"><p>Kurumun gelişimi; düzenli takip, ortak emek ve sürdürülebilir çalışmalarla güçlenir.</p><div><span>Öğretmen</span><span>Yönetim</span></div><small>Değirmenlikızık Proje · Genel kurum raporu</small></div>';
+ $('reportout').innerHTML='<div class="report-actions"><span>Genel kurum raporu · '+active+' / '+cache.students.length+' öğrencide veri girişi</span><button type="button" onclick="printParentReport()">Genel Raporu Yazdır / PDF Olarak Kaydet</button></div><div id="parentReport">'+html+'</div>';
+ const button=$('reportout').querySelector('.report-actions button');if(button){button.removeAttribute('onclick');button.addEventListener('click',function(){try{printParentReport()}catch(e){console.error(e);alert('PDF işlemi başlatılamadı: '+(e.message||'Bilinmeyen hata'))}})}
 }
 function makeReport(){
  const id=$('rs').value;if(!id){alert('Öğrenci seçin.');return}
