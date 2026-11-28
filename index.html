@@ -1761,6 +1761,17 @@ function printParentReport(){
 .report-summary-grid b{display:block;margin:5px 0;color:#1b3853;font-size:13px}
 .report-summary-grid small{color:#657487;font-size:8px}
 `;
+ if(content.querySelector('.weekly-report-head'))styles+=`
+@page{size:A4 landscape;margin:8mm}
+.weekly-overview{grid-template-columns:repeat(4,minmax(0,1fr))}
+.weekly-student-head,.weekly-student-row{grid-template-columns:1.4fr .48fr .48fr .95fr .62fr .42fr .42fr .62fr}
+.weekly-listening-head,.weekly-listening-row{grid-template-columns:1.12fr repeat(5,minmax(.48fr,.6fr)) .68fr 1.28fr}
+.weekly-listening-summary-head,.weekly-listening-summary{grid-template-columns:1fr .6fr .7fr}
+.weekly-listening-row,.weekly-listening-summary{font-size:8.5px}
+.weekly-listening-head span{overflow-wrap:anywhere}
+.report-section{break-inside:auto;page-break-inside:auto}
+.report-section h3,.report-table-head{break-after:avoid;page-break-after:avoid}
+`;
  launchReportPrint('Öğrenci Gelişim Raporu',styles,content.innerHTML);
 }
 
