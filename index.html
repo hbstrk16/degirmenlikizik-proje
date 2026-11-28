@@ -1772,7 +1772,7 @@ function printParentReport(){
 .report-section{break-inside:auto;page-break-inside:auto}
 .report-section h3,.report-table-head{break-after:avoid;page-break-after:avoid}
 `;
- launchReportPrint('Öğrenci Gelişim Raporu',styles,content.innerHTML);
+ launchReportPrint(content.querySelector('.weekly-report-head')?'Haftalık Grup Akademik Değerlendirme Raporu':'Bireysel Akademik Gelişim Raporu',styles,content.innerHTML);
 }
 
 function openStudentDetail(id){
