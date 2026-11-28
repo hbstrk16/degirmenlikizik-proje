@@ -1700,6 +1700,7 @@ function makeWeeklyGroupReport(){
  const scores=ratings.map(x=>Number(x.score)).filter(Number.isFinite);
  const listening=scores.length?scores.reduce((a,b)=>a+b,0)/scores.length:null;
  const active=new Set([...work,...exams,...books,...attendance,...ratings].map(x=>x.student_id).filter(Boolean)).size;
+ const active=new Set([...work,...exams,...books,...attendance,...ratings].map(x=>x.student_id).filter(Boolean)).size;
  const metric=(a,b)=>'<div class="report-metric"><small>'+a+'</small><b>'+b+'</b></div>';
  const section=(a,b)=>'<section class="report-section"><h3>'+a+'</h3>'+b+'</section>';
  const row=(a,b,c)=>'<div class="report-line"><b>'+safe(a)+'</b><span>'+safe(b)+'</span><strong>'+safe(c)+'</strong></div>';
@@ -1836,7 +1837,7 @@ function printParentReport(){
 .report-section{break-inside:auto;page-break-inside:auto}
 .report-section h3,.report-table-head{break-after:avoid;page-break-after:avoid}
 `;
- launchReportPrint(content.querySelector('.weekly-report-head')?'Haftalık Grup Akademik Değerlendirme Raporu':'Bireysel Akademik Gelişim Raporu',styles,content.innerHTML);
+ launchReportPrint(content.querySelector('.weekly-report-head')?'Genel Kurum Akademik ve Çalışma Raporu':'Bireysel Akademik Gelişim Raporu',styles,content.innerHTML);
 }
 
 function openStudentDetail(id){
